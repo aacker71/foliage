@@ -1,0 +1,236 @@
+# ---------------------------------------------------------------------------
+# Dependencies & build output
+# ---------------------------------------------------------------------------
+node_modules/
+dist/
+build/
+out/
+.next/
+.vercel/
+*.tsbuildinfo
+.turbo/
+coverage/
+
+# ---------------------------------------------------------------------------
+# SECRETS — every .env is ignored by DEFAULT, with no exceptions.
+#
+# This is a lesson, not boilerplate: in the previous repo `.env.dev` and
+# `apps/app/.env.migration-release` were both TRACKED. A negated allow-list
+# (`!.env.example`) is how that happens — one wrong pattern and a real secret
+# is committed forever. So: no negations here. If you need an example file,
+# name it `env.example` (no leading dot) so it cannot match these patterns.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+*.env
+.envrc
+.npmrc
+.infisical.json
+
+# Keys and certificates
+*.pem
+*.key
+*.p12
+*.p8
+*.mobileprovision
+*.der
+*.asc
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# ---------------------------------------------------------------------------
+# Agent tooling. Anthropic Agent Skills must never be committed — their licence
+# forbids retaining copies outside Anthropic's Services. Scoped to the agent
+# install directories rather than a bare `skills/`, which would also match
+# product assets.
+# ---------------------------------------------------------------------------
+.claude/skills/*
+.claude/worktrees/
+# Skills AUTHORED IN THIS REPO are not Anthropic's and are un-ignored one by one,
+# so the blanket above keeps catching anything installed rather than written here.
+!.claude/skills/ship/
+!.claude/skills/ship/**
+.agent/skills/
+.agents/skills/
+.cursor/skills/
+.windsurf/skills/
+.opencode/skills/
+
+# Derived artefacts — rebuildable from the tree, so never committed.
+graphify-out/
+
+# ---------------------------------------------------------------------------
+# Personal / user data. Never in the repo.
+# ---------------------------------------------------------------------------
+# A self-hoster's own leaf document — a real person's portfolio and the evidence behind it.
+# `leaf.json` is the default path apps/leaf reads, so it WILL exist on a working install;
+# ignoring it by NAME, at any depth, is what keeps it from being committed by accident. The
+# bundled illustration lives at apps/leaf/example/leaf.example.json instead, declares itself an
+# example, and is loaded only when FOLIAGE_LEAF names it.
+
+# ONE ANCHORED PATH PER PRODUCER WAS NOT ENOUGH, which is why the names below are unanchored.
+# Both producers in this repo write real personal data to caller-chosen locations:
+#   - `intake.mjs --out <path>` writes a leaf document ANYWHERE the operator names;
+#   - `FOLIAGE_TREE=<path>` points the canopy at a tree manifest ANYWHERE, and that manifest
+#     names further leaf documents resolved relative to itself.
+# So the default path was covered and every other real artifact was not. A leaf document holds
+# a real person's name, their email identity and up to hundreds of verbatim commit titles; a
+# tree manifest holds an organization's roster. Neither may ever be committed.
+#
+# No ignore file can cover a path chosen at run time, so the defence is that every NAME these
+# tools write is ignored EVERYWHERE — both the dotted convention the docs teach and the bare
+# default the tools actually write — so the documented way of writing one is safe by default
+# wherever it is written.
+#
+# IT USED TO BE TWO LAYERS AND THE SECOND ONE HAD A HOLE. The default locations were anchored
+# (`/apps/leaf/leaf.json`, `/tree.json`, and four more) while only the DOTTED forms were ignored
+# everywhere, so the same document one directory over from its default was committable — measured
+# 2026-09-04: `apps/canopy/deploy/tree.json` NOT IGNORED, found while preparing a deployment whose
+# plan puts a real roster at exactly that path. Unanchoring the bare names closes the hole and
+# makes those six anchors dead letters, so they are DELETED rather than left to read as though
+# they were still carrying something. `gitignoreDefence.test.mjs` asserts the outcome directly. Verified with
+# `git check-ignore -v`; `apps/leaf/example/leaf.example.json` does NOT end in `.leaf.json`
+# and is deliberately still tracked.
+*.leaf.json
+*.tree.json
+# A harvest document holds verbatim commit subjects clustered out of a REAL repository's
+# history — same class of personal data as a leaf document, and covered the same way: BOTH the
+# naming convention and the bare default name `harvest.mjs` writes are ignored everywhere, so
+# the documented way of writing one is safe wherever it is written.
+*.harvest.json
+# A publish policy document. Less obviously personal than a leaf and ignored for the same reason:
+# a rule compiled by example carries the fact it was compiled from — a commit sha, an evidence
+# source, an id prefix — plus the subject's own sentence saying why they refused it. Committed,
+# it would be a public list of exactly what somebody decided not to publish, which is worse than
+# the work itself. Covered the same way as the rest: both the naming convention and the bare
+# default name are ignored everywhere, so writing one anywhere is safe by default.
+*.policy.json
+# THE BARE DEFAULT NAMES, UNANCHORED — what the deleted anchors used to half-cover.
+#
+# The two-layer defence this block USED TO state — "the DEFAULT locations are anchored above and
+# below, and these NAMING CONVENTIONS are ignored everywhere so the documented way of writing one
+# is safe by default" — is quoted here in the past tense because the sentence is gone from the top
+# of the block: it described the anchors this change deletes. The conventions ignored everywhere
+# were only the DOTTED forms
+# (`*.tree.json`, `*.leaf.json`, `*.harvest.json`, `*.policy.json`). The bare names ARE the
+# documented way — they are literally what the tools write by default — and they were anchored to
+# their default locations alone, so the same file one directory over was committable.
+#
+# MEASURED 2026-09-04 with `git check-ignore -v`: `apps/canopy/deploy/tree.json` NOT IGNORED,
+# `some/where/leaf.json` NOT IGNORED, `tools/x/harvest.json` NOT IGNORED, `a/b/policy.json` NOT
+# IGNORED — while `apps/canopy/deploy/foliage.tree.json` was caught by `*.tree.json`. Found while
+# preparing a Vercel deployment, whose plan puts a real tree manifest at
+# `apps/canopy/deploy/tree.json`: the one filename in the one directory that escaped the defence,
+# made load-bearing by a spec. A roster is an organization's list of real people.
+#
+# Nothing in the tree carried any of these four names when this was written, so nothing was
+# untracked by adding them. `gitignoreDefence.test.mjs` is now the gate, because this block's own
+# claim to have been "verified with git check-ignore" had nothing holding it.
+tree.json
+leaf.json
+harvest.json
+policy.json
+
+# A SOURCES document is the fifth garden document, and it is not less sensitive for being small:
+# every entry carries an ABSOLUTE path into somebody's home directory and the email addresses they
+# commit under. It exists so an unattended harvest knows where to read, which means it is written
+# by a background agent on a machine nobody is watching — exactly the document most likely to be
+# committed by accident. Covered the same two-layered way as its four siblings: the bare name that
+# `apps/leaf/sources.mjs` actually writes, and the dotted convention anywhere else.
+sources.json
+*.sources.json
+scarlet-model.json
+# The precondition the block above states — nothing in the tree carried the name — does NOT hold
+# for this one: `tools/vault/sources.json` was already tracked (the vault's declared roots, read by
+# `tools/vault/build.mjs`, ~-relative by its own header so it names no home directory). The
+# carve-out is exactly that file; `gitignoreDefence.test.mjs` fails on any tracked file a rule shadows.
+!tools/vault/sources.json
+
+# Canopy device credentials. Both the default and the documented connection names stay ignored
+# wherever FOLIAGE_HOSTED_STATE puts them; inside a garden, `hosted/` below covers the rest.
+connection.json
+*.connection.json
+
+# EVERY OTHER FILE A GARDEN HOLDS. A garden is a directory (`~/.foliage`, or wherever `--garden`
+# or FOLIAGE_GARDEN puts it), and the tools write more into it than the documents above. Measured
+# on fa29203 with a garden at `nested/garden/` inside a checkout: the documents were ignored and
+# `workflow/workflow.json`, `published/*`, the media objects, the owner's email in
+# `allowed_signers`, and full copies of the leaf and harvest left by `migrate-queue --apply` were
+# all committable. `gitignoreDefence.test.mjs` lists each file with the code that writes it.
+#
+# The default garden, wherever a home directory or a copy of one lands.
+.foliage/
+# Directories a garden owns outright. Nothing tracked uses these names (the shadow test fails if
+# a tracked file ever does). A NEW source directory with one of them is ignored too — `git add`
+# says so — and needs a `!` carve-out like the one for `tools/vault/sources.json` above.
+workflow/
+published/
+hosted/
+# The media store also writes its own `*` .gitignore when it creates itself; this covers a store
+# copied without it. Scoped to the store's fan-out because `media/` alone is a common source name.
+**/media/sha256/
+# Files a garden keeps beside its documents.
+ladybug.json
+private-brain-receipts.jsonl
+allowed_signers
+app.log
+grow.log
+# Copies of garden documents: migrate-queue backups, half-written temps, and locks.
+*.before-adopt-*.json
+*.local-lock
+*.json.lock
+*.json.lock.owner.*
+*.tmp
+*.tmp-*
+# Not covered: `site/`, which `foliage export` writes by default. It holds only shared work, is
+# meant to be hosted, and `site` names tracked source here.
+
+
+# A harvest document is the airlock BEFORE review: machine-drafted prose about a real
+# person's real work plus verbatim commit evidence. More sensitive than a leaf if
+# anything, and covered the same two-layered way — the naming convention everywhere,
+# plus the app's default output path anchored.
+*.harvest.json
+/apps/photosynthesis/leaf.harvest.json
+/data/
+/output/
+/uploads/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Derived vault index — rebuilt by `pnpm vault:build`, and it points at machine-specific paths.
+tools/vault/.vault/
+.gbrain-source
+
+# Reproducible private React surface; pnpm --filter @foliage/leaf-app workflow:build
+apps/leaf/public/workflow.js
+apps/leaf/public/workflow.css
+
+/apps/canopy/public/workspace.js
+/apps/canopy/public/workspace.css
+
+# Local 3D explorer browser bundle
+/apps/leaf/public/compound-leaf.bundle.js
+
+# Local Supabase CLI connection/cache state is not application source.
+/supabase/.temp/
+
+# The local brain's runtime (unit 38): pinned gbrain and bun, staged by
+# tools/brain/stage-gbrain.mjs on a build machine. Third-party code, never committed.
+/vendor/
+/vendor.next/
+/vendor.old/
+
+# Release archives are build products (node tools/deploy/package-local.mjs --archive), not source.
+/apps/www/public/downloads/*.tgz

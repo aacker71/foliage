@@ -1,0 +1,5 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": { "allowJs": true, "checkJs": true },
+  "include": ["install/*.mjs", "development/*.mjs", "brain/*.mjs", "verify/managed.ts", "verify/serve-worker.ts", "verify/serve.mjs", "verify/surfaces.mjs", "verify/serving.mjs"]
+}

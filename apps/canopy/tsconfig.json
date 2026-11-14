@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "noEmit": true,
+    /* server.mjs is this app's entry point and now carries a dynamic route rather than only
+       serving files. It is typechecked from its JSDoc rather than left as an untypechecked
+       hole: an app whose entry point is exempt from the gate is an app with an unguarded
+       entry point. */
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": ["src/**/*.ts", "test-support/**/*.ts", "server.mjs", "manage-server.mjs", "import-source.mjs", "publish.mjs", "withdraw.mjs"]
+}

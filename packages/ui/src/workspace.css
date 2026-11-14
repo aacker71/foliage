@@ -1,0 +1,115 @@
+/* Shared application chrome. Page styles own only their content composition. */
+.fol-app { margin:0; min-height:100svh; color:var(--fol-text); background:var(--fol-canvas); font:400 var(--fol-t-14)/1.6 var(--fol-font-sans); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+.fol-app * { box-sizing:border-box; }
+.fol-app [hidden] { display:none!important; }
+.fol-app a { color:inherit; text-decoration:none; }
+.fol-app :is(a,button,input,textarea,select,summary,[tabindex]):focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+:is([data-face=day],.face-day) :is(a,button,input,textarea,select,summary,[tabindex]):focus-visible { outline-color:var(--fol-text); }
+.fol-app ::selection { background:var(--fol-text-muted); color:var(--fol-canvas); }
+.fol-app { scrollbar-color:var(--fol-text-faint) var(--fol-canvas); }
+.fol-app input,.fol-app textarea { caret-color:var(--fol-text); }
+.fol-app input[type=checkbox],.fol-app input[type=radio] { accent-color:var(--fol-text); }
+.fol-workspace { color:var(--fol-text); font:400 var(--fol-t-14)/1.4 var(--fol-font-sans); box-sizing:border-box; }
+.fol-workspace-brand { min-height:44px; letter-spacing:-.02em; display:flex; align-items:center; color:var(--fol-text); text-decoration:none; }
+.fol-workspace-mark { display:inline-block; background:currentColor; mask:url('/mark-icon.svg') center/contain no-repeat; flex:none; }
+.fol-workspace-section { padding-inline:var(--fol-s-3); color:var(--fol-text-muted); font-size:var(--fol-t-13); }
+.fol-workspace-nav>a,.fol-workspace-tools nav>a,.fol-workspace-action { display:flex; align-items:center; color:var(--fol-text-muted); text-decoration:none; }
+.fol-workspace-nav>a:hover,.fol-workspace-tools nav>a:hover { background:var(--fol-surface-raised); color:var(--fol-text); }
+.fol-workspace-tools>summary:hover { background:var(--fol-surface-raised); color:var(--fol-text); }
+.fol-workspace-tools { position:relative; }
+.fol-workspace-tools>summary { gap:var(--fol-s-2); display:flex; align-items:center; padding:var(--fol-s-3); min-height:var(--fol-role-height-control); color:var(--fol-text-muted); cursor:pointer; list-style:none; }
+.fol-workspace-tools>summary::-webkit-details-marker { display:none; }
+.fol-workspace-tools>summary::after { content:''; width:6px; height:6px; border-right:1px solid currentColor; border-bottom:1px solid currentColor; transform:rotate(45deg); }
+.fol-workspace-tools[open]>summary::after { transform:rotate(225deg); }
+.fol-workspace-tools nav>a { min-height:var(--fol-role-height-control); padding:var(--fol-s-3); }
+.fol-workspace-action { color:var(--fol-text); white-space:nowrap; min-height:var(--fol-role-height-control); padding:var(--fol-s-3); }
+.fol-app .fol-app-main { min-width:0; min-height:100svh; }
+.fol-app .fol-app-footer { margin-left:var(--fol-role-width-navigation); padding:var(--fol-s-4) clamp(24px,4vw,64px); width:calc(100% - var(--fol-role-width-navigation)); font:400 var(--fol-t-13)/1.6 var(--fol-font-sans); letter-spacing:normal; text-transform:none; }
+.fol-actions { display:flex; flex-wrap:wrap; align-items:center; gap:var(--fol-s-3); }
+.fol-app-content { max-width:72rem; margin-inline:auto; }
+.fol-app h1 { font:500 var(--fol-t-25)/1.3 var(--fol-font-sans); letter-spacing:-.025em; }
+.fol-app .fol-workspace[data-layout=rail] { display:flex; flex-direction:column; align-items:stretch; gap:var(--fol-s-4); position:fixed; inset:0 auto 0 0; z-index:20; width:var(--fol-role-width-navigation); min-height:100svh; padding:var(--fol-s-4) var(--fol-s-3); background:var(--fol-surface); border:0; border-right:1px solid var(--fol-border); }
+.fol-app .fol-workspace-brand { padding:0 var(--fol-s-3); gap:var(--fol-s-2); margin-bottom:var(--fol-s-3); font:400 var(--fol-t-20)/1.1 var(--fol-font-display); }
+.fol-app .fol-workspace-mark { width:24px; height:32px; }
+.fol-app .fol-workspace-nav { display:grid; gap:var(--fol-s-1); }
+.fol-app .fol-workspace-nav>a { min-height:44px; padding:var(--fol-s-3); border:1px solid transparent; border-radius:var(--fol-role-radius-control); font-size:var(--fol-t-14); }
+.fol-app .fol-workspace-nav>a[aria-current] { background:var(--fol-surface-raised); border-color:transparent; color:var(--fol-text); font-weight:600; }
+.fol-app .fol-workspace-tools { margin:0; padding-top:var(--fol-s-3); border-top:1px solid var(--fol-border); }
+.fol-app .fol-workspace-tools[data-mobile-only] { display:none; }
+.fol-app .fol-workspace-tools>summary { width:100%; justify-content:space-between; border-radius:var(--fol-role-radius-control); }
+.fol-app .fol-workspace-tools>summary[aria-current] { background:var(--fol-surface-raised); color:var(--fol-text); font-weight:600; }
+.fol-app .fol-workspace-tools>nav { position:static; width:auto; max-height:none; padding:0; border:0; background:transparent; }
+.fol-app .fol-workspace-tools nav>a { border-radius:var(--fol-role-radius-control); font-size:var(--fol-t-13); }
+.fol-app .fol-workspace-tools nav>.fol-workspace-action-mobile { display:none; }
+.fol-app .fol-workspace-privacy { color:var(--fol-text-muted); margin:auto 0 0; padding:var(--fol-s-3); font-size:var(--fol-t-13); }
+.fol-app .fol-workspace-action { justify-content:space-between; border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-control); font-size:var(--fol-t-13); }
+.fol-app .fol-app-main { position:relative; width:calc(100% - var(--fol-role-width-navigation)); max-width:none; margin:0 0 0 var(--fol-role-width-navigation); padding:var(--fol-s-6) clamp(24px,4vw,64px) var(--fol-s-8); }
+/* The personal rail keeps the portfolio action reachable when More expands on
+   a short screen. Only the tools list scrolls; brand, primary routes and footer
+   stay in their established places. The tools row never shrinks below the More
+   trigger, or below the trigger and two tools once open; when even that does
+   not fit, the whole rail scrolls rather than clipping More or the footer. */
+.fol-app .fol-workspace[data-plane=studio][data-layout=rail] {
+ display:grid; grid-template-rows:auto auto minmax(auto,1fr) auto auto; overflow:hidden auto;
+}
+.fol-app .fol-workspace[data-plane=studio] .fol-workspace-tools {
+ min-height:calc(var(--fol-role-height-control) + var(--fol-s-3) + 1px); overflow-y:auto;
+}
+.fol-app .fol-workspace[data-plane=studio] .fol-workspace-tools[open] {
+ min-height:calc(3 * var(--fol-role-height-control) + var(--fol-s-3) + 1px);
+}
+.fol-app .fol-workspace[data-plane=studio] .fol-workspace-tools>summary {
+ position:sticky; top:0; z-index:1; background:var(--fol-surface);
+}
+.fol-app .fol-workspace[data-plane=studio] .fol-workspace-privacy { margin:0; }
+/* Short desktop screens tighten the rail's spacing, never its targets, so all
+   five primary routes, More and the footer still fit without scrolling. */
+@media(min-width:801px) and (max-height:720px) {
+ .fol-app .fol-workspace[data-plane=studio][data-layout=rail] { gap:var(--fol-s-3); }
+ .fol-app .fol-workspace[data-plane=studio] .fol-workspace-brand { margin-bottom:0; }
+}
+@media(max-width:800px) {
+ .fol-app .fol-workspace[data-layout=rail] { position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--fol-s-1); width:100%; min-height:0; padding:var(--fol-s-2) var(--fol-s-4); border-right:0; border-bottom:1px solid var(--fol-border); }
+ .fol-app .fol-workspace-brand { grid-column:1; grid-row:1; margin:0; padding:0; font-size:var(--fol-t-20); }
+ .fol-app .fol-workspace-action { display:none; }
+ .fol-app .fol-workspace-nav { display:flex; grid-column:1/-1; grid-row:2; gap:var(--fol-s-1); overflow:auto; min-width:0; }
+ .fol-app .fol-workspace-nav>a { padding:var(--fol-s-2); font-size:var(--fol-t-13); }
+ .fol-app .fol-workspace-nav>a[aria-current] { border-color:transparent; }
+ .fol-app .fol-workspace-tools { position:static; grid-column:2; grid-row:1; padding:0; border:0; }
+ .fol-app .fol-workspace-tools[data-mobile-only] { display:block; }
+ .fol-app .fol-workspace-tools>summary { justify-content:end; min-height:44px; padding:var(--fol-s-2); }
+ .fol-app .fol-workspace-tools>nav { position:absolute; left:auto; right:var(--fol-s-4); top:100%; z-index:1; width:15rem; max-width:calc(100vw - var(--fol-s-4) - var(--fol-s-4)); max-height:calc(100svh - 7rem); overflow-y:auto; border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-control); padding:var(--fol-s-2); background:var(--fol-surface-raised); }
+ .fol-app .fol-workspace-tools nav>.fol-workspace-action-mobile { display:flex; margin-top:var(--fol-s-1); border-top:1px solid var(--fol-border); border-radius:0; color:var(--fol-text); }
+ .fol-app .fol-workspace-privacy { display:none; }
+ .fol-app .fol-app-main { margin:0; padding:var(--fol-s-5) var(--fol-s-4) var(--fol-s-7); width:100%; }
+.fol-workspace-section { display:none; }
+.fol-app .fol-app-footer { margin:0; width:100%; padding:var(--fol-s-4); }
+ /* On phones More becomes a third in-flow row. Its trigger stays in the top
+    corner, while opening the list pushes the page down instead of covering
+    the primary tabs or the work below them. */
+ .fol-app .fol-workspace[data-plane=studio][data-layout=rail] {
+   grid-template-rows:auto auto auto; overflow:visible;
+ }
+ .fol-app .fol-workspace[data-plane=studio] .fol-workspace-tools {
+   display:block; grid-column:1/-1; grid-row:3; min-height:0; height:auto; overflow:visible;
+ }
+ .fol-app .fol-workspace[data-plane=studio] .fol-workspace-tools:not([open]) { height:0; }
+ .fol-app .fol-workspace[data-plane=studio] .fol-workspace-tools[open] { min-height:0; }
+ .fol-app .fol-workspace[data-plane=studio] .fol-workspace-tools>summary {
+   position:absolute; top:var(--fol-s-2); right:var(--fol-s-4);
+   width:auto; min-width:44px; justify-content:center;
+ }
+ .fol-app .fol-workspace[data-plane=studio] .fol-workspace-tools>nav {
+   position:static; width:100%; max-width:none; max-height:min(60svh,22rem);
+   overflow-y:auto; padding:var(--fol-s-2) 0 0;
+   border:0; border-top:1px solid var(--fol-border); border-radius:0;
+   background:transparent;
+ }
+}
+/* Narrow phones: the five personal tabs share one row evenly instead of
+   scrolling the last one out of view; padding tightens, targets keep 44px. */
+@media(max-width:374px) {
+ .fol-app .fol-workspace[data-plane=studio] .fol-workspace-nav { gap:0; }
+ .fol-app .fol-workspace[data-plane=studio] .fol-workspace-nav>a { flex:1 1 auto; justify-content:center; padding-inline:var(--fol-s-1); }
+}
+@media print { .fol-app .fol-workspace { display:none; }.fol-app .fol-app-main { margin:0; width:100%; padding:0; min-height:0; } }

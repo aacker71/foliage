@@ -1,0 +1,101 @@
+/* Foliage controls. Radix owns interaction behavior; token roles own the appearance.
+   Shared by browser components and the progressively enhanced native workspace. */
+/* .btn is the older token control. Keep it out of this fallback so loading the
+   shared React layer cannot silently restyle a native document's primary act. */
+.fol-button,:is(.work-page,.fol-app) :where(button:not(.fol-button):not(.btn):not(.fol-toggle-item):not(.fol-select-trigger):not(.fol-checkbox)) {
+ display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+ gap:var(--fol-role-gap-inline); min-height:var(--fol-role-height-control);
+ padding:var(--fol-s-2) var(--fol-s-4); border:1px solid var(--fol-role-edge-control);
+ border-radius:var(--fol-role-radius-control); background:var(--fol-surface); color:var(--fol-text);
+ font:500 var(--fol-t-14)/1.4 var(--fol-font-sans); text-transform:none; letter-spacing:normal;
+ text-decoration:none; white-space:normal; cursor:pointer;
+ transition:background-color var(--fol-dur-1) var(--fol-role-ease-out),border-color var(--fol-dur-1) var(--fol-role-ease-out);
+}
+.fol-button:hover,:is(.work-page,.fol-app) :where(button:not(.fol-button):not(.btn):not(.fol-toggle-item):not(.fol-select-trigger):not(.fol-checkbox)):hover { background:var(--fol-surface-raised); }
+.fol-button.fol-button-primary { background:var(--fol-role-action); color:var(--fol-role-action-fg); border-color:transparent; }
+.fol-button.fol-button-primary:hover { background:var(--fol-role-action-hover); }
+.fol-button.fol-button-primary:active { background:var(--fol-role-action-active); }
+.fol-button.fol-button-outline { background:var(--fol-surface); color:var(--fol-text); border-color:var(--fol-role-edge-control); }
+.fol-button.fol-button-outline:hover { background:var(--fol-surface-raised); border-color:var(--fol-role-edge-control); }
+.fol-button.fol-button-outline:active { background:var(--fol-surface-raised); border-color:var(--fol-role-edge-control); }
+.fol-button.fol-button-secondary { background:var(--fol-surface-raised); border-color:var(--fol-role-edge-control); }
+.fol-button.fol-button-secondary:active { background:var(--fol-surface); border-color:var(--fol-role-edge-control); }
+.fol-button.fol-button-ghost,.fol-button.fol-button-link { border-color:transparent; background:transparent; color:var(--fol-text); }
+.fol-button.fol-button-ghost:hover,.fol-button.fol-button-link:hover { color:var(--fol-text); background:var(--fol-surface-raised); }
+.fol-button.fol-button-ghost:active,.fol-button.fol-button-link:active { background:var(--fol-surface-raised); border-color:transparent; color:var(--fol-text); }
+.fol-button.fol-button-destructive { color:var(--fol-role-invalid); border-color:currentColor; background:transparent; }
+.fol-button.fol-button-destructive:active { background:var(--fol-surface-raised); border-color:currentColor; }
+.fol-button.fol-button-lg { min-height:var(--fol-s-7); padding-inline:var(--fol-s-5); }
+.fol-button.fol-button-sm,.fol-button.fol-button-xs { font-size:var(--fol-t-13); padding-inline:var(--fol-s-3); }
+.fol-button.fol-button-icon { width:var(--fol-role-height-control); padding:var(--fol-s-2); }
+.fol-button svg { width:1.125em; height:1.125em; flex:none; pointer-events:none; }
+.fol-button:disabled,:is(.work-page,.fol-app) button:disabled { color:var(--fol-text-muted); background:var(--fol-surface); border-color:var(--fol-border); cursor:not-allowed; }
+.fol-button:disabled:hover,:is(.work-page,.fol-app) button:disabled:hover { background:var(--fol-surface); }
+.fol-button:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+.fol-button[aria-invalid=true] { border-color:var(--fol-role-invalid); }
+
+.fol-tabs-list,.fol-toggle-group { display:flex; flex-wrap:wrap; align-items:center; gap:var(--fol-s-1); width:fit-content; padding:var(--fol-s-1); border:1px solid var(--fol-border); border-radius:var(--fol-role-radius-panel); background:var(--fol-surface); }
+.fol-tabs-trigger,.fol-toggle-item { display:inline-flex; justify-content:center; align-items:center; min-height:var(--fol-role-height-control); padding:var(--fol-s-2) var(--fol-s-3); border:1px solid transparent; border-radius:var(--fol-role-radius-control); color:var(--fol-text-muted); background:transparent; font:500 var(--fol-t-14)/1.4 var(--fol-font-sans); cursor:pointer; }
+.fol-tabs-trigger[data-state=active],.fol-toggle-item[data-state=on] { border-color:var(--fol-role-edge-control); color:var(--fol-text); background:var(--fol-surface-raised); }
+.fol-tabs-trigger:hover,.fol-toggle-item:hover { color:var(--fol-text); }
+.fol-tabset[data-orientation=vertical] { display:flex; gap:var(--fol-s-5); }
+.fol-tabs-list[data-orientation=vertical] { flex-direction:column; align-items:stretch; }
+.fol-tabs-trigger[data-orientation=vertical] { justify-content:flex-start; }
+.fol-tabs-content { min-width:0; flex:1; }
+.fol-input,.fol-textarea,:is(.work-page,.fol-app) :is(input:not(.field,[type=hidden],[type=checkbox],[type=radio]),select:not(.field),textarea:not(.field)) { box-sizing:border-box; width:100%; min-width:0; min-height:var(--fol-role-height-control); padding:var(--fol-role-pad-control); border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-control); background:var(--fol-canvas); color:var(--fol-text); font:400 var(--fol-t-16)/1.5 var(--fol-font-sans); }
+.fol-textarea { resize:vertical; }
+.fol-input::placeholder,.fol-textarea::placeholder,:is(.work-page,.fol-app) input:not(.field)::placeholder,:is(.work-page,.fol-app) textarea:not(.field)::placeholder { color:var(--fol-text-muted); }
+.fol-input[type=file],:is(.work-page,.fol-app) input[type=file] { padding:0 var(--fol-s-3) 0 0; overflow:hidden; line-height:var(--fol-role-height-control); }
+.fol-input[type=file]::file-selector-button,:is(.work-page,.fol-app) input[type=file]::file-selector-button { box-sizing:border-box; min-height:calc(var(--fol-role-height-control) - 2px); padding:0 var(--fol-s-3); margin-right:var(--fol-s-3); border:0; border-right:1px solid var(--fol-role-edge-control); border-radius:0; background:var(--fol-surface-raised); color:var(--fol-text); font:500 var(--fol-t-14)/1.4 var(--fol-font-sans); cursor:pointer; }
+.fol-input[type=file]:disabled::file-selector-button,:is(.work-page,.fol-app) input[type=file]:disabled::file-selector-button { cursor:not-allowed; }
+.fol-input[aria-invalid=true],.fol-textarea[aria-invalid=true] { border-color:var(--fol-role-invalid); }
+.fol-form-label { display:flex; align-items:center; gap:var(--fol-s-2); color:var(--fol-text); font:500 var(--fol-t-14)/1.5 var(--fol-font-sans); text-transform:none; letter-spacing:normal; }
+.fol-field { display:grid; gap:var(--fol-s-2); min-width:0; }
+.fol-input:disabled,.fol-textarea:disabled,.fol-tabs-trigger:disabled,.fol-toggle-item:disabled { color:var(--fol-text-muted); background:var(--fol-surface); cursor:not-allowed; }
+.fol-input:focus-visible,.fol-textarea:focus-visible,.fol-tabs-trigger:focus-visible,.fol-tabs-content:focus-visible,.fol-toggle-item:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+
+.fol-checkbox-row { display:flex; align-items:flex-start; gap:var(--fol-s-2); max-width:44rem; }
+.fol-checkbox { display:inline-flex; align-items:center; justify-content:center; flex:none; width:18px; height:18px; margin-top:2px; padding:0; border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-control); background:var(--fol-canvas); color:var(--fol-text); cursor:pointer; }
+.fol-checkbox:hover { background:var(--fol-surface-raised); }
+.fol-checkbox[data-state=checked],.fol-checkbox[data-state=indeterminate] { background:var(--fol-text); border-color:var(--fol-text); color:var(--fol-canvas); }
+.fol-checkbox-indicator { display:inline-flex; align-items:center; justify-content:center; }
+.fol-checkbox-indicator svg { width:14px; height:14px; }
+.fol-checkbox:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+.fol-checkbox:disabled { opacity:.5; cursor:not-allowed; }
+.fol-checkbox[aria-invalid=true] { border-color:var(--fol-role-invalid); }
+
+/* Results use a single quiet cell across native and React workspaces. */
+.fol-feedback-notice { box-sizing:border-box; display:grid; justify-items:start; gap:var(--fol-s-2); padding:var(--fol-s-4); border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-panel); background:var(--fol-surface); color:var(--fol-text); overflow-wrap:anywhere; }
+.fol-feedback-notice[data-tone=error] { border-color:var(--fol-role-invalid); }
+.fol-feedback-notice > :where(h2,h3,p,strong,span) { margin:0; }
+.fol-feedback-notice:focus { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+:is([data-face=day],.face-day) .fol-feedback-notice:focus { outline-color:var(--fol-text); }
+
+/* The trigger and portal menu share the field's token roles, including on narrow screens. */
+.fol-select-trigger { display:inline-flex; align-items:center; justify-content:space-between; gap:var(--fol-s-3); width:100%; min-width:0; min-height:var(--fol-role-height-control); padding:var(--fol-role-pad-control); border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-control); background:var(--fol-canvas); color:var(--fol-text); font:400 var(--fol-t-16)/1.5 var(--fol-font-sans); text-align:left; cursor:pointer; }
+.fol-select-trigger:hover,.fol-select-trigger[data-state=open] { background:var(--fol-surface-raised); }
+.fol-select-trigger:disabled { opacity:.5; cursor:not-allowed; }
+.fol-select-trigger:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+.fol-select-trigger[aria-invalid=true] { border-color:var(--fol-role-invalid); }
+.fol-select-icon { display:inline-flex; flex:none; color:var(--fol-text-muted); }
+.fol-select-icon svg { width:1em; height:1em; }
+.fol-select-content { z-index:50; box-sizing:border-box; min-width:var(--radix-select-trigger-width); max-width:calc(100vw - var(--fol-s-4)); max-height:var(--radix-select-content-available-height); overflow:hidden; border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-panel); background:var(--fol-surface-raised); color:var(--fol-text); }
+.fol-select-viewport { padding:var(--fol-s-1); }
+.fol-select-item { position:relative; display:flex; align-items:center; min-height:var(--fol-role-height-control); padding:var(--fol-s-2) var(--fol-s-5) var(--fol-s-2) var(--fol-s-3); border-radius:var(--fol-role-radius-control); color:var(--fol-text); font:400 var(--fol-t-16)/1.5 var(--fol-font-sans); cursor:pointer; outline:none; user-select:none; }
+.fol-select-item[data-highlighted] { background:var(--fol-canvas); outline:2px solid var(--fol-role-edge-control); outline-offset:-2px; }
+.fol-select-item[data-disabled] { opacity:.5; cursor:not-allowed; }
+.fol-select-indicator { position:absolute; right:var(--fol-s-2); color:var(--fol-text-muted); }
+.fol-select-indicator svg { display:block; width:1em; height:1em; }
+
+[data-face=day] .fol-button.fol-button-primary,.face-day .fol-button.fol-button-primary { color:var(--fol-ink); }
+:is([data-face=day],.face-day) :is(.fol-button,.fol-input,.fol-textarea,.fol-tabs-trigger,.fol-tabs-content,.fol-toggle-item,.fol-select-trigger,.fol-checkbox,.fol-alert-dialog-content):focus-visible { outline-color:var(--fol-text); }
+
+/* Radix supplies focus trapping, Escape and restoration; Foliage owns the sheet. */
+.fol-alert-dialog-overlay { position:fixed; inset:0; z-index:100; background:color-mix(in oklch,var(--fol-canvas) 78%,transparent); }
+.fol-alert-dialog-content { position:fixed; z-index:101; top:50%; left:50%; transform:translate(-50%,-50%); width:min(calc(100vw - 2 * var(--fol-s-4)),32rem); max-height:calc(100dvh - 2 * var(--fol-s-4)); overflow:auto; padding:var(--fol-role-pad-panel); border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-panel); background:var(--fol-surface); color:var(--fol-text); }
+.fol-alert-dialog-header { display:grid; gap:var(--fol-s-2); margin-bottom:var(--fol-s-5); }
+.fol-alert-dialog-title { margin:0; font:500 var(--fol-t-25)/1.2 var(--fol-font-sans); }
+.fol-alert-dialog-description { margin:0; color:var(--fol-text-muted); font:400 var(--fol-t-14)/1.5 var(--fol-font-sans); }
+.fol-alert-dialog-footer { display:flex; justify-content:flex-end; gap:var(--fol-s-2); margin-top:var(--fol-s-5); }
+.fol-alert-dialog-content:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+@media(max-width:640px){.fol-alert-dialog-content{width:calc(100vw - 2 * var(--fol-s-3));padding:var(--fol-s-4)}}

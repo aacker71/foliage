@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm run workspace:build && pnpm --filter @foliage/ui portfolio:build && node ../../tools/deploy/build-canopy-vercel.mjs",
+  "regions": [
+    "iad1"
+  ]
+}

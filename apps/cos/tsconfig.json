@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "rootDir": "src", "noEmit": true },
+  /* Every .ts under src/, not just this lane's file. An app whose sibling module is outside
+     the include is a module the gate never typechecks — and `pnpm -r --if-present typecheck`
+     would report green for a file it never opened. */
+  "include": ["src/**/*.ts"]
+}

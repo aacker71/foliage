@@ -1,0 +1,20 @@
+{
+  "name": "@foliage/cos-app",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "The local chief-of-staff: Tier 1 device-only encrypted store, the router that decides what may leave the machine, and the Tier 3 client. Open source, zero runtime dependencies.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@foliage/cos": "workspace:*",
+    "@foliage/leaf": "workspace:*"
+  },
+  "exports": {
+    "./localStore": "./src/localStore.ts",
+    "./localModel": "./src/localModel.ts",
+    "./memory": "./src/memory.ts"
+  }
+}

@@ -1,0 +1,7 @@
+# Enterprise empty-state pass · 5 October 2026
+
+An isolated Enterprise listener read a disposable empty Foliage company manifest, with no invented people or release decisions. The revised Org chart hides zero metric cards and shows “No organizations yet”; the file path, byte count and exact read time sit under Source details. Members and Releases use distinct honest empty states. Unconfigured routes show a setup step without pretending that the browser can write an operator-managed manifest. Actor roles are readable labels rather than raw enum values.
+
+At measured 1280 and 375 CSS-pixel viewports, the pages had no horizontal overflow or console errors. Keyboard Enter opened the setup disclosure; navigation and visible focus worked, and reduced-motion links had no transition. [Desktop](screenshots/2026-10-05-enterprise-empty-1280.jpg) · [Phone](screenshots/2026-10-05-enterprise-empty-375.jpg). The phone full-page capture repeats its sticky header in the screenshot tiling; the document contains one header.
+
+Enterprise typecheck and its focused HTTP shell tests passed. One HTTP case names a member Leaf file that is absent: the chart and Members page show the failed reference and a repair step, while empty Releases links to Members instead of suggesting another member be added. This checks file-backed empty and unavailable presentation only. Actual company setup, membership permissions, release decisions and member journeys remain open.

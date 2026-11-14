@@ -1,0 +1,168 @@
+/* Canonical Leaf composition from Open Design. All values that define Foliage
+   remain in @foliage/tokens; this stylesheet owns portfolio layout only. */
+[data-surface="leaf"] { --leaf-measure: 74rem; }
+[data-surface="leaf"] .leaf-main-nav { padding-top: var(--fol-s-5); }
+[data-published-state] { --pub-measure: 74rem; }
+.portfolio-actions, .portfolio-filters, .portfolio-paging {
+  display: flex; flex-wrap: wrap; gap: var(--fol-s-3); align-items: center;
+}
+.portfolio-actions { margin-top: var(--fol-s-4); }
+.portfolio-detail-nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--fol-s-3); margin-bottom: var(--fol-s-6); }
+.portfolio-detail-nav a:first-child { margin-right: auto; }
+[data-surface="leaflet"] .leaflet .aside { font-size: var(--fol-t-16); }
+.portfolio-filters { margin-block: var(--fol-s-5); }
+.portfolio-paging { justify-content: center; padding: var(--fol-s-6) 0; }
+.portfolio-button[data-slot="button"] {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: var(--fol-s-3) var(--fol-s-4);
+  border: 1px solid var(--fol-border); border-radius: var(--fol-shape-control);
+  background: var(--fol-surface); color: var(--fol-text);
+  font: 500 var(--fol-t-14)/1.4 var(--fol-font-sans); text-decoration: none;
+}
+.portfolio-button[data-slot="button"]:visited { color: var(--fol-text-muted); }
+.portfolio-button[data-slot="button"]:hover,
+.portfolio-button[data-slot="button"][aria-current="page"] {
+  background: var(--fol-surface-raised); border-color: var(--fol-text-muted); color: var(--fol-text);
+}
+.portfolio-button:focus-visible, .portfolio-details summary:focus-visible {
+  outline: 2px solid var(--fol-text); outline-offset: 4px;
+}
+[data-surface="leaf"] .leaf-subject {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .5fr);
+  gap: var(--fol-s-6); align-items: center; padding-block: var(--fol-s-3);
+}
+[data-surface="leaf"] .leaf-subject h1, .pub-subject h1 {
+  font-family: var(--fol-font-display); font-size: clamp(var(--fol-t-32), 3.1vw, var(--fol-t-40));
+  letter-spacing: -.022em; line-height: 1.1; overflow-wrap: anywhere;
+}
+[data-surface="leaf"] .leaf-lede { max-width: 58ch; font-size: var(--fol-t-16); }
+.portfolio-frond {
+  display: grid; justify-items: center; gap: var(--fol-s-4); margin: 0;
+  padding: var(--fol-s-6); border: 1px solid var(--fol-border);
+  border-radius: var(--fol-shape-sheet) var(--fol-shape-tip); background: var(--fol-surface);
+}
+.portfolio-frond .leaf-frond { height: 130px; width: 100%; margin: 0; }
+.portfolio-frond figcaption { font: var(--fol-t-11)/1.5 var(--fol-font-mono); color: var(--fol-text-muted); }
+[data-surface="leaf"] .leaf-list, .pub-list {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fol-s-5); padding: 0; list-style: none;
+}
+[data-surface="leaf"] .leaf-list::before,
+[data-surface="leaf"] .leaf-list > .blade-row::before { display: none; }
+[data-surface="leaf"] .leaf-list > .blade-row, .pub-list > .pub-leaflet {
+  display: flex; flex-direction: column; align-items: stretch;
+  gap: 0; min-width: 0; margin: 0; padding: 0;
+  border: 1px solid var(--fol-border); border-radius: var(--fol-shape-panel) var(--fol-shape-tip);
+  background: var(--fol-surface); overflow: hidden;
+  transition: border-color var(--fol-dur-2) var(--fol-ease-grow);
+}
+[data-surface="leaf"] .leaf-list > .blade-row:hover, .pub-list > .pub-leaflet:hover { border-color: var(--fol-text-muted); }
+[data-surface="leaf"] .blade-row[id] { scroll-margin-top: var(--fol-s-5); }
+[data-surface="leaf"] .blade-row[id]:focus-visible { outline: 2px solid var(--fol-text); outline-offset: 4px; }
+.portfolio-evidence {
+  display: flex; flex-direction: column; justify-content: space-between; gap: var(--fol-s-4);
+  min-height: 0; padding: var(--fol-s-5);
+  background: var(--fol-paper-sunk); color: var(--fol-ink);
+  border-bottom: 1px solid var(--fol-border);
+}
+.portfolio-eyebrow {
+  font: var(--fol-t-13)/1.5 var(--fol-font-mono); color: var(--fol-ink-muted);
+}
+.portfolio-eyebrow { text-transform: uppercase; letter-spacing: .06em; }
+.portfolio-record { display: grid; gap: var(--fol-s-2); }
+.portfolio-record-mark { display: none; }
+.portfolio-record strong { font: 500 var(--fol-t-16)/1.4 var(--fol-font-sans); overflow-wrap: anywhere; }
+.portfolio-record code { color: var(--fol-ink); font: var(--fol-t-13)/1.5 var(--fol-font-mono); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.portfolio-photo { margin: 0; background: var(--fol-surface-raised); border-bottom: 1px solid var(--fol-border); }
+.portfolio-photo img { display: block; width: 100%; height: 250px; object-fit: contain; }
+.portfolio-photo figcaption { padding: var(--fol-s-3) var(--fol-s-5); font-size: var(--fol-t-13); color: var(--fol-text-muted); }
+[data-surface="leaf"] .leaf-tier { margin: var(--fol-s-5) var(--fol-s-5) 0; }
+[data-surface="leaf"] .leaf-leaflet-what {
+  padding: var(--fol-s-4) var(--fol-s-5) 0; flex: 1;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--fol-s-4);
+}
+[data-surface="leaf"] .leaf-leaflet-what > :not(.portfolio-details, .leaf-leaflet-open) { grid-column: 1 / -1; }
+[data-surface="leaf"] .leaf-leaflet-title, .pub-title {
+  font-family: var(--fol-font-display); font-size: var(--fol-t-25); font-weight: 500;
+  line-height: 1.3; letter-spacing: -.02em; margin: 0 0 var(--fol-s-4); overflow-wrap: anywhere;
+}
+[data-surface="leaf"] .leaf-leaflet-when { text-align: left; margin: var(--fol-s-2) var(--fol-s-5) var(--fol-s-4); }
+[data-surface="leaf"] .leaf-leaflet-when .fol-label { display: inline; margin-right: var(--fol-s-2); }
+[data-surface="leaf"] .leaf-leaflet-open { border-top: 1px solid var(--fol-border); padding: 0; margin: 0; }
+[data-surface="leaf"] .leaf-leaflet-open a { min-width: 44px; font-size: var(--fol-t-16); }
+[data-surface="leaf"] .leaf-leaflet-open a:visited { color: var(--fol-text-muted); }
+.portfolio-details { border-top: 1px solid var(--fol-border); }
+.portfolio-details summary { min-height: 44px; padding-block: var(--fol-s-3); cursor: pointer; font: 500 var(--fol-t-14)/1.5 var(--fol-font-sans); }
+.portfolio-details .leaf-prov, .portfolio-details .pub-prov { display: grid; grid-template-columns: 1fr; gap: var(--fol-s-3); }
+.portfolio-details dd { overflow-wrap: anywhere; }
+.portfolio-published-body { padding: var(--fol-s-5); }
+/* A reference is not a picture. Source-only portfolios read as work rows;
+   real media keeps the gallery composition above. */
+[data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) { grid-template-columns: 1fr; }
+[data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) > .blade-row {
+  display: grid; grid-template-columns: minmax(140px, .28fr) minmax(0, 1fr);
+}
+[data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .portfolio-evidence {
+  grid-column: 1; grid-row: 1 / span 3; justify-content: flex-start;
+  border-bottom: 0; border-right: 1px solid var(--fol-border);
+}
+[data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .portfolio-record code {
+  white-space: normal; overflow-wrap: anywhere;
+}
+[data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .leaf-tier,
+[data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .leaf-leaflet-what,
+[data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .leaf-leaflet-when { grid-column: 2; }
+.portfolio-empty { padding: var(--fol-s-6); border: 1px solid var(--fol-border); border-radius: var(--fol-shape-panel) var(--fol-shape-tip); }
+[data-surface="leaf"] .leaf-counts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+[data-surface="leaf"] .leaf-count { font-size: var(--fol-t-25); }
+[data-surface="leaf"] .leaf-ledger {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--fol-s-3) var(--fol-s-6); padding-block: var(--fol-s-5);
+}
+[data-surface="leaf"] .leaf-ledger > h2 { margin: 0; }
+[data-surface="leaf"] .leaf-ledger > .plate { grid-column: 1; padding: 0; min-height: 0; justify-content: flex-start; }
+[data-surface="leaf"] .leaf-ledger > .plate .ico { display: none; }
+[data-surface="leaf"] .leaf-ledger > .plate .plate-b { max-width: none; font-size: var(--fol-t-16); }
+[data-surface="leaf"] .leaf-ledger > .leaf-counts {
+  grid-column: 2; grid-row: 1 / span 2; align-self: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0;
+}
+[data-surface="leaf"] .leaf-count-cell { padding: var(--fol-s-3) var(--fol-s-4); gap: var(--fol-s-1); }
+[data-surface="leaf"] .leaf-ledger > .leaf-more { margin: 0; }
+[data-surface="leaf"] .leaf-ledger > .leaf-group { grid-column: 1 / -1; margin-top: var(--fol-s-4); }
+#leaf-work-index { scroll-margin-top: var(--fol-s-7); }
+@media(max-width: 700px) {
+  .portfolio-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-surface="leaf"] .leaf-subject { grid-template-columns: 1fr; gap: var(--fol-s-5); padding-block: var(--fol-s-3); }
+  .portfolio-frond { display: none; }
+  [data-surface="leaf"] .leaf-lede { font-size: var(--fol-t-16); }
+  [data-surface="leaf"] .leaf-list, .pub-list { grid-template-columns: 1fr; }
+  [data-surface="leaf"] .leaf-counts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-surface="leaf"] .leaf-ledger { grid-template-columns: 1fr; }
+  [data-surface="leaf"] .leaf-ledger > .leaf-counts { grid-column: 1; grid-row: auto; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  [data-surface="leaf"] .leaf-count-cell { padding: var(--fol-s-3) var(--fol-s-2); }
+  [data-surface="leaf"] .leaf-count-cell .fol-label { letter-spacing: 0; }
+  [data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) > .blade-row { grid-template-columns: 1fr; }
+  [data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .portfolio-evidence {
+    grid-column: 1; grid-row: auto; border-right: 0; border-bottom: 1px solid var(--fol-border);
+    flex-direction: row; align-items: start; padding: var(--fol-s-4);
+  }
+  [data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .portfolio-eyebrow { max-width: 10ch; }
+  [data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .portfolio-record { min-width: 0; flex: 1; }
+  [data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .portfolio-record code { white-space: nowrap; }
+  [data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .leaf-tier,
+  [data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .leaf-leaflet-what,
+  [data-surface="leaf"] .leaf-list:not(:has(.portfolio-photo)) .leaf-leaflet-when { grid-column: 1; }
+}
+@media(max-width: 360px) {
+  [data-surface="leaf"] .leaf-ledger > .leaf-counts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media(prefers-reduced-motion: reduce) {
+  [data-surface="leaf"] .leaf-list > .blade-row, .pub-list > .pub-leaflet { transition: none; }
+}
+@media print {
+  .portfolio-filters, .portfolio-paging, .portfolio-actions { display: none; }
+  .portfolio-details::details-content { content-visibility: visible; }
+  [data-surface="leaf"] .leaf-list, .pub-list { display: block; }
+  [data-surface="leaf"] .leaf-list > .blade-row, .pub-list > .pub-leaflet { margin-block: var(--fol-s-4); break-inside: avoid; }
+}

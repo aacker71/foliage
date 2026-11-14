@@ -1,0 +1,13 @@
+{
+  "name": "@foliage/photosynthesis",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "Photosynthesis: machine-drafted leaflet candidates, human review, and promotion of the approved into a leaf. Open source.",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts", "./observations": "./src/observationImport.ts", "./search": "./src/searchGarden.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p tsconfig.json" },
+  "dependencies": {
+    "@foliage/leaf": "workspace:*"
+  }
+}

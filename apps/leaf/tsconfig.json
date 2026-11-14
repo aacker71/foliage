@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "noEmit": true,
+    /* Every CLI and the Node bootstrap are checked from JSDoc. Wildcards keep the next
+       entry point inside the gate; tools/development/config.test.mjs guards that coverage. */
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.mjs", "*.mjs"]
+}

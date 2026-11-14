@@ -1,0 +1,420 @@
+/* ==========================================================================
+   FOLIAGE — design tokens v0.2
+   "The age of portfolios."
+
+   Foliage and portfolio are the same word at the root: Latin FOLIUM, leaf.
+   portfolio <- Italian portafoglio <- portare (carry) + foglio <- folium
+   foliage   <- Old French feuillage <- feuille              <- folium
+   A portfolio is a collection of leaves. The foliage is the whole canopy of
+   what someone has grown — and every leaf traces to evidence.
+
+   THE MARK is a BIPINNATE COMPOUND LEAF — a leaf built out of leaves. One
+   rachis, pinnae fanning outward, each pinna clothed in obovate leaflets, the
+   whole closing into a canopy. Compound leaf, portfolio and canopy are one
+   drawing: the rachis is the career, each pinna a body of work, each leaflet
+   one attributed piece. The rachis enters as a check — the tick at the root is
+   the proof, and the check's long arm straightens into the trunk. So the mark
+   carries the proof the name no longer says.
+
+   Two invariants, both MACHINE-CHECKED in sprite.test.ts against the shipped
+   path data rather than trusted from this comment: every spine is EVEN-pinnate
+   (leaflets attach in opposite PAIRS — never a lone leaflet on a bare stem),
+   and the two arms of a pair are equal and divergent (a duplicated path is not
+   a pair). Three tiers: expressive (5 pinna pairs, 160 leaflets) and primary
+   (4 pairs, 96 leaflets) shed pinnae but never simplify curves; the icon
+   (3 pairs, 6 leaflets) collapses each plume to one solid leaf, because below
+   ~20px no leaflet survives and the canopy silhouette is the whole message.
+   Below ~20px the icon tier is the CORRECT asset, not a fallback.
+
+   HISTORICAL NOTE — the one place the old idea may be named. The mark was
+   previously CIRCINATE VERNATION: a fern fiddlehead, the frond still coiled in
+   the bud, its lower stroke a check. That drawing is SUPERSEDED and no spiral
+   or coil belongs on any surface. It was replaced because a coil says "not yet
+   open" — the opposite of a portfolio, which is work already done and already
+   attributed — and because a single stroked spiral carries no internal
+   structure, so it could not say "a leaf built out of leaves". The compound
+   leaf says the product's whole thesis in one drawing; the coil said a mood.
+
+   Personality: a well-made instrument. Quiet confidence. Technical precision,
+   organic warmth. Never hype.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   TYPEFACES — self-hosted, in the OPEN plane, with the token file that names them.
+
+   They live here rather than in an app's public/ because @foliage/tokens is open and
+   apps are not: fonts sitting in apps/canopy/public/ meant `apps/leaf` served zero
+   @font-face rules and 404'd every /fonts/*.woff2, so the open plane had no typefaces
+   at all while the ledger recorded the opposite.
+
+   `src` is a bare relative URL because each app serves this file at /tokens.css and
+   maps /fonts/<name>.woff2 back to this directory through the package export map — so
+   there is exactly one copy of both the CSS and the binaries.
+
+   Self-hosted is load-bearing, not a preference: the product's privacy claim is that it
+   makes zero network calls, and a font CDN would break it on the first page view. The
+   Open Design source pages these tokens came from carry two preconnects and a `css2?family=`
+   stylesheet link to Google's font CDN on eleven files. NONE of that came across, and
+   tokens.test.ts fails the suite if any external origin ever appears in a file this package
+   ships. (The host names are not written out anywhere here on purpose: the integration gate
+   greps the whole repo for them, and a gate with a known false positive is a gate that gets
+   ignored.) Under the served CSP (`default-src 'none'`) such a link would not even error
+   loudly — it would fall back to Georgia and quietly ship a different design.
+   All four faces are SIL OFL.
+
+   NOTE ON VERIFYING THIS: `document.fonts.check('16px "Family"')` is NOT evidence — it
+   returns true for a family that does not exist, because it reports whether text can be
+   rendered at all, fallback included. Check the FontFaceSet itself:
+     [...document.fonts].filter(f => f.status === 'loaded')
+   --------------------------------------------------------------------------- */
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/jbmono-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/jbmono-500.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Fraunces"; src: url("fonts/fraunces-var.woff2") format("woff2-variations");
+  font-weight: 300 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Instrument Sans"; src: url("fonts/instrument-sans-var.woff2") format("woff2-variations");
+  font-weight: 400 700; font-style: normal; font-display: swap; }
+
+/* ---------------------------------------------------------------------------
+   HOW TO READ THE CONTRAST FIGURES IN THIS FILE
+
+   Every ratio below was RECOMPUTED for this file (WCAG 2.x relative luminance)
+   and is re-derived from these very declarations by contrast.test.ts on every
+   run. A number here that disagrees with the value beside it fails the suite —
+   which is the only reason to believe a comment, because this lineage has twice
+   shipped a ratio that belonged to the PREVIOUS revision of its own token.
+
+   A ratio is quoted with its GROUND and its PX SIZE, always. "4.5:1" alone is
+   not a result. WCAG "large text" starts at 24px regular / 18.66px bold, so an
+   11px mono label is NORMAL text and needs 4.5:1 — applying the 3:1 large-text
+   threshold to it is exactly how two superseded values passed review here.
+
+   Ratios are computed from the 8-BIT hex, because that is what a screen paints.
+   Where a value is a color-mix(), the figure is for the mix quantised to 8-bit.
+   --------------------------------------------------------------------------- */
+
+:root, [data-face="night"], .face-night {
+  /* --- NIGHT face: product / instrument surfaces (the default) ----------- */
+  --fol-canvas:          #0B120E;  /* near-black green, not neutral black    */
+  --fol-surface:         #101A14;
+  --fol-surface-raised:  #16241C;
+  --fol-hairline:        #1E3227;  /* 1px dividers. 1.39:1 on canvas —
+                                     DECORATIVE ONLY. Never the sole boundary
+                                     of an interactive control (see
+                                     --fol-role-edge-control in roles.css).  */
+  --fol-border:          #26402F;  /* bordered cells — preferred over cards.
+                                     1.68:1 canvas / 1.57 surface / 1.42
+                                     raised. Also DECORATIVE ONLY: it encloses
+                                     a cell, it does not bound a control.
+                                     Open Design's .field and .btn-ghost take
+                                     this as their only edge, which misses
+                                     WCAG 1.4.11's 3:1 for a UI component;
+                                     foliage.css deviates there deliberately. */
+
+  --fol-text:            #E9F0EA;  /* warm off-white, never pure #fff.
+                                     16.36:1 on canvas.                      */
+  --fol-text-muted:      #97AA9D;  /* 7.73:1 on canvas                       */
+  --fol-text-faint:      #7D9184;  /* NIGHT faces only — the DAY equivalent is
+                                     --fol-ink-faint, rebound by the face block below.
+                                     .fol-label renders this at 11px (--fol-t-11), so
+                                     it needs 4.5:1, NOT the 3:1 large-text threshold.
+                                     Measured at 11px on every night background it can
+                                     sit on — the whole set, because checking one is
+                                     how the two previous values passed review:
+                                       --fol-canvas         5.65:1  passes
+                                       --fol-surface        5.30:1  passes
+                                       --fol-surface-raised 4.80:1  passes  <- binding
+                                     Third value for this token. #67796E failed on all
+                                     three (4.10 / 3.85 / 3.48 — wrong threshold);
+                                     #728579 failed only on --fol-surface-raised
+                                     (4.83 / 4.53 / 4.10 — right threshold, one
+                                     background). A ratio without its background AND
+                                     its px size is not a result.
+
+                                     KEPT OVER OPEN DESIGN v0.2, WHICH SAYS #7C8F83.
+                                     Both files independently absorbed the same finding
+                                     (11px mono is normal text) from different lineages
+                                     and landed on two different PASSING colours, and
+                                     both comments are arithmetically correct — neither
+                                     was lying. Recomputed here, OD's #7C8F83 measures
+                                     5.52 / 5.18 / 4.69. Decided on the margin at the
+                                     tightest ground that actually ships
+                                     (--fol-surface-raised): this value clears 4.5 by
+                                     0.30, OD's by 0.19. The repo value wins on the
+                                     measurement, not on a tie-break.                 */
+
+  /* --- Evergreen: the brand green, for fills and the DAY face ----------- */
+  --fol-evergreen-900:   #07120C;
+  --fol-evergreen-700:   #0E3927;  /* FILL / hairline on paper. 11.68:1 on paper,
+                                     but only 1.33:1 against --fol-ink — so it is
+                                     unusable as day body-adjacent TEXT: it reads as
+                                     ordinary ink. See --fol-verified-day.          */
+  --fol-evergreen-500:   #1A6344;  /* 2.63:1 on canvas — a FILL on night, never text */
+  --fol-evergreen-300:   #58A47B;  /* 6.33:1 on canvas — safe as night text          */
+
+  /* --- DAY face: published documents. A leaf read by an employer is a
+         document on paper, so the day face is not "marketing", it is the
+         product's public plane. ------------------------------------------ */
+  --fol-paper:           #F6F4ED;  /* warm, never cold white                 */
+  --fol-paper-sunk:      #EDEAE0;
+  --fol-ink:             #0E1F16;  /* 15.56:1 on paper                       */
+  --fol-ink-muted:       #4A5A50;  /* DAY-face muted text — the paper-side counterpart of
+                                     --fol-text-muted. MEASURED HERE, not copied: at 11px
+                                       on --fol-paper        6.65:1  passes (needs 4.5)
+                                       on --fol-paper-sunk   6.08:1  passes
+                                       on --fol-paper-raised 5.57:1  passes
+                                     Open Design recorded 6.21 until its own 2026-08 audit
+                                     re-measured it to 6.65; this file agrees with the
+                                     re-measurement, and the test re-derives it every run.
+                                     WHY THE DAY RAMP EXISTS AT ALL: --fol-text-faint is a
+                                     NIGHT value and measures 3.05:1 on paper at 11px, so a
+                                     DAY surface that inherits it ships a contrast defect.
+                                     (Three files in this repo recorded that figure as
+                                     3.57 — correct arithmetic for #728579, the SUPERSEDED
+                                     value, and stale by exactly one token revision. The
+                                     conclusion was always right; only the number moved.) */
+
+  /* --- ACCENT: the moment growth registers. Used SPARINGLY — at most twice
+         per screen, and NOT on the mark: the mark is cream on night and
+         evergreen on paper. Chartreuse is the colour of new growth; amber and
+         copper are autumnal, which is the opposite of what this brand claims.
+         Swap this ONE token to change the accent everywhere. ------------- */
+  --fol-accent:          #A8CC29;  /* chartreuse. 10.24:1 on canvas as text.
+                                     On PAPER it is 1.68:1 — a FILL there, never
+                                     text, and never a focus ring (see D1).   */
+  --fol-accent-press:    #93B520;  /* 8.01:1 on canvas. PRESS darkens; HOVER lifts. */
+  --fol-accent-lift:     color-mix(in oklch, var(--fol-accent) 84%, var(--fol-text));
+                                   /* 11.17:1 on canvas. Hover must never LOWER text
+                                      contrast: default 10.24 -> hover 11.17 -> press
+                                      8.01, and :active is the one permitted momentary
+                                      dip because it lasts as long as the finger.
+
+                                      SHIPPED AS THE color-mix() EXPRESSION, NOT A HEX.
+                                      Open Design pins #B2D258 in three documents and
+                                      calls it "the OKLab mix", while its CSS says
+                                      `in oklch`. Those are different colours: OKLab
+                                      interpolates rectangularly, OKLCh takes the shorter
+                                      HUE ARC, and a browser does what the CSS says.
+                                      Recomputed with a round-trip-validated converter:
+                                        in oklab -> #B2D258  (11.07:1)
+                                        in oklch -> #A9D55F  (11.17:1)  <- what paints
+                                      color-mix() is Baseline 2023 and costs no build
+                                      step, so the expression ships and no hex can go
+                                      stale. If a non-CSS target ever needs a literal,
+                                      pin #A9D55F. Never #B2D258.                     */
+  --fol-accent-wash:     #A8CC291F;  /* 12% ground. A GROUND — never a text colour. */
+  --fol-accent-alt-amber:  #E0A33C;  /* NOT a primary accent: autumnal.           */
+  --fol-accent-alt-copper: #C1794C;  /* same hex as --fol-invalid. A theme that
+                                        reuses this collides with the validation
+                                        colour; do not let both onto one surface. */
+
+  /* Categorical record origins in the private 3D Leaf, unrelated to proof standing. */
+  --fol-record-git: var(--fol-evergreen-300);
+  --fol-record-photosynthesis: #91A9C4;
+  --fol-record-other: var(--fol-text-faint);
+
+  /* --- Semantic, NIGHT. Three proof tiers, deliberately UNORDERED: there is
+         no better and worse here, and no fourth state. "excluded" is
+         deliberately NOT an error colour — work that cannot be attributed is
+         reported as excluded, not failed. --------------------------------- */
+  --fol-verified:        var(--fol-accent);  /* 10.24 / 9.61 / 8.70 at 11px   */
+  --fol-pending:         #7E9188;  /* 5.68 canvas / 5.33 surface / 4.83 raised */
+  --fol-excluded:        #A08376;  /* 5.42 / 5.09 / 4.61. Lightened from
+                                     #8C6B5C, which was 3.95:1 on canvas and
+                                     failed AA text. Measured, not eyeballed. */
+  --fol-invalid:         #C1794C;  /* 5.52 / 5.18 / 4.69 at 13px. The system had
+                                     NO error colour, because "excluded" is
+                                     deliberately not one. Form validation
+                                     genuinely IS an error, so it needed its own
+                                     token — and keeping them separate is what
+                                     stops a failed read being rendered as a
+                                     proof outcome.                           */
+
+  /* --- Semantic, DAY. Public surfaces are published documents and belong to
+         paper, but every night semantic collapses there at 11px:
+           --fol-verified (the accent)  1.68:1
+           --fol-pending                3.03:1
+           --fol-excluded               3.18:1
+           --fol-invalid                3.12:1
+         The proof states are the whole point of a public leaf, so all four
+         would fail AA exactly where they matter most. Each hue is darkened
+         toward ink until it clears 4.5:1 on ALL THREE day grounds — including
+         --fol-paper-raised, which the face binds and which Open Design never
+         measured: its day ramp lands at 4.20-4.26 there, i.e. four tokens
+         failing AA on a ground its own .face-day creates. --------------- */
+  --fol-ink-faint:       #55665C;  /* 5.54 paper / 5.07 sunk / 4.64 raised @11px.
+                                     OD's #5B6D62 is 5.01 / 4.58 / 4.20 — fails on
+                                     raised. This value was independently derived in
+                                     this repo's canopy layer and passes on all three. */
+  --fol-verified-day:    #1A6344;  /* 6.55 / 5.99 / 5.49 @11px — evergreen-500 reused.
+                                     TAKEN FROM OD DESPITE A LOWER RATIO than this
+                                     repo's canopy value #0E3927 (11.68 / 10.68 / 9.79),
+                                     because ground contrast is not the only requirement:
+                                     a tier colour must also be distinguishable from BODY
+                                     TEXT. Measured against --fol-ink,
+                                       #0E3927 -> 1.33:1   (reads as ordinary ink)
+                                       #1A6344 -> 2.37:1   (separated in L and in hue)
+                                     #0E3927 stays the right FILL for an enclosed glyph
+                                     and the right hairline on a day fill; it is the
+                                     wrong TEXT colour.                                */
+  --fol-pending-day:     #4F6058;  /* 6.06 / 5.54 / 5.08 @11px. OD's #5A6D64 is
+                                     5.01 / 4.58 / 4.20 — fails on raised. 2.57:1
+                                     against --fol-ink, so it reads as its own state. */
+  --fol-excluded-day:    #6E5142;  /* 6.54 / 5.98 / 5.48 @11px — still clay, still NOT
+                                     an error. OD's #746559 is 5.09 / 4.65 / 4.26 —
+                                     fails on raised. 2.38:1 against --fol-ink.       */
+  --fol-invalid-day:     #8B5E3C;  /* 5.07 paper / 4.63 sunk / 4.25 RAISED @13px.
+                                     BINDING CONSTRAINT: this token MAY NOT be placed on
+                                     --fol-paper-raised — 4.25 misses 4.5. It is kept at
+                                     OD's value and left unfixed on purpose: the only
+                                     form in this product is /review, which is a NIGHT
+                                     surface, so no day form ships today. A darker
+                                     derivation exists (color-mix(in oklch,
+                                     var(--fol-invalid) 65%, var(--fol-ink)) = #745F25,
+                                     5.60 / 5.12 / 4.69) and was REJECTED: it reads
+                                     olive rather than error-red. Inventing a colour for
+                                     a surface that does not exist is the wrong trade;
+                                     when a day form ships, re-measure and decide then. */
+  --fol-paper-raised:    #E1E1DA;  /* ink at 9%  — the third day ground             */
+  --fol-paper-hairline:  #D6D6CF;  /* ink at 14%. 1.33:1 on paper — DECORATIVE ONLY */
+  --fol-paper-border:    #BEC1B9;  /* ink at 24%. 1.66:1 on paper / 1.51 sunk /
+                                     1.39 raised — DECORATIVE ONLY. Encloses a cell;
+                                     never the sole boundary of a control.          */
+
+  /* --- Type ------------------------------------------------------------- */
+  --fol-font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --fol-font-sans:    "Instrument Sans", -apple-system, "Segoe UI", sans-serif;
+  --fol-font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  /* 1.26 scale — tight, instrument-like, not a marketing-site blowout */
+  --fol-t-11: .6875rem; --fol-t-13: .8125rem; --fol-t-14: .875rem;
+  --fol-t-16: 1rem;     --fol-t-20: 1.25rem;  --fol-t-25: 1.5625rem;
+  --fol-t-32: 2rem;     --fol-t-40: 2.5rem;   --fol-t-50: 3.125rem;
+  --fol-t-63: 3.9375rem;
+
+  --fol-label: var(--fol-t-11);         /* mono, uppercase, +.09em tracking   */
+  --fol-track-label: .09em;
+  --fol-track-display: -.018em;
+
+  /* --- Space: 4px base -------------------------------------------------- */
+  --fol-s-1:4px; --fol-s-2:8px;  --fol-s-3:12px; --fol-s-4:16px; --fol-s-5:24px;
+  --fol-s-6:32px; --fol-s-7:48px; --fol-s-8:64px; --fol-s-9:96px; --fol-s-10:128px;
+
+  /* --- Radius: small. An instrument has edges. -------------------------- */
+  --fol-r-1:2px; --fol-r-2:4px; --fol-r-3:6px; --fol-r-4:10px; --fol-r-full:999px;
+  /* Owner-authorized foundation rebuild, 2026-09-23. Compact controls, quiet panels. */
+  --fol-shape-control:var(--fol-r-3);
+  --fol-shape-panel:var(--fol-r-4);
+  --fol-shape-tip:var(--fol-r-2);
+  --fol-shape-sheet:var(--fol-s-4);
+
+  /* --- Workspace geometry --------------------------------------------- */
+  --fol-control-height:44px;
+  --fol-navigation-width:184px;
+
+  /* --- Motion: growth never bounces, never spins. ----------------------- */
+  --fol-ease-grow:   cubic-bezier(.22,.61,.36,1);
+  --fol-ease-fold:   cubic-bezier(.55,.06,.68,.19);
+  --fol-dur-1:120ms; --fol-dur-2:200ms; --fol-dur-3:320ms; --fol-dur-4:520ms;
+
+  /* DEPRECATED ALIAS — --fol-ease-unfurl named the superseded mark idea (see
+     the historical note at the top) and was renamed to --fol-ease-grow in
+     v0.2, because growth is the thing that eases here, not an unfurling.
+     "Unfurl" is the verb of a coil, and there is no coil any more.
+     It is kept, and ONLY
+     kept, because 18 live declarations in apps/leaf and apps/canopy still
+     reference it; dropping it would silently delete their transition timing
+     (an unresolved var() drops the whole declaration). Delete this line in the
+     same change that retires the last referrer — tokens.test.ts asserts it
+     stays a pure alias so the two can never diverge in value. */
+  --fol-ease-unfurl: var(--fol-ease-grow);
+}
+
+/* ---------------------------------------------------------------------------
+   THE FACE — one copy, here, because it was two.
+
+   FACE IS DECIDED BY WHAT THE SURFACE IS, NOT BY WHICH APP SERVES IT, and it is
+   NOT a preference: there is no toggle and no prefers-color-scheme.
+     NIGHT = product / private / operator surfaces (the instrument).
+     DAY   = anything PUBLISHED — a document read by an employer.
+   So a public leaf is day even though the leaf app serves it, and /review is
+   night even though the same app serves that.
+
+   This block previously existed as two independent copies (apps/leaf/public/leaf.css
+   and apps/canopy/public/tree.css) deriving the same rebindings at the same
+   percentages. Two copies of a derivation are a drift surface; this is the one copy.
+
+   THREE THINGS ARE LOAD-BEARING IN THE SELECTOR:
+
+   (a) BOTH SPELLINGS. [data-face="day"] is this repo's tested, server-rendered
+       contract; .face-day is what Open Design markup uses. Supporting both costs
+       eleven characters per rule and lets an OD prototype paste in and render.
+
+   (b) NO `html` TYPE PREFIX. This is a specificity fix, not cosmetics.
+       `html[data-face="day"] .fol-label` is (0,2,1); a perfectly ordinary
+       `.some-band .fol-label` is (0,2,0). The higher one silently wins and paints a
+       label muted inside a band that intended otherwise — a defect this repo has
+       already shipped. Dropping `html` makes it (0,2,0), so the face rule and a
+       component rule are interchangeable and neither outranks the other by accident.
+
+   (c) NIGHT IS DECLARED EXPLICITLY even though the primitives above are already
+       night. color-scheme is the reason: without it the UA paints dark-mode form
+       controls and scrollbars on a day document, inverting the plane signal in the
+       one place CSS cannot reach. Open Design sets no color-scheme at all.
+   --------------------------------------------------------------------------- */
+[data-face="night"], .face-night { color-scheme: dark; }
+
+[data-face="day"], .face-day {
+  color-scheme: light;
+  --fol-canvas:         var(--fol-paper);
+  --fol-surface:        var(--fol-paper-sunk);
+  --fol-surface-raised: var(--fol-paper-raised);
+  --fol-hairline:       var(--fol-paper-hairline);
+  --fol-border:         var(--fol-paper-border);
+  --fol-text:           var(--fol-ink);
+  --fol-text-muted:     var(--fol-ink-muted);
+  --fol-text-faint:     var(--fol-ink-faint);
+  --fol-verified:       var(--fol-verified-day);
+  --fol-pending:        var(--fol-pending-day);
+  --fol-excluded:       var(--fol-excluded-day);
+  --fol-invalid:        var(--fol-invalid-day);
+
+  /* THE HOVER LIFT HAS TO BE REBOUND, and this one is a real defect found by measuring
+     rather than a stylistic preference.
+
+     --fol-accent-lift mixes the accent toward --fol-text. On night that is cream, so the
+     ground gets LIGHTER and the near-black label's contrast RISES: 10.24 -> 11.17. But the
+     face rebinds --fol-text to --fol-ink, so on paper the very same expression mixes the
+     accent toward NEAR-BLACK: the hover ground darkens to #82B037 and the ink label falls
+     9.24 -> 6.70. Contrast drops 27% on hover, which is precisely what this token was
+     created to prevent, on the face where the rule is stated.
+
+     Open Design ships that behaviour: it defines the lift in terms of --fol-text and rebinds
+     --fol-text in .face-day, and never measured the day hover state.
+
+     The fix mixes toward --fol-paper instead — light, and FACE-INVARIANT, so it cannot be
+     flipped out from under this expression the way --fol-text was:
+       day default #A8CC29  9.24  ->  hover #BCD151 10.09  ->  press #93B520 7.23
+     Rises on hover, dips only on press. Same rule as night, now true on both faces. */
+  --fol-accent-lift:    color-mix(in oklch, var(--fol-accent) 84%, var(--fol-paper));
+}
+
+/* Metrics are ALWAYS mono + tabular. A metric that isn't is a defect. */
+.fol-metric { font-family: var(--fol-font-mono); font-variant-numeric: tabular-nums; }
+
+/* Labels: mono, uppercase, tracked out. */
+.fol-label {
+  font: 500 var(--fol-label)/1.2 var(--fol-font-mono);
+  letter-spacing: var(--fol-track-label); text-transform: uppercase;
+  color: var(--fol-text-faint);
+}
+/* The face already rebinds --fol-text-faint, so this rule is belt-and-braces for a
+   label rendered inside a day region nested in a night document — it names the day
+   token directly rather than relying on the cascade reaching it. Same (0,2,0)
+   specificity as the base rule by design; see (b) above. */
+[data-face="day"] .fol-label, .face-day .fol-label { color: var(--fol-ink-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --fol-dur-1:0ms; --fol-dur-2:0ms; --fol-dur-3:0ms; --fol-dur-4:0ms; }
+}

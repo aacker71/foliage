@@ -1,0 +1,11 @@
+{
+  "name": "@foliage/escalated-inference",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "Client for Tier 3 escalated inference — a frontier model drafts leaflet candidates for human review. Never writes a leaflet. Proprietary.",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p tsconfig.json" },
+  "dependencies": { "@foliage/leaf": "workspace:*" }
+}

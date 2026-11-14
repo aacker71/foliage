@@ -1,0 +1,165 @@
+/* Public portfolios: an editorial identity rail and equally weighted work.
+   Composition informed by magicuidesign/portfolio; no template content copied.
+   The single entrance uses the existing Magic UI Blur Fade adaptation's motion
+   vocabulary, expressed in CSS so evidence is readable without hydration. */
+.portfolio-layout {
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.65fr) minmax(0, 1.8fr);
+  gap: clamp(var(--fol-s-5), 5vw, var(--fol-s-8));
+  align-items: start;
+}
+body[data-canopy-surface="leaf"] .tree-main,
+body[data-published-state] .pub-main,
+body[data-published-state] .pub-head { max-width: 76rem; }
+.portfolio-identity {
+  position: sticky;
+  top: var(--fol-s-6);
+  padding: var(--fol-s-5) 0 var(--fol-s-6);
+  border-bottom: 0;
+  min-width: 0;
+}
+.portfolio-botanical {
+  display: block;
+  width: var(--fol-s-8);
+  height: var(--fol-s-9);
+  margin-bottom: var(--fol-s-6);
+  background: var(--fol-evergreen-700);
+  mask: url('/mark-expressive.svg') no-repeat center / contain;
+  -webkit-mask: url('/mark-expressive.svg') no-repeat center / contain;
+}
+.portfolio-identity h1 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 1.04;
+  letter-spacing: var(--fol-track-display);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.portfolio-nav {
+  display: grid;
+  margin-top: var(--fol-s-6);
+  border-top: 1px solid var(--fol-ink-muted);
+}
+.portfolio-nav a {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--fol-s-3);
+  min-height: 44px;
+  align-items: center;
+  padding: var(--fol-s-3) 0;
+  color: var(--fol-ink);
+  border-bottom: 1px solid var(--fol-paper-sunk);
+  font: 500 var(--fol-t-13)/1.4 var(--fol-font-sans);
+  text-decoration: none;
+}
+.portfolio-nav a:hover { border-bottom-color: var(--fol-ink); }
+.portfolio-nav a:focus-visible,
+.portfolio-evidence summary:focus-visible {
+  outline: 2px solid var(--fol-ink);
+  outline-offset: 4px;
+}
+.portfolio-work { margin-top: 0; min-width: 0; padding-top: var(--fol-s-5); }
+.portfolio-work > h2 {
+  margin-top: 0;
+  padding-bottom: var(--fol-s-4);
+  border-bottom: 1px solid var(--fol-ink-muted);
+}
+.portfolio-work .pub-count {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--fol-s-3);
+  padding: var(--fol-s-4) 0;
+  background: transparent;
+  border: 0;
+}
+.portfolio-work .pub-count .fol-label { margin: 0; }
+.portfolio-work .pub-count b { font-size: var(--fol-t-25); }
+.portfolio-work .pub-list { margin-top: var(--fol-s-3); }
+.portfolio-work .pub-item,
+.portfolio-work .pub-leaflet {
+  padding: var(--fol-s-5) 0;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--fol-ink-muted);
+  border-radius: 0;
+}
+.portfolio-work .pub-item { grid-template-columns: minmax(0, 1fr); gap: var(--fol-s-3); }
+.portfolio-work .pub-item-tier { justify-self:end; }
+/* Repeated proof labels use ink, so a long portfolio cannot spend the accent
+   budget on every row. The tier name and glyph retain their meaning. */
+.portfolio-work .proof {
+  background: transparent;
+  color: var(--fol-ink);
+  border-color: var(--fol-ink-muted);
+}
+.portfolio-work .pub-item-title,
+.portfolio-work .pub-title {
+  font: 400 var(--fol-t-32)/1.2 var(--fol-font-display);
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+.portfolio-work .pub-item-ref { margin-top: var(--fol-s-3); font-size:var(--fol-t-13); }
+.portfolio-work .pub-item-open { margin-top: var(--fol-s-4); }
+.portfolio-work .pub-item-open a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--fol-s-2) var(--fol-s-3);
+  border: 1px solid var(--fol-ink-muted);
+  border-radius: var(--fol-r-1);
+  color: var(--fol-ink);
+  text-decoration: none;
+}
+.portfolio-work .pub-item-open a:hover { background: var(--fol-paper-sunk); }
+.portfolio-evidence { margin-top: var(--fol-s-3); }
+.portfolio-evidence summary {
+  padding: var(--fol-s-2) 0;
+  cursor: pointer;
+  color: var(--fol-ink-muted);
+  font: 500 var(--fol-t-13)/1.5 var(--fol-font-sans);
+}
+.portfolio-evidence[open] { padding-bottom: var(--fol-s-3); }
+.portfolio-evidence .pub-prov { margin-top: var(--fol-s-3); }
+.portfolio-identity .pub-facts { gap: 0; margin-top: var(--fol-s-5); }
+.portfolio-identity .pub-fact {
+  width: 100%;
+  padding: var(--fol-s-3) 0;
+  border: 0;
+  border-bottom: 1px solid var(--fol-ink-muted);
+  border-radius: 0;
+  overflow-wrap: anywhere;
+}
+#portfolio-source { scroll-margin-top: var(--fol-s-5); }
+#portfolio-work { scroll-margin-top: var(--fol-s-5); }
+body[data-published-state] .pub-mark {
+  mask-image: url('/mark-icon.svg');
+  -webkit-mask-image: url('/mark-icon.svg');
+}
+body[data-published-state] .pub-subject h1 { font-variation-settings: "SOFT" 28, "WONK" 0; }
+body[data-published-state] .pub-plane { flex-wrap: wrap; }
+body[data-published-state] .pub-withheld > p { max-width: 72ch; }
+body[data-published-state] .pub-source .fol-metric { font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: no-preference) {
+  .portfolio-layout { animation: portfolio-reveal var(--fol-dur-4) var(--fol-ease-grow) both; }
+  @keyframes portfolio-reveal {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+@media (max-width: 760px) {
+  .portfolio-layout { grid-template-columns: minmax(0, 1fr); gap: var(--fol-s-5); }
+  .portfolio-identity { position: static; padding-top: 0; }
+  .portfolio-botanical { width: var(--fol-s-6); height: var(--fol-s-7); margin-bottom: var(--fol-s-4); }
+  .portfolio-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--fol-s-4); }
+  .portfolio-work { padding-top: 0; }
+  .portfolio-work .pub-item-title { font-size:var(--fol-t-25); }
+  .portfolio-work .pub-item-tier { order:0; justify-self:start; }
+  .portfolio-identity .pub-facts { display: block; }
+}
+@media print {
+  .portfolio-layout { display: block; animation: none; }
+  .portfolio-identity { position: static; }
+  .portfolio-nav, .pub-skip, .tree-skip { display: none; }
+  .portfolio-work .pub-item, .portfolio-work .pub-leaflet { break-inside: avoid; }
+  .pub-head, .pub-main, .tree-main { max-width: none; padding: 0; }
+}

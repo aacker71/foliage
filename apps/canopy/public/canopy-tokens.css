@@ -1,0 +1,248 @@
+@import "foliage-tokens.css";
+
+/* ==========================================================================
+   CANOPY — design tokens v0.1
+   Extends FOLIAGE (--fol-*). Prefix for everything new: --can-*
+
+   TAXONOMY (strict containment, botanically exact)
+     CANOPY   the collective public layer, formed of many trees
+     TREE     a company — the whole organism
+     BOUGH    an organization — a large main limb off the trunk
+     BRANCH   a team — a division of a bough
+     LEAF     one individual's portfolio
+     LEAFLET  one artifact — a leaf is literally composed of leaflets
+   Bough and branch are listed to keep the chain continuous; nothing on the
+   public canopy styles them, because a company's internal structure is the
+   enterprise plane's subject and is not published here.
+
+   THE FIVE RULES THAT ARE NEW TO CANOPY
+   --------------------------------------------------------------------------
+   1. FACE BY PLANE, not by surface type.
+      Public Canopy is the DAY face (paper). Enterprise is the NIGHT face (ink).
+      This is an extension of Foliage's "night for instrument / day for print",
+      not a contradiction: a public leaf is a *published document* — indexable,
+      shareable, read by outsiders — so it belongs to the paper face. The
+      payoff is that "no server holds both sides" becomes visible at a glance:
+      the entire luminance of the interface inverts when you change planes.
+      Never rely on this alone (see rule 2).
+
+   2. PLANE IS SIGNALLED THREE TIMES, never by colour alone.
+      (a) face — paper vs ink
+      (b) the plane bar — a persistent mono band naming the plane, its host,
+          and its indexability; the internal plane's band is hatched
+      (c) the wordmark — CANOPY vs CANOPY ENTERPRISE
+      Colour-blind and monochrome users get (b) and (c) unchanged.
+
+   3. THE ACCENT NEVER ENCODES RELEASE STATE. Chartreuse means PROOF, only.
+      Release state is carried by the evergreen ramp + border style + a
+      position stepper. This is what stops an "approved" chip from reading as
+      "verified" — the two axes are orthogonal and must never share a colour.
+
+   4. ACCENT BUDGET, amended for density.
+      Foliage: at most twice per screen. Canopy: at most two accent
+      EMPHASES per screen (a CTA, an active nav rule, a hero moment) — plus
+      proof glyphs, which are a legend rather than emphasis and are therefore
+      exempt, but only at <=12px and never paired with accent-coloured text.
+      In a list, proof is the glyph fill; in a detail view it may also be text.
+
+   5. ON THE DAY FACE THE ACCENT IS AN ENCLOSED FILL ONLY.
+      Chartreuse #A8CC29 on paper #F6F4ED measures 1.68:1, so on paper it can be
+      neither text nor a hairline rule nor a shape's own boundary — all three
+      would be invisible. It appears only as a fill enclosed by an
+      evergreen-700 hairline: 6.94:1 against the fill, 11.68:1 against the
+      paper. That is what makes crown leaflets, proof-mix bars, and the primary
+      button legible. Where a shape cannot take an enclosing hairline (the mark
+      glyph, whose strokes are part of the figure) or where the accent would
+      have been a rule (the counts-strip emphasis), the day face uses
+      evergreen-700 at 11.68:1 instead. On NIGHT all of these restrictions lift:
+      chartreuse measures 10.24:1 on canvas and may be text, rule, or fill.
+
+   CONTRAST: every pair below was computed, not eyeballed. Ratios are stated
+   inline. One inherited defect was found and fixed — see --can-label-*.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   SELF-HOSTED TYPE — the product's privacy claim is zero network calls, so
+   there is no CDN link anywhere in this system. All three faces resolve from
+   relative paths on the same origin.
+
+   ALL FOUR FILES SHIP, and none of them live here: JetBrains Mono 400/500,
+   Fraunces and Instrument Sans are binaries in `@foliage/tokens`, declared by
+   the `@font-face` block in that package's tokens.css. This file inherits them
+   through `@import "foliage-tokens.css"`, which each app maps back to the
+   package's own export map — so there is exactly one copy of the CSS and one
+   of each binary, and the OPEN plane owns both.
+
+   An earlier version of this note said Fraunces and Instrument Sans were "not
+   yet in the repo" and the fallback stack was rendering. That stopped being
+   true when the four woff2 moved into the tokens package; the stacks in
+   --fol-font-* are still real stacks, but they are fallbacks now, not the
+   thing being rendered.
+   -------------------------------------------------------------------------- */
+:root{
+  /* ---- DAY face additions — the PUBLIC plane -------------------------- */
+  /* Foliage ships paper/paper-sunk/ink. Canopy needs the rest of the ramp. */
+  --can-day-muted:      #4C5C53;  /* 6.44:1 on paper — body de-emphasis     */
+  --can-day-label:      var(--fol-ink-faint);  /* aliased; see --can-label-day */
+  --can-day-hairline:   #DCD8CC;  /* decorative rule only, never a boundary */
+  --can-day-cell:       #EDEAE0;  /* == paper-sunk, aliased for clarity     */
+  --can-day-control:    #748076;  /* 3.75:1 — INTERACTIVE borders (1.4.11)  */
+  --can-day-row-hover:  #EAE7DC;  /* ink stays 13.83:1                      */
+  --can-day-focus:      #0E3927;  /* 11.68:1 focus ring on paper            */
+
+  /* ---- NIGHT face additions — the INTERNAL plane ----------------------
+     --can-night-control WAS #4A6B55, commented "3.18:1 on canvas —
+     interactive borders". The ratio is correct and the conclusion is not: it
+     holds on --fol-canvas ONLY. Re-measured on the other two night grounds this
+     product actually paints controls on, it is 2.99:1 on --fol-surface and
+     2.71:1 on --fol-surface-raised — so a .field or a .btn-ghost inside a cell
+     missed WCAG 1.4.11's 3:1, and every consumer below is a control boundary
+     (.btn-ghost, .field, .tab, .stepper, .notice). A ratio stated without its
+     ground is not a result, which is the same lesson --fol-text-faint taught
+     one file over.
+
+     It now points at --fol-text-faint, which is what the system's
+     --fol-role-edge-control aliases: 5.65 canvas / 5.30 surface / 4.80 raised on
+     night, 5.54 / 5.07 / 4.64 on day. Clears 3:1 on every ground of both faces.
+     The role itself is NOT named here because roles.css is not loaded on these
+     pages, and an unresolved var() drops the whole declaration — which would
+     leave these controls with no border at all rather than a weak one. */
+  --can-night-control:  var(--fol-text-faint);
+  --can-night-row-hover:#16241C;  /* == surface-raised; text 13.9:1         */
+
+  /* ---- LABEL COLOUR: an inherited defect, since fixed upstream ----------
+     Foliage's .fol-label used --fol-text-faint #67796E, which measures
+     4.10:1 on --fol-canvas. Labels are 11px mono — normal-size text — so
+     4.10 fails WCAG AA (4.5 required). #728579 followed and still failed on
+     --fol-surface-raised at 4.10:1. The token is now #7D9184, re-measured at
+     11px on every night background it can sit on: 5.65:1 canvas, 5.30:1
+     surface, 4.80:1 raised — all passing, so the upstream fix is complete.
+     Canopy does not depend on it either way: it sets its own label colour
+     per face, below, and uses that everywhere. --fol-text-faint is used here
+     for non-text purposes only (icon hairlines, disabled marks). */
+  --can-label-night:    #8CA093;  /* 6.83 canvas / 6.41 surface / 5.80 raised */
+  /* ALIASED, not restated. The value Canopy derived here (#55665C) is the value
+     @foliage/tokens now ships as --fol-ink-faint, for the same measured reason:
+     Open Design's #5B6D62 fails at 4.20:1 on --fol-paper-raised, which its own
+     day face binds and which it never measured. Two files holding the same hex
+     is how a design system stops being the source of truth — the second copy is
+     right until the day the first one moves. */
+  --can-label-day:      var(--fol-ink-faint);   /* 5.54 paper / 5.07 sunk / 4.64 raised @11px */
+
+  /* ---- PROOF, per plane. Three states; excluded is NOT an error. -------
+     The DAY three are aliases for the same reason as the label above: they are
+     the values the package ships, so they are named rather than repeated.
+
+     One of them CHANGED VALUE when it was aliased, and it is worth saying why
+     rather than letting it look like a typo. This file had
+     --can-proof-verified-day: #0E3927 (evergreen-700), 11.68:1 on paper. That
+     is the highest ratio available and the wrong colour for TEXT: against body
+     ink #0E1F16 it measures 1.33:1, which is to say it is indistinguishable
+     from ordinary type, so a "verified" word would read as a word. The package
+     takes #1A6344 — 6.55:1 on paper and 2.37:1 against body ink, separated in
+     both lightness and hue. Contrast against the ground is not the only
+     requirement; separation from the surrounding text is the other one.
+     Evergreen-700 keeps its real job below: the enclosing hairline on day
+     fills, where it is not text and 11.68:1 is exactly what is wanted. */
+  --can-proof-verified-night: var(--fol-accent);   /* 9.61 on surface       */
+  --can-proof-pending-night:  #7E9188;             /* 5.33 on surface       */
+  --can-proof-excluded-night: #A08376;             /* 5.09 on surface       */
+  --can-proof-verified-day:   var(--fol-verified-day);  /* 6.55 paper, 2.37 vs ink */
+  --can-proof-excluded-day:   var(--fol-excluded-day);  /* 6.54 paper / 5.98 sunk  */
+  --can-proof-pending-day:    var(--fol-pending-day);   /* 6.06 paper / 5.54 sunk  */
+
+  /* ---- RELEASE STATE — evergreen + neutrals ONLY, never the accent -----
+     Six states. Distinction comes from three redundant channels:
+       hue-weight (fill density) · border style · stepper position
+     so the ramp survives greyscale printing and colour-blindness.          */
+  --can-rel-internal-night:  #97AA9D;  /* 7.25 on surface · solid hairline  */
+  --can-rel-proposed-night:  #A9BDB1;  /* 8.98 on surface · DASHED border   */
+  --can-rel-review-night:    #6FBF8E;  /* 8.07 on surface · solid + fill    */
+  --can-rel-approved-night:  #6FBF8E;  /* 6.96 on #0E2A1E fill              */
+  --can-rel-approved-bg:     #0E2A1E;
+  --can-rel-live-fg-night:   #F6F4ED;  /* 6.55 on evergreen-500 fill        */
+  --can-rel-live-bg-night:   #1A6344;
+  --can-rel-withdrawn-night: #93A09B;  /* 6.56 on surface · HATCHED chip    */
+
+  --can-rel-internal-day:    #4C5C53;  /* 6.44 on paper                     */
+  --can-rel-proposed-day:    #4C5C53;
+  --can-rel-review-day:      #0E3927;
+  --can-rel-approved-day:    #0E3927;  /* 10.68 on sunk                     */
+  --can-rel-live-fg-day:     #F6F4ED;  /* 11.68 on evergreen-700 fill       */
+  --can-rel-live-bg-day:     #0E3927;
+  --can-rel-withdrawn-day:   #5B6660;  /* 5.43 on paper                     */
+
+  /* ---- PLANE SIGNALLING ------------------------------------------------ */
+  --can-plane-hatch-day:    #0E3927;
+  --can-plane-hatch-night:  #2E4B38;
+  --can-plane-band-h:       34px;
+
+  /* ---- SPACE + DENSITY, new to Canopy ---------------------------------- */
+  --can-row-h:      44px;   /* also the minimum touch target                */
+  --can-row-h-lg:   56px;
+  --can-plot:      176px;   /* the canopy survey-plot module                */
+  --can-gutter:     32px;
+  --can-rail:      288px;   /* leaflet index rail on the leaf view          */
+  --can-max:      1240px;
+
+}
+
+/* ==========================================================================
+   PLANE SCOPES
+   Every component below is written ONCE against plane-neutral aliases. Put
+   .plane--public or .plane--internal on <body> and the whole surface flips.
+   There is no third option and no "auto": a plane is a deployable, not a
+   preference, so it can never follow prefers-color-scheme.
+   ========================================================================== */
+.plane--public{
+  --can-bg:            var(--fol-paper);
+  --can-bg-sunk:       var(--fol-paper-sunk);
+  --can-cell:          var(--fol-paper-sunk);
+  --can-fg:            var(--fol-ink);
+  --can-fg-muted:      var(--can-day-muted);
+  --can-label:         var(--can-label-day);
+  --can-hairline:      var(--can-day-hairline);
+  --can-cell-border:   #D2CEC1;
+  --can-control:       var(--can-day-control);
+  --can-row-hover:     var(--can-day-row-hover);
+  --can-focus:         var(--can-day-focus);
+  --can-hatch:         var(--can-plane-hatch-day);
+  --can-verified:      var(--can-proof-verified-day);
+  --can-pending:       var(--can-proof-pending-day);
+  --can-excluded:      var(--can-proof-excluded-day);
+  --can-rel-internal:  var(--can-rel-internal-day);
+  --can-rel-proposed:  var(--can-rel-proposed-day);
+  --can-rel-review:    var(--can-rel-review-day);
+  --can-rel-approved:  var(--can-rel-approved-day);
+  --can-rel-approved-fill: var(--fol-paper-sunk);
+  --can-rel-live-fg:   var(--can-rel-live-fg-day);
+  --can-rel-live-bg:   var(--can-rel-live-bg-day);
+  --can-rel-withdrawn: var(--can-rel-withdrawn-day);
+  --can-btn-fg:        var(--fol-ink);
+}
+.plane--internal{
+  --can-bg:            var(--fol-canvas);
+  --can-bg-sunk:       var(--fol-evergreen-900);
+  --can-cell:          var(--fol-surface);
+  --can-fg:            var(--fol-text);
+  --can-fg-muted:      var(--fol-text-muted);
+  --can-label:         var(--can-label-night);
+  --can-hairline:      var(--fol-hairline);
+  --can-cell-border:   var(--fol-border);
+  --can-control:       var(--can-night-control);
+  --can-row-hover:     var(--can-night-row-hover);
+  --can-focus:         var(--fol-accent);
+  --can-hatch:         var(--can-plane-hatch-night);
+  --can-verified:      var(--can-proof-verified-night);
+  --can-pending:       var(--can-proof-pending-night);
+  --can-excluded:      var(--can-proof-excluded-night);
+  --can-rel-internal:  var(--can-rel-internal-night);
+  --can-rel-proposed:  var(--can-rel-proposed-night);
+  --can-rel-review:    var(--can-rel-review-night);
+  --can-rel-approved:  var(--can-rel-approved-night);
+  --can-rel-approved-fill: var(--can-rel-approved-bg);
+  --can-rel-live-fg:   var(--can-rel-live-fg-night);
+  --can-rel-live-bg:   var(--can-rel-live-bg-night);
+  --can-rel-withdrawn: var(--can-rel-withdrawn-night);
+  --can-btn-fg:        #0A1206;
+}

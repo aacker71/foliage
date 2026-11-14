@@ -1,0 +1,13 @@
+{
+  "name": "@foliage/cos",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "The local chief-of-staff routing policy: what a request MEANS and where it may go. Pure, total, open source.",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p tsconfig.json" },
+  "dependencies": {
+    "@foliage/leaf": "workspace:*"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "minLines": 25,
+  "minTokens": 150,
+  "pattern": "{apps,packages,tools,scripts}/**/*.{ts,mjs}",
+  "ignore": ["**/node_modules/**", "**/.vercel/**", "**/*.test.ts", "**/*.test.mjs"],
+  "reporters": ["console"]
+}

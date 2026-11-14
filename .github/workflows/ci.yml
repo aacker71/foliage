@@ -1,0 +1,198 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  # Draft PRs run only check-macos, which is not billed. The billed ubuntu jobs wait for
+  # ready_for_review. Of the 39 PRs opened 2026-10-10 to 2026-10-21, 13 are drafts, and one
+  # draft (#221) ran CI 12 times. A draft cannot merge, so every merge still passes them.
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Cancel superseded runs on the same ref — a queue of stale runs is noise, and noise is
+# how a real failure gets ignored.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # The brain offline gate runs on macOS (check-macos) and this job carries its result: it
+    # waits for that job and fails unless it passed. On ubuntu-latest, every gbrain step under
+    # strace, the gate took 43 to 73 minutes of billed runner time per run (#212, #213) against
+    # about 15 on the Mac, and exhausted the Actions spending limit. Waiting is not billed.
+    needs: check-macos
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
+    runs-on: ubuntu-latest
+    # Everything but the brain gate: the unit tests took 11 to more than 15 minutes here, plus
+    # setup and the website build.
+    timeout-minutes: 40
+    steps:
+      # Dependabot's PRs never run on the owner's Mac (see check-macos), so they pass without it.
+      - name: The brain offline gate passed on macOS
+        env:
+          MAC_RESULT: ${{ needs.check-macos.result }}
+          DEPENDABOT: ${{ github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' }}
+        run: |
+          [ "$MAC_RESULT" = success ] || { [ "$MAC_RESULT" = skipped ] && [ "$DEPENDABOT" = true ]; } \
+            || { echo "check-macos, which runs the brain offline gate, ended: $MAC_RESULT"; exit 1; }
+
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          # Full history, NOT the depth-1 default. The canopy seam tests run the real evidence
+          # producer over THIS repository's own git log (apps/canopy/src/seam.test.ts) — that is
+          # the point of them — and a single-commit clone starves them of the history they read.
+          # Found by pre-push audit before CI had ever run, not by a red first run.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v6
+        # Version comes from `packageManager` in package.json — pinning it twice is how the
+        # two drift apart.
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # The full gate builds the gitignored browser bundles before tests. A clean checkout
+      # has no generated renderer, so pnpm check itself must provide this prerequisite.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      # The unit tests read the pinned gbrain, so it is staged first. This is the only brain step
+      # that downloads (the pinned tarball and its locked dependencies), and it happens here on
+      # the CI machine, never on a user's. The brain offline gate itself runs in check-macos.
+      - name: Stage the pinned gbrain
+        env:
+          FOLIAGE_STAGE_GITHUB_TOKEN: ${{ github.token }}
+        run: node tools/brain/stage-gbrain.mjs
+
+      - name: Install strace for the offline gate's own tests
+        run: command -v strace || { sudo apt-get update -q && sudo apt-get install -y -q strace; }
+
+      # One source of truth: `pnpm check` is `check:portable` then the brain offline gate, so a
+      # gate added to check:portable runs here and in check-macos alike.
+      # pnpm prints each subcommand, so the first failed gate remains identifiable.
+      - name: Development gate, all but the brain offline gate
+        run: pnpm run check:portable
+
+      - name: Website lint and production build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+        run: pnpm --filter @foliage/www lint && pnpm --filter @foliage/www build
+
+  # A gate that only ever passes proves nothing. This asserts the boundary check actually
+  # fails when the boundary is actually broken, so a future refactor cannot quietly turn it
+  # into a no-op.
+  boundary-gate-is-real:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # same reason as the check job: the seam tests read this repo's history
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Introduce a public → private import and require the gate to reject it
+        run: |
+          set -euo pipefail
+          printf '\nexport { isPublic } from "@foliage/enterprise-policy";\n' \
+            >> packages/leaf/src/index.ts
+          if pnpm run check:boundary; then
+            echo "::error::check:boundary PASSED with a public→private import present — the gate is a no-op"
+            exit 1
+          fi
+          echo "gate correctly rejected the violation"
+          git checkout -- packages/leaf/src/index.ts
+          pnpm run check:boundary
+
+  # The same for the brain offline gate (unit 38): plant a fetch, then a name lookup, in the module
+  # every gbrain command loads, re-record the vendor digests the way a reviewed pin bump would, and
+  # require the gate to fail NAMING A NETWORK ATTEMPT. A digest or setup failure does not count.
+  egress-gate-is-real:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - name: Install strace
+        run: command -v strace || { sudo apt-get update -q && sudo apt-get install -y -q strace; }
+
+      # The token reaches the staging step only, never the gate or the planted gbrain.
+      - name: Stage the pinned gbrain once, and keep a copy to restore between probes
+        env:
+          FOLIAGE_STAGE_GITHUB_TOKEN: ${{ github.token }}
+        run: node tools/brain/stage-gbrain.mjs && cp -a vendor "$RUNNER_TEMP/vendor-pinned"
+
+      - name: Plant a fetch, then a name lookup, and require the gate to name the network attempt
+        run: |
+          set -euo pipefail
+          for probe in fetch lookup; do
+            rm -rf vendor && cp -a "$RUNNER_TEMP/vendor-pinned" vendor
+            node tools/brain/plant-egress-probe.mjs "$probe"
+            if node scripts/check-brain-offline.mjs > "gate-$probe.txt" 2>&1; then
+              cat "gate-$probe.txt"
+              echo "::error::the brain offline gate PASSED with a planted $probe; the gate is a no-op"
+              exit 1
+            fi
+            cat "gate-$probe.txt"
+            if ! grep -q '^NETWORK ATTEMPT:' "gate-$probe.txt"; then
+              echo "::error::the gate failed on the planted $probe without naming a network attempt; a digest or setup failure does not count"
+              exit 1
+            fi
+            echo "gate correctly named the planted $probe"
+          done
+
+  # The mac path, on the owner's own machine: real `sips`, real launchd semantics — the two
+  # things a Linux runner honestly cannot exercise (mediaSeam's no-sips branch proved it).
+  # A gate, not a signal (owner, 2026-10-21): it runs the brain offline gate, and `check` fails
+  # unless this job passed, so a merge waits for this Mac to be on and online.
+  #
+  # Never for Dependabot's PRs: `pnpm check` executes every bumped package, and this machine is
+  # not wiped between runs and holds the owner's credentials. A release nobody chose must not run
+  # here unreviewed; the ubuntu jobs still gate those PRs on throwaway runners, all but the brain
+  # offline gate, which runs only here (gbrain is pinned apart from npm). Keyed on the
+  # PR's author, not `github.actor`, so a re-run or a human push to that branch is skipped too.
+  #
+  # The brain offline gate inside `pnpm check` runs here under sandbox-exec. It never runs gbrain
+  # with this machine's environment: it builds a throwaway HOME, GBRAIN_HOME and garden, and its
+  # sandbox kills any write under the owner's real ~/.gbrain and ~/brain. Staging here uses the bun
+  # first on this runner's PATH, which must be 1.3.14 (staging refuses any other); NOT YET MEASURED
+  # on this runner. The gate takes about 14 minutes on an arm64 Mac (build order items 2 to 6).
+  check-macos:
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: [self-hosted, macOS, arm64]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Full gate on macOS
+        run: pnpm install --frozen-lockfile && node tools/brain/stage-gbrain.mjs && pnpm check

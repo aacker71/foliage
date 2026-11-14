@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true,
+    /* server.mjs is this app's only entry point and it is the repository's second MUTATING
+       surface — it carries the review's /decide and /promote. An entry point exempt from the
+       gate is an unguarded entry point, so it is typechecked from its JSDoc like the other two. */
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": ["src/**/*.ts", "server.mjs"]
+}

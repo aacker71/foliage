@@ -1,0 +1,11 @@
+{
+  "name": "@foliage/canopy",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "The hosted aggregation layer: trees (companies) and the canopy they form. Proprietary.",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p tsconfig.json" },
+  "dependencies": { "@foliage/leaf": "workspace:*" }
+}

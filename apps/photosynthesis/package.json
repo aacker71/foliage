@@ -1,0 +1,26 @@
+{
+  "name": "@foliage/photosynthesis-app",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "Photosynthesis \u2014 raw activity in, human-reviewed career evidence out. Local-first; the only model call is loopback. Open source: it runs on the subject's machine, over the subject's data.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "harvest": "node photosynthesis.mjs",
+    "review": "node ../../foliage.mjs review",
+    "review:legacy": "node review-server.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@foliage/leaf": "workspace:*",
+    "@foliage/photosynthesis": "workspace:*",
+    "@foliage/tokens": "workspace:*",
+    "@foliage/ui": "workspace:*"
+  },
+  "exports": {
+    "./renderReview": "./src/renderReview.ts",
+    "./promote": "./src/promote.ts",
+    "./harvestDocument": "./src/harvestDocument.ts",
+    "./src/harvestDocument.ts": "./src/harvestDocument.ts"
+  }
+}

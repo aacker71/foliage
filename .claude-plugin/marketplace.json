@@ -1,0 +1,13 @@
+{
+  "name": "foliage",
+  "owner": {
+    "name": "Alex A"
+  },
+  "plugins": [
+    {
+      "name": "foliage",
+      "source": "./plugin/foliage",
+      "description": "Photosynthesis: selected work \u2192 cited achievements \u2192 live portfolio and r\u00e9sum\u00e9."
+    }
+  ]
+}

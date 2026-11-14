@@ -1,0 +1,2057 @@
+/* ==========================================================================
+   apps/leaf — PAGE CHROME ONLY.
+
+   One person's leaf (`/`), one leaflet of it (`/leaflet/<id>`), and the review
+   queue (`/review`).
+
+   WHAT THIS FILE IS NOW, AND WHAT IT USED TO BE. It used to be 927 lines that
+   re-implemented the design system: `.leaf-cell` was `.cell`, `.leaf-pill` was
+   `.proof`, `.leaf-count` was `.metric b`, `.leaf-cells` was `.cells-3`,
+   `.leaf-note` was `.aside`, `.review-input` was `.field`, `.review-btn` was
+   `.btn`, and the FACE — the whole day/night rebinding — existed here as a
+   second copy of the one in apps/canopy/public/tree.css. Every one of those is
+   retired. The components come from @foliage/tokens now:
+
+       /tokens.css   primitives + @font-face + the FACE + .fol-label/.fol-metric
+       /roles.css    --fol-role-* semantic aliases, every one a pure alias
+       /foliage.css  .cell .cells-* .proof .btn .field .plate .metric .aside .ico
+       /leaf.css     THIS FILE — masthead, measure, section rhythm, and the
+                     components the system genuinely does not have
+
+   The load order above is fixed and the server emits it in that order.
+
+   WHAT IS STILL HERE, AND THE TEST FOR WHETHER IT SHOULD BE. A rule belongs in
+   this file only if it is (a) page chrome — masthead, measure, section rhythm,
+   footer — or (b) a component with NO system equivalent. Each of the latter is
+   marked `SURFACE-SPECIFIC:` with the reason. A rule that restates a
+   foliage.css component is a bug, not a style, because the moment it exists the
+   system stops being the source of truth and the two drift silently.
+
+   NO RAW COLOUR ANYWHERE. Every colour below is a role or a token, checked
+   mechanically by src/dayFaceCss.test.ts. The design system can only stay the
+   source of truth if this app never spells a colour itself.
+
+   THE APP KIT IS THE WORKED EXAMPLE, not a second design. Open Design's
+   `ui_kits/app/kit.css` is what "page chrome consuming the role layer" looks
+   like when the system's author writes it, and three rules below were corrected
+   against it and against IMPLEMENTATION.md §7 (the accessibility floor). Each
+   carries its own measurement; the summary, taken on a 681-leaflet
+   document at 1440x900 on 2026-08-20:
+
+     the roster row      218px -> 174px tall, page 192,873px -> 144,283px, by
+                         setting the row's evidence on one baseline (the kit's
+                         `.k-sub`) instead of four stacked lines. NO TEXT WAS
+                         REMOVED — visible words 28,119 before and after, chrome
+                         words 5,372 before and after. This is layout, not copy.
+     the counts hover    stopped LOWERING contrast (5.54:1 -> 5.08:1 on the
+                         number it points at). The state moved to the border.
+     the focus ring      stopped being drawn around a 65,353px section, where a
+                         2px outline is invisible by being enormous.
+
+   What the kit is NOT allowed to bring across: its filter tabs and its
+   `<dialog>` both need `kit.js`, and this app serves `default-src 'none'` with
+   no `script-src`. The CSP does not widen for a design.
+
+   FACE BY SURFACE, NOT BY PREFERENCE — argued in src/render.ts, implemented in
+   tokens.css, and NOT repeated here:
+       /              day    the published document an employer reads
+       /leaflet/<id>  day    one artifact OUT of that document, shared by link
+       /review        night  the operator alone with machine drafts
+   There is no toggle and no prefers-color-scheme.
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ==========================================================================
+   MEASURE — the one thing that varies BY SURFACE rather than by face.
+
+   A leaf is a document and is set to a reading measure. The review queue is not
+   a document: every row carries a title, three metadata fields, its evidence
+   refs and a form, and at the leaf's 46rem the evidence rows wrap every few
+   words. So the measure is keyed on `data-surface`, which names what the page
+   IS — the same thing that decides its face. Keying it on the FACE, which is
+   what this file used to do, only worked because `/review` happens to be the
+   one night surface; it would have silently broken the day it was not.
+   ========================================================================== */
+:root { --leaf-measure: 46rem; }
+/* The four studio dashboards carry tables and stat rows, the same reason /review does — wide
+   content wraps to nothing readable at the leaf's 46rem. Extending the existing selector rather
+   than adding a second rule keeps "which surfaces are wide" answerable by one grep. */
+[data-surface="review"],
+[data-surface="overview"],
+[data-surface="garden"],
+[data-surface="policy"],
+[data-surface="publish"] { --leaf-measure: 60rem; }
+
+/* Publish preview is an inventory, not a wall of policy prose. Each item keeps its
+   exact reason in a native disclosure; the same bordered rows work at phone width. */
+.publish-handoff { flex: none; text-decoration: none; }
+.publish-facets {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  border-block: 1px solid var(--fol-role-line);
+  margin-bottom: var(--fol-role-pad-panel);
+}
+.publish-facets a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--fol-s-2);
+  padding: var(--fol-s-3) var(--fol-s-2);
+  border-bottom: 2px solid transparent;
+  color: var(--fol-role-fg-secondary);
+  text-decoration: none;
+}
+.publish-facets a:hover,
+.publish-facets a[aria-current="page"] { color: var(--fol-role-fg); }
+.publish-facets a[aria-current="page"] { border-bottom-color: var(--fol-role-fg); }
+.publish-facets .leaf-count { font-size: var(--fol-t-16); }
+.publish-list-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--fol-s-3);
+}
+.publish-list-heading h2 { margin-bottom: var(--fol-s-3); }
+.publish-list-heading p { margin: 0; color: var(--fol-role-fg-secondary); }
+.publish-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--fol-role-line); }
+.publish-row { padding: var(--fol-s-4) 0; border-bottom: 1px solid var(--fol-role-line); }
+.publish-row-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--fol-s-3); align-items: start; }
+.publish-row h3 { margin: 0; font: 500 var(--fol-t-16)/1.4 var(--fol-font-sans); overflow-wrap: anywhere; }
+.publish-row-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--fol-s-2); }
+.publish-row-actions { display: flex; align-items: baseline; gap: var(--fol-s-4); margin-top: var(--fol-s-2); font-size: var(--fol-t-14); }
+.publish-row-actions details { min-width: 0; }
+.publish-row-actions summary { cursor: pointer; color: var(--fol-role-fg-secondary); }
+.publish-row-actions details[open] { flex: 1; }
+.publish-row-actions p { max-width: 70ch; margin: var(--fol-s-2) 0 0; color: var(--fol-role-fg-secondary); }
+.publish-row-actions details code { display: block; margin-top: var(--fol-s-1); overflow-wrap: anywhere; color: var(--fol-role-fg); }
+.publish-row-address { margin-top: var(--fol-s-2); font-size: var(--fol-t-14); overflow-wrap: anywhere; }
+.publish-row-actions a,
+.publish-row-address a,
+.publish-pagination a { color: var(--fol-role-fg); text-decoration: none; }
+.publish-row-actions a:hover,
+.publish-row-address a:hover,
+.publish-pagination a:hover { color: var(--fol-role-fg-secondary); }
+.publish-no-rows { padding: var(--fol-s-5) 0; border-block: 1px solid var(--fol-role-line); }
+.publish-pagination { display: flex; align-items: center; justify-content: space-between; gap: var(--fol-s-3); padding: var(--fol-s-4) 0; }
+.publish-pagination a,
+.publish-pagination [aria-disabled="true"] { min-width: 5rem; }
+.publish-pagination [aria-disabled="true"] { color: var(--fol-role-fg-tertiary); }
+.publish-command-line {
+  border-top: 1px solid var(--fol-role-line);
+  margin-top: var(--fol-s-5);
+  padding-top: var(--fol-s-3);
+  color: var(--fol-role-fg-secondary);
+  font-size: var(--fol-t-14);
+}
+.publish-command-line summary { width: fit-content; cursor: pointer; }
+.publish-command-line p { margin: var(--fol-s-3) 0 var(--fol-s-1); }
+.publish-command-line code { display: block; overflow-wrap: anywhere; color: var(--fol-role-fg); }
+.publish-facets a:focus-visible,
+.publish-handoff:focus-visible,
+.publish-row-actions :is(a,summary):focus-visible,
+.publish-row-address a:focus-visible,
+.publish-pagination a:focus-visible,
+.publish-command-line summary:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 3px; }
+@media (max-width: 800px) {
+  .publish-facets { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .publish-subject { align-items: flex-start; flex-direction: column; }
+  .publish-row-main { grid-template-columns: 1fr; gap: var(--fol-s-2); }
+  .publish-row-meta { justify-content: flex-start; }
+  .publish-pagination { flex-wrap: wrap; }
+}
+
+/* SURFACE-SPECIFIC: policy rules read as conditions and effects. The real table
+   headers and explicit roles remain for assistive technology; each rule becomes
+   a reading row so its identifier and terminal machinery can recede. */
+.policy-counts { display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--fol-s-2) var(--fol-s-5); margin:var(--fol-s-3) 0 var(--fol-s-5); padding-block:var(--fol-s-3); border-block:1px solid var(--fol-role-line); color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.policy-counts span { display:inline-flex; align-items:baseline; gap:var(--fol-s-2); }
+.policy-counts .leaf-count { display:inline; color:var(--fol-role-fg); font-size:var(--fol-t-16); font-weight:500; line-height:inherit; }
+.policy-rules-wrap { overflow:visible; }
+.policy-rules-table, .policy-rules-table tbody { display:block; }
+.policy-rules-table thead { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.policy-rules-table tbody tr { display:grid; grid-template-columns:var(--fol-s-6) minmax(0,1fr) auto; gap:var(--fol-s-1) var(--fol-s-4); padding:var(--fol-s-4) var(--fol-s-5); border-bottom:1px solid var(--fol-role-line); }
+.policy-rules-table tbody tr:last-child { border-bottom:0; }
+.policy-rules-table tbody td { display:block; min-width:0; padding:0; border:0; white-space:normal; overflow-wrap:anywhere; }
+.policy-order { grid-column:1; grid-row:1; color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.policy-order::before { content:"#"; }
+.policy-match { grid-column:2; grid-row:1; color:var(--fol-role-fg); font-weight:500; }
+.policy-effect { grid-column:3; grid-row:1; font-size:var(--fol-t-13); font-weight:600; }
+.policy-why { grid-column:2 / -1; grid-row:2; }
+.policy-rules-table details summary { width:fit-content; min-height:44px; align-content:center; cursor:pointer; color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.policy-rules-table details summary:hover { color:var(--fol-role-fg); }
+.policy-rules-table details summary:focus-visible, .policy-technical summary:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+.policy-why details p { margin:0 0 var(--fol-s-2); max-width:70ch; color:var(--fol-role-fg-secondary); }
+.policy-why details .policy-id { margin-top:var(--fol-s-3); font-size:var(--fol-t-13); }
+.policy-id code { margin-left:var(--fol-s-2); color:var(--fol-role-fg); font-size:var(--fol-t-13); overflow-wrap:anywhere; }
+.policy-technical { display:flex; flex-wrap:wrap; gap:0 var(--fol-s-5); margin-top:var(--fol-s-5); color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.policy-technical details { min-width:0; }
+.policy-technical summary { width:fit-content; min-height:44px; align-content:center; cursor:pointer; }
+.policy-technical p { margin:0 0 var(--fol-s-3); overflow-wrap:anywhere; }
+
+/* Harvest keeps its five data columns on desktop and reading rows on a phone.
+   Explicit table roles preserve the relationships when CSS changes the boxes. */
+.garden-counts { display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--fol-s-2) var(--fol-s-5); margin:var(--fol-s-3) 0 var(--fol-s-5); padding-block:var(--fol-s-3); border-block:1px solid var(--fol-role-line); }
+.garden-count { display:inline-flex; align-items:baseline; gap:var(--fol-s-2); color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.garden-count .leaf-count { color:var(--fol-role-fg); font-size:var(--fol-t-16); font-weight:500; }
+.garden-review-action { flex:none; text-decoration:none; }
+.garden-list-heading { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:var(--fol-s-2) var(--fol-s-4); margin-bottom:var(--fol-s-3); }
+.garden-list-heading h2 { margin:0; }
+.garden-list-heading p { margin:0; color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.garden-list-heading time { font-family:var(--fol-font-mono); font-variant-numeric:tabular-nums; }
+/* The Observed cell is nowrap (.fol-table td.fol-metric); a long author-date span wraps instead of widening it. */
+.garden-authored { display:block; margin-top:var(--fol-s-1); font-family:var(--fol-font-sans); font-size:var(--fol-t-13); color:var(--fol-role-fg-secondary); overflow-wrap:normal; white-space:normal; }
+.leaf-stacked-table td { min-width: 0; overflow-wrap: anywhere; }
+[data-surface="garden"] .leaf-stacked-table td:nth-child(2) { white-space: nowrap; }
+.leaf-stacked-table td[data-mobile-label]::before { content: none; }
+.leaf-stacked-table details summary { cursor: pointer; color: var(--fol-role-fg); }
+.leaf-stacked-table details p { margin: var(--fol-s-2) 0 0; color: var(--fol-role-fg-secondary); max-width: 70ch; }
+.leaf-stacked-table details summary:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 3px; }
+
+@media (min-width: 641px) {
+  [data-surface="garden"] .leaf-stacked-table :is(th,td):nth-child(4) { padding-right:var(--fol-s-5); }
+  [data-surface="garden"] .leaf-stacked-table :is(th,td):nth-child(5) { min-width:9rem; }
+}
+
+@media (max-width: 640px) {
+  .garden-subject { flex-wrap:wrap; }
+  .policy-rules-table tbody tr { padding-inline:var(--fol-s-4); }
+  .leaf-stacked-table-wrap { border: 0; background: transparent; overflow: visible; }
+  .leaf-stacked-table, .leaf-stacked-table tbody, .leaf-stacked-table tbody tr,
+  .leaf-stacked-table tbody td { display: block; width: 100%; }
+  .leaf-stacked-table thead {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  .leaf-stacked-table tbody tr {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--fol-s-3) var(--fol-s-4); padding: var(--fol-s-4) 0;
+    border-top: 1px solid var(--fol-role-line);
+  }
+  .leaf-stacked-table tbody tr:last-child { border-bottom: 1px solid var(--fol-role-line); }
+  .leaf-stacked-table tbody td,
+  .leaf-stacked-table tbody td.fol-metric {
+    min-width: 0; padding: 0; border: 0; text-align: left; white-space: normal;
+  }
+  .leaf-stacked-table tbody td[data-mobile-label]::before {
+    content: attr(data-mobile-label); display: block; margin-bottom: var(--fol-s-1);
+    font: 500 var(--fol-t-11)/1.2 var(--fol-font-sans);
+    color: var(--fol-role-fg-secondary);
+  }
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(1),
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(3),
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(5) { grid-column: 1 / -1; }
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(1) { color: var(--fol-role-fg); }
+  [data-surface="garden"] .leaf-stacked-table tbody td::before { content: none; }
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(1) { grid-row: 1; font-weight: 500; }
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(2) { grid-column: 1; grid-row: 2; }
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(4) { grid-column: 2; grid-row: 2; }
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(3) { grid-row: 3; color: var(--fol-role-fg-secondary); }
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(5) { grid-column: 2; grid-row: 3; color: var(--fol-role-fg-secondary); }
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(4),
+  [data-surface="garden"] .leaf-stacked-table td:nth-child(5) { text-align: right; }
+}
+
+html {
+  background: var(--fol-role-bg);
+  color: var(--fol-role-fg);
+  font: 400 var(--fol-t-16)/1.6 var(--fol-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+body { margin: 0; }
+
+/* SURFACE-SPECIFIC: the inline sprite's carrier. foliage.css has no rule for it
+   because the sprite is delivered per document rather than by the system, and
+   Open Design's own carrier uses `style="position:absolute"` — a style ATTRIBUTE,
+   which the served `style-src 'self'` blocks outright. Without the rule the
+   zero-size <svg> still generates a line box and pushes the page down. */
+.leaf-sprite { position: absolute; }
+
+/* ==========================================================================
+   FOCUS — real, measurable, and never the UA's `auto` ring.
+
+   Two colours, on purpose, and each is the design system's own rule rather
+   than this file's preference:
+
+     - `.btn` and `.field` take --fol-role-focus (the accent) from foliage.css,
+       which reverses it to --fol-text on the day face because the accent
+       measures 1.68:1 on paper and would fail WCAG 1.4.11 on the one
+       affordance a keyboard user depends on. The only controls in this app are
+       on `/review`, which is night, where the accent is 10.24:1.
+     - everything else focusable — links, the skip link, the tabindex="-1"
+       section targets — takes --fol-role-fg here: 16.36:1 on canvas, 15.56:1
+       on paper, correct on BOTH faces with one declaration.
+
+   `:where()` contributes ZERO specificity, so foliage.css's `.btn:focus-visible`
+   (0,2,0) wins over this (0,1,0) rather than fighting it. That is the intended
+   relationship and it is why the selector is written this way.
+
+   THE FORM CONTROLS ARE NAMED EXPLICITLY. `:where(a, [tabindex])` matched
+   nothing on the review queue — a <button> and an <input> are focusable without
+   a tabindex — so the queue's only interactive elements fell back to the UA
+   ring, which on a dark surface under a light-mode UA disappears entirely.
+   ========================================================================== */
+:where(a, [tabindex], button, input, summary):focus-visible {
+  outline: 2px solid var(--fol-role-fg);
+  outline-offset: 2px;
+  border-radius: var(--fol-r-1);
+}
+
+/* A LANDING TARGET IS NOT A CONTROL, and ringing it like one hides the ring.
+
+   `.leaf-work` and `.leaf-group` carry `tabindex="-1"` so a ledger count can
+   move focus, not just the viewport — without it a keyboard user activates
+   "Pending 304" and their focus stays on the cell they left, which is the
+   in-page-anchor defect WCAG 2.4.3 exists for. That part is right and stays.
+
+   What was wrong is what the ring then drew. MEASURED on a 681-leaflet
+   document at 1440x900: activating the pending count with Enter focuses
+   `#leaf-group-pending`, `:focus-visible` matches, and the rule above paints a
+   2px outline around a box **65,353px tall**. The user sees one stray hairline
+   at the top of the screen and no indicator at all — a focus ring that fails
+   WCAG 2.4.7 precisely BECAUSE it is enormous. A screenshot cannot show it; the
+   element's own height is the tell.
+
+   So the section suppresses the ring and its HEADING takes it. The heading is
+   what a reader is looking at when they arrive, it is inside the viewport by
+   construction, and it is the accessible name of the thing that was focused. */
+.leaf-work,
+.leaf-group {
+  /* The anchor lands the section flush with the viewport edge, which clipped the
+     ring's 2px offset off the top — measured `top=0` on the focused heading.
+     A scroll margin is the only correct fix: it moves the SCROLL, not the box. */
+  scroll-margin-top: var(--fol-s-4);
+}
+.leaf-work:focus-visible,
+.leaf-group:focus-visible {
+  outline: none;
+}
+.leaf-work:focus-visible > h2,
+.leaf-group:focus-visible > .fol-label {
+  outline: 2px solid var(--fol-role-fg);
+  outline-offset: 2px;
+  border-radius: var(--fol-r-1);
+}
+
+/* The skip link is a CONTROL and takes the 44px floor (IMPLEMENTATION.md §7).
+   Measured before this line: 117 x 31px. It is the first thing a keyboard user
+   reaches on every one of these pages and it was the smallest target on them. */
+.leaf-skip {
+  position: absolute;
+  left: -9999px;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fol-s-7);
+  background: var(--fol-role-bg);
+  color: var(--fol-role-fg);
+  border: 1px solid var(--fol-role-edge-control);
+  border-radius: var(--fol-role-radius-control);
+  padding: var(--fol-s-2) var(--fol-s-4);
+  font: 500 var(--fol-t-13)/1 var(--fol-font-sans);
+  text-decoration: none;
+}
+.leaf-skip:focus { left: var(--fol-s-4); top: var(--fol-s-4); z-index: 2; }
+
+/* ==========================================================================
+   FRAME — masthead and measure. Open Design's `.pg-wrap` / `.pg-bar`, at this
+   app's measure rather than its 1000px prototype width.
+   ========================================================================== */
+.leaf-head,
+.leaf-main {
+  max-width: var(--leaf-measure);
+  margin: 0 auto;
+  padding: 0 var(--fol-role-pad-panel);
+}
+.leaf-head {
+  padding-top: var(--fol-role-pad-page);
+  padding-bottom: var(--fol-role-pad-panel);
+}
+.leaf-main { padding-bottom: var(--fol-s-9); }
+/* THE STUDIO NAV REPLACES `.leaf-head` on owner pages (see `page()`'s `nav` option in render.ts)
+   rather than sitting above it, so `.leaf-main` needs the top breathing room `.leaf-head` used to
+   supply on its own. `.fol-nav` is fixed-width chrome from foliage.css and stays untouched; this
+   is the app's own content spacing, the same kind `.leaf-head`'s padding-top already was. */
+.leaf-main-nav { padding-top: var(--fol-role-pad-page); }
+
+/* THE MARK is `.m` from foliage.css, which owns its colour — cream on night,
+   evergreen on paper — through the face. This supplies only the box, because a
+   <use> into a symbol has no intrinsic size.
+
+   28px, and therefore the ICON TIER (`#fol-mark-sm`): three pinna pairs with
+   each plume collapsed to one solid leaf. The primary tier draws 96 leaflets
+   and none of them survives at this size. src/render.ts names the symbol once.
+
+   The CSS-MASK TECHNIQUE THIS REPLACES is gone. It painted a background colour
+   behind `mask: url("/mark-primary.svg")` because an <img> is an opaque
+   document and `currentColor` could never reach into it. A <use> into an inline
+   symbol has no such problem: it inherits `color` like any other element, so
+   the mark takes its face colour directly and there is still exactly one copy
+   of the path in the repository. */
+.leaf-mark { width: 28px; height: 28px; }
+
+/* ==========================================================================
+   TYPE — Open Design's scale and display treatment.
+   ========================================================================== */
+h1, h2, h3 { font-weight: 400; }
+
+h1 {
+  font-family: var(--fol-font-display);
+  font-size: var(--fol-t-40);
+  /* opsz IS PINNED, and leaving it out was not a simplification. Fraunces carries
+     a real `opsz` axis (9..144, default 9 — read out of the fvar table of the
+     woff2 this repo self-hosts), and with no explicit value CSS applies
+     `font-optical-sizing: auto`, which resolves opsz to the USED PIXEL SIZE. At
+     40px that selects the TEXT cut of the face, not the DISPLAY cut, and the
+     headline of a published document is the one place the display cut is the
+     whole point.
+
+     Measured in a browser on one sample headline (400, 40px, this rule's own
+     letter-spacing, after document.fonts.ready):
+       auto (= opsz 40)  330.41px
+       "opsz" 90         281.63px   -14.8%
+       "opsz" 100        279.05px   -15.5%
+     and at the --fol-t-32 the 26rem query below drops to: auto 264.07px,
+     "opsz" 90 222.85px.
+
+     90, NOT Open Design's 100. OD pins 100 on its public-leaf model, but pairs
+     it with --fol-t-50 and SOFT 24; this heading is --fol-t-40 with SOFT 28, and
+     the repo already ships exactly that combination at exactly that size in
+     apps/canopy/public/canopy-base.css:33 (`.display`, "opsz" 90). The two
+     values differ by 0.9% of advance width here, so the tie-break is coherence:
+     leaf and canopy render the same size the same way, or the system has two
+     answers to one question. */
+  font-variation-settings: "opsz" 90, "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+  line-height: 1.05;
+  /* Not optional: with line-height 1.05 on the display face and no top margin
+     on `p`, a headline and its lead render with a measured 0px between them.
+     Caught in the running page, not in review. */
+  margin: var(--fol-s-2) 0 var(--fol-s-4);
+}
+h2 {
+  font-family: var(--fol-font-display);
+  font-size: var(--fol-t-25);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+  line-height: 1.2;
+  margin: 0 0 var(--fol-s-3);
+}
+h3 { font-size: var(--fol-t-16); line-height: 1.4; margin: 0; }
+
+p { margin: 0 0 var(--fol-s-3); max-width: 66ch; }
+p:last-child { margin-bottom: 0; }
+
+/* SURFACE-SPECIFIC: the page's opening sentence. Open Design's `.pg-sub`,
+   which lives in ITS page chrome too — it is a document lede, not a component. */
+.leaf-lede {
+  color: var(--fol-role-fg-secondary);
+  max-width: 62ch;
+  margin: var(--fol-s-4) 0 0;
+}
+
+/* Section rhythm. The divider is the HAIRLINE, which is decorative and quiet by
+   design: a section break should be lighter than a cell boundary. */
+.leaf-subject,
+.leaf-work,
+.leaf-empty,
+.leaf-ledger,
+.leaf-state {
+  padding: var(--fol-role-pad-page) 0;
+  border-top: 1px solid var(--fol-role-line);
+}
+.leaf-subject { border-top: 0; padding-top: 0; }
+.leaf-state { border-top: 0; padding-top: 0; }
+.fol-app .leaf-start { display:grid; justify-items:start; gap:var(--fol-s-5); }
+.fol-app .leaf-start h1 { margin:0; }
+/* Overview borrows Work's row rhythm. Work stays above quiet record accounting. */
+.ov-content { display:grid; grid-template-columns:minmax(0,1.85fr) minmax(14rem,.7fr); align-items:start; column-gap:var(--fol-s-7); max-width:72rem; }
+.ov-first-use { max-width:40rem; padding-block:var(--fol-role-pad-page); }
+.ov-first-use h1 { max-width:17ch; margin:0 0 var(--fol-s-4); }
+.ov-first-use > p { max-width:55ch; color:var(--fol-role-fg-secondary); font-size:var(--fol-t-16); line-height:1.6; }
+.ov-first-use-actions { display:flex; align-items:center; flex-wrap:wrap; gap:var(--fol-s-3) var(--fol-s-5); margin-top:var(--fol-s-6); }
+.ov-lead { grid-column:1/-1; display:flex; align-items:center; flex-wrap:wrap; gap:var(--fol-s-3) var(--fol-s-5); padding-bottom:var(--fol-s-4); border-bottom:1px solid var(--fol-border); }
+.ov-lead h1 { margin:0 auto 0 0; font:600 var(--fol-t-25)/1.2 var(--fol-font-sans); letter-spacing:-.025em; }
+.ov-next { display:flex; align-items:center; flex-wrap:wrap; gap:var(--fol-s-3); }
+.ov-secondary { display:inline-flex; align-items:center; min-height:var(--fol-role-height-control); color:var(--fol-text-muted); font-size:var(--fol-t-13); }
+.ov-work { grid-column:1; grid-row:2/span 2; min-width:0; padding-block:var(--fol-s-6); }
+.ov-work-heading { display:flex; align-items:center; justify-content:space-between; gap:var(--fol-s-4); padding-bottom:var(--fol-s-3); }
+.ov-work-heading h2 { margin:0; font:400 var(--fol-t-32)/1.2 var(--fol-font-display); }
+.ov-work-heading a { display:inline-flex; align-items:center; min-height:var(--fol-role-height-control); color:var(--fol-text); font-size:var(--fol-t-13); }
+.ov-work-list { list-style:none; margin:0; padding:0; border-top:1px solid var(--fol-border); }
+.ov-work-row { padding-block:var(--fol-s-4); border-bottom:1px solid var(--fol-border); }
+.ov-work-row:first-child { margin:var(--fol-s-3) 0; padding:var(--fol-s-5); background:var(--fol-surface-raised); border:1px solid var(--fol-role-edge); border-radius:var(--fol-role-radius-panel) var(--fol-shape-tip) var(--fol-role-radius-panel) var(--fol-shape-tip); }
+.ov-work-row h3 { margin:0; max-width:50ch; font:400 var(--fol-t-20)/1.3 var(--fol-font-display); overflow-wrap:anywhere; }
+.ov-work-row:first-child h3 { max-width:29ch; font-size:var(--fol-t-25); line-height:1.2; }
+.ov-work-row>p { margin:var(--fol-s-3) 0 0; max-width:66ch; color:var(--fol-text-muted); font-size:var(--fol-t-14); line-height:1.6; overflow-wrap:anywhere; white-space:pre-wrap; }
+.ov-work-row .work-record-meta { display:flex; align-items:center; flex-wrap:wrap; gap:var(--fol-s-2) var(--fol-s-5); margin-top:var(--fol-s-2); color:var(--fol-text-muted); font-size:var(--fol-t-13); }
+.ov-work-row .work-record-open { display:inline-flex; align-items:center; min-height:var(--fol-role-height-control); padding-inline:var(--fol-s-2); border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-control); color:var(--fol-text); font-weight:500; }
+.ov-accounting { grid-column:2; min-width:0; padding-block:var(--fol-s-5); border-top:1px solid var(--fol-border); }
+.ov-content--no-work .ov-accounting { grid-column:1/-1; }
+.ov-work + .ov-accounting { border-top:0; padding-top:var(--fol-s-6); }
+.ov-accounting h2 { margin:0 0 var(--fol-s-2); font:500 var(--fol-t-14)/1.4 var(--fol-font-sans); }
+.ov-stat-line { display:flex; flex-wrap:wrap; gap:var(--fol-s-2) var(--fol-s-5); margin:0; }
+.ov-stat { display:inline-flex; align-items:baseline; gap:var(--fol-s-2); }
+.ov-stat .leaf-count { font-size:var(--fol-t-14); font-weight:500; }
+@media(max-width:960px) { .ov-content { display:block; }.ov-accounting { padding-block:var(--fol-s-4); }.ov-work + .ov-accounting { border-top:1px solid var(--fol-border); padding-top:var(--fol-s-4); } }
+@media(max-width:640px) { .ov-lead { align-items:flex-start; flex-direction:column; }.ov-lead h1 { margin-right:0; }.ov-next { align-items:flex-start; flex-direction:column; }.ov-work { padding-block:var(--fol-s-5); }.ov-work-heading h2 { font-size:var(--fol-t-25); }.ov-work-row:first-child { padding:var(--fol-s-4); }.ov-work-row:first-child h3 { font-size:var(--fol-t-20); } }
+
+/* ==========================================================================
+   THE PLATE, AT PAGE SCALE.
+
+   `.plate` / `.plate-t` / `.plate-b` are the system's empty and error contract
+   and are used verbatim. `.plate-t` is 14px because the component is sized for
+   an empty REGION inside a page. On the five load-failure pages the plate title
+   IS the page's <h1>, so it takes the page's display scale — the component is
+   not being restyled, it is being used at a different altitude, and only where
+   it is the whole page.
+
+   THERE IS NO LOADING PLATE ANYWHERE IN THIS APP AND THERE MUST NOT BE ONE.
+   These three routes are a synchronous server render: the document is read and
+   the HTML is written in the same request. A skeleton would be a picture of a
+   state that never happens. Empty and error only.
+   ========================================================================== */
+.leaf-state h1.plate-t {
+  font-family: var(--fol-font-display);
+  font-size: var(--fol-t-40);
+  /* The same pin as `h1` above, and it has to be restated rather than inherited:
+     `.plate-t` sets the `font` SHORTHAND, and the shorthand resets
+     font-variation-settings and font-optical-sizing to their initial values.
+     `.plate-t` (0,1,0) outranks the bare `h1` (0,0,1), so without this line the
+     five load-failure pages would render their headline in the text cut while
+     the portfolio rendered it in the display cut — the same face, two widths,
+     for the same reason nobody would ever look for. */
+  font-variation-settings: "opsz" 90, "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+  line-height: 1.05;
+  font-weight: 400;
+}
+/* The plate's own body is capped at 34ch, which is right for a short sentence
+   in a narrow region and too narrow for a page-width one. The plates in this
+   app carry one sentence each; this lets that sentence use the page's measure
+   rather than a column a third of it. */
+.plate-b { max-width: 52ch; }
+.plate .ico { color: var(--fol-role-fg-tertiary); }
+
+/* ==========================================================================
+   THE COUNTS STRIP — Open Design's `.pg-counts` (public-leaf.html), which is
+   PAGE CHROME in that prototype too.
+
+   SURFACE-SPECIFIC, and this is the reason: the system ships .cells-2, .cells-3
+   and .cells-5, and this strip is FOUR — three tiers and their total. Adding a
+   .cells-4 to the system for one page would be the system growing to fit a
+   page instead of the other way round.
+
+   THE FOURTH CELL IS THE TOTAL AND MAY ONLY EVER BE THE TOTAL. It is untinted
+   and it is not a link. A fourth counts cell that is not the total is a fourth
+   tier wearing a number, and there are exactly three tiers.
+   ========================================================================== */
+.leaf-counts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--fol-role-gap-grid);
+  /* The strip sits under the paragraph that explains what the numbers are NOT. Measured in the
+     running page at 1440: the aside's last line and the top of the cells were 12px apart, which
+     read as one block and made the sentence look like a caption on the cells rather than a rule
+     about them. */
+  margin-top: var(--fol-role-pad-panel);
+}
+/* SURFACE-SPECIFIC: stacks a label over its number INSIDE the system's `.cell`,
+   and makes the anchor form of the cell behave like the div form. The border,
+   radius, padding and ground are all `.cell`'s — none of them is restated. */
+.leaf-count-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fol-s-2);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    background var(--fol-role-speed-state) var(--fol-role-ease-in),
+    border-color var(--fol-role-speed-state) var(--fol-role-ease-in);
+}
+/* Each cell is the affordance to its own explanation: the count jumps to the
+   rows it counts. HOVER and PRESSED move along the BORDER only — never with a
+   transform or a shadow, because a bordered cell that lifts is a card, which
+   the system rules out, and never with the ground, which is the correction
+   below.
+
+   CONTRAST MAY ONLY RISE ON A STATE CHANGE (IMPLEMENTATION.md §7; disabled is
+   the sole exception). This rule used to swap the ground to
+   --fol-role-panel-raised on hover, and MEASURED on the running day face that
+   LOWERS the contrast of the very number being pointed at:
+
+     ground                     pending count   body text
+     --fol-role-panel           5.54:1          14.23:1
+     --fol-role-panel-raised    5.08:1          13.03:1
+
+   (WCAG 2.x relative luminance, computed in the browser from the painted sRGB
+   values at 1440x900 on the day face, 2026-08-20. The night face moves the same
+   way for the same reason — `raised` steps TOWARDS the text on both faces — and
+   tokens.css already records it beside the token: --fol-pending is
+   "5.68 canvas / 5.33 surface / 4.83 raised".)
+
+   Dimming the count is the one thing this strip may not do — 0 verified is real
+   data and the number a reader most needs to trust, which is the same argument
+   the dashed zero-count rule below is built on. The border carries the whole
+   state instead, and it is a bigger move than the ground ever was:
+   --fol-role-edge measures 1.51:1 against the cell and --fol-role-edge-control
+   5.07:1 (day; 1.57:1 -> 5.30:1 on night), so the edge more than triples in
+   contrast while no text on the page changes at all. */
+a.leaf-count-cell:hover {
+  border-color: var(--fol-role-edge-control);
+}
+a.leaf-count-cell:active {
+  border-color: var(--fol-role-fg);
+}
+/* NOT-A-LINK — a zero count.
+   DEPARTURE FROM THE SYSTEM, STATED. `.btn:disabled` is `opacity:.38`. Applied
+   here it would render the count at roughly 2.4:1, and that count is DATA: 0
+   verified is a real, honest fact about this leaf and the one number a reader
+   most needs to trust. WCAG exempts inactive controls from contrast; it does
+   not make dimmed data readable. So the absence of a target is signalled
+   STRUCTURALLY, by a dashed rule, and the text keeps its full contrast. The
+   border keeps its weight and only its dash pattern changes — a dash is a
+   shape, and a shape survives greyscale and colour blindness on its own. */
+.leaf-count-cell[data-disabled="true"] {
+  border-style: dashed;
+  cursor: default;
+}
+/* SURFACE-SPECIFIC: the portfolio count is the page's headline number, at Open
+   Design's own `.pg-count b` size (--fol-t-40 mono tabular). `.metric b` is the
+   25px number of a metric ROW, which is a different component in a different
+   place; this is not a second copy of it. `.fol-metric` on the element supplies
+   the family and the tabular numerics, so only the display size is here. */
+.leaf-count {
+  display: block;
+  font-weight: 500;
+  font-size: var(--fol-t-40);
+  line-height: 1;
+}
+/* THE TIER TINT ON THE NUMBER, from the semantic tokens the face rebinds. Three
+   tiers, three colours, nothing brighter or heavier than its neighbours — and
+   the total deliberately takes none of them, because an untinted total is how a
+   reader sees at a glance that it is not a fourth state. */
+.leaf-count[data-count="verified"] { color: var(--fol-role-verified); }
+.leaf-count[data-count="pending"]  { color: var(--fol-role-pending); }
+.leaf-count[data-count="excluded"] { color: var(--fol-role-excluded); }
+
+/* ==========================================================================
+   TIER LEGEND — what the three counts actually mean.
+
+   SURFACE-SPECIFIC: a two-column definition list whose term column is shared
+   across every row. The system has no such component and should not grow one
+   for a single page.
+
+   NOT A CELL, DELIBERATELY. It sits between the bordered counts and the
+   leaflet rows; a border here would make three boxed things in a row with
+   nothing separating data from annotation.
+
+   THE COLUMN IS SHARED VIA SUBGRID, and the first version of this was wrong in
+   a way only the running page showed. Each row carried its own
+   `grid-template-columns: max-content 1fr`, which sizes the term column to THAT
+   ROW's badge: the definitions started at 449.5, 442.1 and 449.5px, so the
+   middle one hung 7.4px into the gutter. It looked aligned and measured ragged.
+   The rows now subgrid the PARENT's tracks, so one `max-content` is computed
+   across all three badges.
+
+   THE BADGE IS THE SAME `.proof` THE ROWS USE, not a restyled copy: the reader
+   matches the glyph in the legend to the identical glyph on the rows below by
+   LOOKING rather than by remembering.
+   ========================================================================== */
+.leaf-legend {
+  margin: var(--fol-role-pad-panel) 0 0;
+  padding-top: var(--fol-s-4);
+  border-top: 1px solid var(--fol-role-line);
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  row-gap: var(--fol-s-3);
+  column-gap: var(--fol-s-4);
+}
+.leaf-legend-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: start;
+}
+.leaf-legend dt { margin: 0; }
+.leaf-legend dd {
+  margin: 0;
+  font-size: var(--fol-t-13);
+  color: var(--fol-role-fg-secondary);
+  max-width: 66ch;
+}
+/* The legend now renders INSIDE a `.leaf-more` drawer, which already owns the
+   rule above it and the space around it. A second border and a second top
+   margin here drew a hairline 4px under the drawer's own. */
+.leaf-more-body > .leaf-legend { margin-top: 0; padding-top: 0; border-top: 0; }
+
+/* ==========================================================================
+   THE DISCLOSURE — `.leaf-more`, where a caveat lives once it stops being
+   asserted.
+
+   SURFACE-SPECIFIC: the system has no disclosure component. This is the one
+   piece of chrome the density pass needed, and it is deliberately the quietest
+   affordance on the page — a reader who wants the fact must be able to ignore
+   it completely, which is the whole point of moving prose here.
+
+   MEASURED, and this is why it is a `<details>` rather than a link to docs:
+   `GET /` on a 57-leaflet document carried 4,006 visible words. The
+   rationale that made up most of them is still in the served bytes, still found
+   by the browser's own find-in-page, still read aloud by a screen reader that
+   opens the drawer. A link to a document that does not ship with the app would
+   have been deletion with a footnote.
+
+   NO ANIMATION ON THE OPEN. `<details>` has no interoperable open transition
+   without JS, this app has none (`default-src 'none'`), and a height animation
+   faked with max-height overshoots — which bounces, which the system forbids.
+   The marker rotates 90 degrees on open through --fol-role-ease-out: a quarter
+   turn is a hinge, not a spin, and it stops rather than settling.
+   ========================================================================== */
+.leaf-more {
+  margin: var(--fol-s-4) 0 0;
+  padding-top: var(--fol-s-3);
+  border-top: 1px solid var(--fol-role-line);
+}
+.leaf-more summary {
+  display: flex;
+  align-items: center;
+  gap: var(--fol-s-2);
+  /* 44px of target, from a 13px label: the row is the affordance, not the
+     triangle. `list-style: none` + a drawn marker is the only way to get a
+     summary whose hit area is the whole line in every engine. */
+  min-height: var(--fol-s-7);
+  cursor: pointer;
+  font-family: var(--fol-font-sans);
+  font-size: var(--fol-t-13);
+  color: var(--fol-role-fg-secondary);
+  list-style: none;
+}
+.leaf-more summary::-webkit-details-marker { display: none; }
+.leaf-more summary::before {
+  content: "";
+  flex: none;
+  width: 0;
+  height: 0;
+  /* A triangle drawn in borders, so it takes currentColor and needs no asset
+     and no sprite symbol. transparent is not a colour literal. */
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid currentColor;
+  transition: transform var(--fol-dur-1) var(--fol-role-ease-out);
+}
+.leaf-more[open] > summary::before { transform: rotate(90deg); }
+.leaf-more-body {
+  padding: var(--fol-s-3) 0 var(--fol-s-2) var(--fol-s-4);
+  font-size: var(--fol-t-13);
+  color: var(--fol-role-fg-secondary);
+}
+.leaf-more-body p { max-width: 66ch; }
+
+/* SURFACE-SPECIFIC: the publish rules that actually fired on THIS page, quoted
+   once each. The row names the rule; this is where the rule answers.
+
+   MEASURED: the reason used to sit on the row, and on a 681-leaflet
+   document one rule matched 377 of them — five sentences printed 377 times,
+   1,131 of that page's 2,201 over-eight-word sentences. Distinct-by-id here is
+   what turns 377 copies into one. The id is the join and is set in mono so it
+   reads as the same token the row carries. */
+.leaf-rules {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  row-gap: var(--fol-s-3);
+  column-gap: var(--fol-s-4);
+  margin: var(--fol-s-4) 0 0;
+}
+.leaf-rule {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: start;
+}
+.leaf-rules dt { margin: 0; }
+.leaf-rules dd { margin: 0; max-width: 66ch; }
+
+/* SURFACE-SPECIFIC: the two-word caption over the work list ("Verified only ·
+   document order"). It is a caption, not a sentence — so it sits tight under
+   the heading rather than taking a paragraph's rhythm. */
+.aside[data-scope="work"] { margin-top: calc(var(--fol-s-2) * -1); }
+
+/* ==========================================================================
+   LEAFLET ROWS — Open Design's roster row (public-leaf.html `.pg-row`,
+   photosynthesis.html `.row`): `118px minmax(0,1fr) auto`, badge / what it is /
+   when it was observed, divided by hairlines rather than boxed in cards.
+
+   SURFACE-SPECIFIC: the system has no row primitive. This is the prototype's
+   geometry, verbatim, with the third column carrying an OBSERVED instant
+   because that is the only timestamp a leaflet actually has — src/render.ts
+   states why that is not a "newest first" ordering and must not be shown as one.
+   ========================================================================== */
+.leaf-list {
+  list-style: none;
+  margin: var(--fol-s-4) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--fol-role-line);
+}
+.leaf-leaflet {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr) auto;
+  gap: var(--fol-s-4);
+  align-items: start;
+  /* The kit's own row padding (`.k-row`, --fol-s-3). It was --fol-s-4 here and
+     the row was not a row: see the provenance rule below for what that cost. */
+  padding: var(--fol-s-3) 0;
+  border-bottom: 1px solid var(--fol-role-line);
+}
+.leaf-leaflet-what { min-width: 0; }
+
+/* THE ROW'S EVIDENCE IS A SUBTITLE, NOT A TABLE — the kit's `.k-sub`, which is
+   one line of secondary text under the title, in the shape the facts allow.
+
+   MEASURED, on a 681-leaflet document at 1440x900 before this rule: one
+   roster row was **218px tall** and the page was **192,873px** long. The cause
+   is that `.leaf-prov` is a two-term definition list drawn label-OVER-value, and
+   inside the roster's middle column (about 380px at the 46rem measure) both of
+   its terms wrap — so `Source / git / Ref / <64-char sha>` took four lines per
+   row, six hundred and eighty-one times, plus its own hairline and top padding
+   dividing a row from itself.
+
+   That is the density failure in a structural form. Nothing is removed to fix it
+   — both labels and both values stay visible, in the same order, at the same
+   size — the pair is simply set on ONE baseline (`Source git`, `Ref 4ac0259…`)
+   and allowed to wrap as a unit. A reader gets the same four facts in one or two
+   lines instead of four.
+
+   SCOPED TO THE ROW, and the other two callers keep the stacked form for real
+   reasons: `/leaflet/<id>` renders provenance as the page's own subject at
+   document width, and `/review` shows several refs per candidate where the
+   label-over-value column is what separates one ref from the next.
+
+   `.leaf-leaflet .leaf-prov` is (0,2,0) against the base rule's (0,1,0), so this
+   wins wherever it is written in the file. It is written HERE, beside the row it
+   belongs to, rather than beside the component it overrides. */
+.leaf-leaflet .leaf-prov {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  /* Row gap is small on purpose: two wrapped pairs are one block of evidence,
+     not two sections. The column gap is the one that has to read as a break. */
+  gap: var(--fol-s-1) var(--fol-s-4);
+  margin-top: var(--fol-s-2);
+  padding-top: 0;
+  border-top: 0;
+}
+.leaf-leaflet .leaf-prov > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--fol-s-2);
+  min-width: 0;
+}
+.leaf-leaflet .leaf-prov dt { margin-bottom: 0; }
+/* Secondary, not primary: on the row the evidence supports the title, and at
+   full --fol-role-fg a 64-character digest out-weighed the words above it.
+   6.65:1 on the day ground, 7.73:1 on night — both recorded in roles.css. */
+.leaf-leaflet .leaf-prov dd { color: var(--fol-role-fg-secondary); }
+.leaf-leaflet-title { margin: 0 0 var(--fol-s-2); font-weight: 600; font-size: var(--fol-t-14); }
+.leaf-row-excerpt { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; max-width: 68ch; margin: 0 0 var(--fol-s-2); color: var(--fol-role-fg-secondary); font-size: var(--fol-t-14); line-height: 1.45; }
+.leaf-row-evidence { margin-top: var(--fol-s-2); color: var(--fol-role-fg-secondary); font-size: var(--fol-t-13); }
+.leaf-row-evidence summary { cursor: pointer; width: fit-content; max-width: 100%; }
+.leaf-row-evidence summary:hover { color: var(--fol-role-fg); }
+.leaf-row-evidence summary .fol-metric { margin-left: var(--fol-s-2); overflow-wrap: anywhere; }
+.leaf-row-evidence .leaf-prov { margin-top: var(--fol-s-2); }
+.leaf-tier { margin: 0; }
+/* The observed instant, in Open Design's `.pg-row time` treatment: 11px mono,
+   tracked out, tertiary — a timestamp is provenance, not a headline. */
+.leaf-leaflet-when { margin: 0; text-align: right; }
+.leaf-leaflet-when .fol-label { display: block; margin-bottom: var(--fol-s-1); }
+.leaf-leaflet-when .fol-metric {
+  font-size: var(--fol-t-11);
+  color: var(--fol-role-fg-tertiary);
+  white-space: nowrap;
+}
+.leaf-group { margin-top: var(--fol-role-pad-panel); }
+.leaf-group > .fol-label { display: block; margin-bottom: var(--fol-s-2); }
+
+/* ==========================================================================
+   EXCLUSION REASON — required by the type (leaf.ts) and therefore VISIBLE
+   TEXT, never a tooltip and never truncated. `excluded` is not an error, so
+   this is a quiet sunk block: no alarm colour, no icon, no raised border.
+   SURFACE-SPECIFIC: the system has no "quoted reason" block.
+   ========================================================================== */
+.leaf-reason {
+  background: var(--fol-role-panel);
+  color: var(--fol-role-fg);
+  font-size: var(--fol-t-13);
+  padding: var(--fol-s-2) var(--fol-s-3);
+  border-radius: var(--fol-role-radius-panel);
+  margin: var(--fol-s-3) 0 0;
+  max-width: none;
+}
+.leaf-reason .fol-label { display: block; margin-bottom: var(--fol-s-1); }
+
+/* ==========================================================================
+   PROVENANCE — the evidence a leaflet rests on, as a definition list.
+   SURFACE-SPECIFIC: it is this product's subject and the system has nothing
+   like it. Every value is a metric, so every value is mono tabular.
+   ========================================================================== */
+.leaf-prov {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fol-s-3) var(--fol-role-pad-panel);
+  margin: var(--fol-s-3) 0 0;
+  padding-top: var(--fol-s-3);
+  border-top: 1px solid var(--fol-role-line);
+}
+.leaf-prov dt { margin-bottom: var(--fol-s-1); }
+.leaf-prov dd {
+  margin: 0;
+  font-size: var(--fol-t-13);
+  color: var(--fol-role-fg);
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   EXAMPLE BAND — persistent and non-dismissible BY CONSTRUCTION: there is no
+   control to close it, no timer, and it is the first thing in the document.
+   Loud through WEIGHT and POSITION rather than through an alarm colour,
+   because it is not an error — it is a provenance statement.
+   SURFACE-SPECIFIC: a domain guarantee, not a style.
+   ========================================================================== */
+.leaf-band {
+  background: var(--fol-role-panel);
+  color: var(--fol-role-fg);
+  border: 1px solid var(--fol-role-edge);
+  border-radius: var(--fol-role-radius-panel);
+  padding: var(--fol-s-3) var(--fol-s-4);
+  margin-bottom: var(--fol-role-pad-page);
+  font-size: var(--fol-t-13);
+}
+/* The one label on the page that is NOT tertiary. Everywhere else `.fol-label`
+   is the quiet name of a field; this label is the provenance warning itself,
+   and on the finished page it was the faintest text in the band. */
+.leaf-band .fol-label {
+  display: block;
+  margin-bottom: var(--fol-s-2);
+  color: var(--fol-role-fg);
+}
+.leaf-band p { margin: 0; max-width: 72ch; }
+
+/* ==========================================================================
+   LOAD FAILURES — keep technical detail available behind a native disclosure.
+   ========================================================================== */
+.leaf-state > .fol-label { display: block; margin-bottom: var(--fol-s-3); }
+.leaf-detail,
+.leaf-issues {
+  background: var(--fol-role-panel);
+  border: 1px solid var(--fol-role-line);
+  border-radius: var(--fol-role-radius-panel);
+  padding: var(--fol-s-3) var(--fol-s-4);
+  font-size: var(--fol-t-13);
+  color: var(--fol-role-fg);
+  max-width: none;
+  overflow-wrap: anywhere;
+}
+.leaf-detail { margin: var(--fol-s-4) 0; }
+.leaf-detail > summary { cursor: pointer; min-height: 44px; align-content: center; }
+.leaf-detail > p { margin: var(--fol-s-2) 0 0; }
+.leaf-issues { margin: var(--fol-s-4) 0; padding-left: var(--fol-role-pad-page); }
+.leaf-issues li { margin-bottom: var(--fol-s-2); }
+.leaf-issues li:last-child { margin-bottom: 0; }
+.leaf-issue-at { font-weight: 500; }
+
+/* Evidence review keeps the readable transfer manifest ahead of the raw packet. */
+.transfer-review { overflow-wrap: anywhere; }
+.transfer-review header { margin-bottom: var(--fol-s-6); }
+.transfer-review section { border-top: 1px solid var(--fol-role-line); padding-block: var(--fol-s-4); }
+.transfer-title { font-size: var(--fol-t-20); color: var(--fol-role-fg); }
+.transfer-evidence { list-style: none; padding: 0; }
+.transfer-evidence li { border-bottom: 1px solid var(--fol-role-line); padding-block: var(--fol-s-3); }
+.transfer-evidence p { margin: 0 0 var(--fol-s-2); }
+.transfer-evidence code { font-size: var(--fol-t-11); }
+.transfer-payload { margin-block: var(--fol-s-4); }
+.transfer-payload summary { cursor: pointer; text-decoration: none; text-underline-offset: 3px; padding-block: var(--fol-s-3); }
+.transfer-payload textarea { width: 100%; max-width: 100%; box-sizing: border-box; font-family: var(--fol-font-mono); }
+
+/* ==========================================================================
+   DOCUMENT FOOTER — provenance of the PAGE ITSELF: which file, how big, when
+   read. All three are metrics, so all three are mono tabular.
+   ========================================================================== */
+.leaf-source {
+  display: flex;
+  flex-wrap: wrap;
+  /* A wider column gap than row gap: the path, the byte count and the read time
+     are three separate facts, and at 11px a 16px gap let them read as one run. */
+  gap: var(--fol-s-2) var(--fol-role-pad-panel);
+  align-items: baseline;
+  border-top: 1px solid var(--fol-role-line);
+  padding-top: var(--fol-s-4);
+  margin-top: var(--fol-role-pad-page);
+  font-size: var(--fol-t-11);
+  color: var(--fol-role-fg-secondary);
+  overflow-wrap: anywhere;
+}
+/* The one link in the footer. It is 11px muted like everything beside it, so
+   colour cannot be what distinguishes it — the underline is (WCAG 1.4.1), and
+   it is offset so the descenders in "queue" are not struck through. */
+.leaf-source-link { color: inherit; text-underline-offset: 2px; }
+
+/* ==========================================================================
+   OPEN THIS LEAFLET — the affordance from a row to the artifact.
+
+   A separate line rather than the title as a link, and that is a PROVENANCE
+   decision rather than a layout one: the title sits inside
+   `data-verbatim="title"`, which claims that region holds nothing this product
+   wrote. An anchor round it would put authored chrome inside it, and the NO
+   SCORE check is scoped by that attribute.
+   ========================================================================== */
+.leaf-leaflet-open { margin: var(--fol-s-2) 0 0; font-size: var(--fol-t-13); }
+/* 44px OF TARGET (IMPLEMENTATION.md §7), and it is the only control on a roster
+   row. Measured before this rule: 98 x 16px — the smallest thing on the page and
+   the one a reader is aiming for. It is not exempt as an inline link either; it
+   is the whole content of its own paragraph, not a word inside a sentence.
+
+   The padding is inline-start-zero so the link still aligns with the title above
+   it: the target grows downward and around, never inward from the column edge.
+   `Private` and `Withheld` are NOT links and take none of this — a 44px box
+   around text nobody can click is a target that lies. */
+.leaf-leaflet-open a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fol-s-7);
+  padding-right: var(--fol-s-3);
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   ONE LEAFLET, STANDING ALONE — /leaflet/<id>
+
+   The artifact takes the SAME face and the SAME components as the leaf it came
+   out of. Nothing here is a new visual language: it is the row's own parts
+   (badge, provenance, reason) at document scale, because the row and the page
+   are the same object at two zoom levels.
+
+   No nav, no ledger, no counts — src/render.ts states why. There is nothing to
+   style for them because there is nothing to render.
+   ========================================================================== */
+.leaflet > .fol-label { display: block; margin-bottom: var(--fol-s-2); }
+.leaflet-tier { margin: 0 0 var(--fol-s-4); }
+
+.leaflet-body,
+.leaflet-prov-section {
+  margin-top: var(--fol-role-pad-page);
+  padding-top: var(--fol-role-pad-panel);
+  border-top: 1px solid var(--fol-role-line);
+}
+.leaflet-elements { list-style: none; margin: var(--fol-s-4) 0 0; padding: 0; }
+.leaflet-body[data-media-led="true"] {
+  margin-top: var(--fol-s-5);
+  padding-top: 0;
+  border-top: 0;
+}
+.leaflet-body[data-media-led="true"] > h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.leaflet-body[data-media-led="true"] .leaflet-elements { margin-top: 0; }
+
+/* One element, one bordered cell — and here the border is also the CLAIM
+   BOUNDARY: everything inside it is one statement plus the evidence it rests
+   on. An element whose evidence could not be read renders in the same cell
+   rather than in a warning treatment, because it is not an alarm; it is this
+   renderer saying it could not read something. */
+.leaflet-element {
+  border: 1px solid var(--fol-role-edge);
+  border-radius: var(--fol-role-radius-panel);
+  padding: var(--fol-s-4);
+  margin-bottom: var(--fol-s-3);
+}
+.leaflet-element:last-child { margin-bottom: 0; }
+.leaflet-element-text { margin: 0; max-width: 66ch; }
+.leaflet-element[data-element="unreadable"] { border-style: dashed; }
+.leaflet-body[data-media-led="true"] .leaflet-element[data-element="media"] {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: var(--fol-s-5);
+}
+.leaflet-body[data-media-led="true"] .leaflet-element[data-element="media"] .leaflet-element-text {
+  margin-top: var(--fol-s-2);
+}
+/* The evidence sits under its element with no divider of its own: inside a cell
+   this small a second line would be one line too many, and the label already
+   separates them. */
+.leaflet-element .leaf-prov { border-top: 0; padding-top: var(--fol-s-2); }
+
+/* THE PHOTOGRAPH ITSELF, inside the same claim boundary as everything else the
+   element rests on. No card, no shadow, no lift — the image is evidence sitting
+   in a cell, not a gallery tile, and treating it as a gallery tile would make
+   the one thing here that is not an assertion look like the featured one.
+
+   `max-width: 100%` with `height: auto` and NOT a fixed aspect box: the width
+   and height attributes are written into the tag when the size was measured, so
+   the browser reserves the right space and nothing jumps, and when the size was
+   NOT measured there is nothing to reserve — an invented ratio would be a
+   guessed measurement rendered as fact, which is the same failure as a zero.
+
+   `max-height: 60vh` so a portrait phone photograph cannot push its own
+   evidence row off the fold. The image is croppable by the viewport, never by
+   this stylesheet: `object-fit` is not set, so nothing of it is hidden.
+
+   The border is on the IMAGE rather than the figure so it traces the actual
+   pixels — a transparent PNG otherwise floats in the cell with no edge, and a
+   white-background photograph merges into the day face. */
+.leaflet-media { margin: 0 0 var(--fol-s-3); }
+.leaflet-media-link {
+  display: block;
+  /* The link is the affordance to the raw bytes; it is not a text link and must
+     not be underlined into looking like one. */
+  text-decoration: none;
+}
+/* BOTH `width` AND `height` ARE `auto`, and leaving either one out DISTORTS THE PHOTOGRAPH.
+   Measured in a real browser on a real 2368×1792 JPEG: with only `height: auto`, the `width`
+   attribute in the tag is a used width, `max-width: 100%` clamped it to 527px, and then
+   `max-height: 60vh` clamped the height alone — the image rendered 527 × 254, an aspect ratio of
+   2.08 for a file whose ratio is 1.32. A stretched photograph is not a styling bug in a product
+   that publishes photographs as evidence; it is the surface altering the artifact. With both
+   dimensions auto the browser satisfies each ceiling against the intrinsic ratio instead. */
+.leaflet-media-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 60vh;
+  border: 1px solid var(--fol-role-line);
+  border-radius: var(--fol-role-radius-control);
+}
+.leaflet-media-video {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 60vh;
+  background: var(--fol-role-panel-raised);
+  border: 1px solid var(--fol-role-line);
+  border-radius: var(--fol-role-radius-control);
+}
+/* The measured facts under the image read as one line of metrics, tighter than
+   the element's own evidence row, because they describe the picture rather than
+   the claim. */
+.leaflet-media-facts { margin-top: var(--fol-s-2); padding-top: var(--fol-s-2); }
+.leaflet-element[data-element="media"] .leaflet-media-facts { border-top: 0; }
+.leaflet-body[data-media-led="true"] .leaflet-media { margin-bottom: 0; }
+.leaflet-media-details {
+  margin-top: var(--fol-s-2);
+  border-top: 1px solid var(--fol-role-line);
+}
+.leaflet-media-details > summary {
+  min-height: 44px;
+  display: list-item;
+  align-content: center;
+  width: fit-content;
+  cursor: pointer;
+  color: var(--fol-role-fg-secondary);
+  font: 500 var(--fol-t-13)/1.4 var(--fol-font-sans);
+  text-decoration: none;
+}
+.leaflet-media-details[open] { padding-bottom: var(--fol-s-3); }
+.leaflet-media-details .leaflet-media-facts { margin-top: 0; }
+.leaflet-poster-source { margin-top: var(--fol-s-3); padding-top: var(--fol-s-3); border-top: 1px solid var(--fol-role-line); }
+.leaflet-poster-source > a { display: inline-flex; align-items: center; min-height: 44px; color: var(--fol-role-fg); font-size: var(--fol-t-13); font-weight: 500; text-decoration: none; }
+.leaflet-video-print { display: none; }
+.leaflet-media[data-media="not-displayable"],
+.leaflet-media[data-media="unaddressable"] {
+  border: 1px dashed var(--fol-role-edge);
+  border-radius: var(--fol-role-radius-panel);
+  padding: var(--fol-s-3);
+}
+
+.leaflet-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fol-s-2) var(--fol-s-3);
+  align-items: baseline;
+  margin-top: var(--fol-role-pad-page);
+  padding-top: var(--fol-s-4);
+  border-top: 1px solid var(--fol-role-line);
+  font-size: var(--fol-t-13);
+}
+
+/* ==========================================================================
+   THE REVIEW QUEUE — /review, night face.
+
+   The controls are the system's: `.field` and `.btn`/`.btn-ghost` from
+   foliage.css carry the 44px target, the control-edge boundary (>=3:1, where
+   --fol-border is 1.68:1 and misses WCAG 1.4.11), the focus ring, the hover and
+   pressed states and the disabled treatment. This file used to restate all of
+   them as `.review-input` and `.review-btn`; both are retired.
+
+   NEITHER BUTTON IS `.btn-primary`. Approve and Reject are the same weight,
+   deliberately — rejecting is not destructive and approving is not a triumph
+   (it writes a `pending` leaflet). Making one louder would be the interface
+   leaning on a decision that is the reviewer's to make.
+   ========================================================================== */
+.review-intro > .fol-label { display: block; margin-bottom: var(--fol-s-2); }
+.review-intro { padding-bottom: var(--fol-s-4); }
+.review-queue { padding-top: var(--fol-s-5); border-top: 1px solid var(--fol-role-line); }
+.review-empty { padding-top: var(--fol-role-pad-page); border-top: 1px solid var(--fol-role-line); }
+.review-heading-line { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--fol-s-2) var(--fol-s-4); margin-bottom:var(--fol-s-4); }
+.review-heading-line h2 { margin:0; display:flex; align-items:baseline; flex-wrap:wrap; gap:0 var(--fol-s-2); }
+.review-access { flex-basis:100%; order:3; margin:0; color:var(--fol-role-fg-secondary); font:400 var(--fol-t-13)/1.5 var(--fol-font-sans); }
+.review-about { min-width:0; }
+.review-about > summary { min-height:44px; align-content:center; color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); cursor:pointer; }
+.review-about > summary:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:2px; }
+.review-about[open] { flex-basis:100%; padding:var(--fol-s-4); background:var(--fol-surface-raised); border:1px solid var(--fol-role-edge); border-radius:var(--fol-role-radius-panel); }
+.review-count-line { display:flex; flex-wrap:wrap; gap:var(--fol-s-2) var(--fol-s-5); margin:var(--fol-s-2) 0 var(--fol-s-3); color:var(--fol-role-fg-secondary); }
+.review-count-item { display:inline-flex; align-items:baseline; gap:var(--fol-s-2); font-size:var(--fol-t-13); }
+.review-count-item .fol-label { font:inherit; letter-spacing:normal; text-transform:none; }
+.review-count-item .fol-metric { color:var(--fol-role-fg); font-size:var(--fol-t-13); }
+.review-safety { color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); line-height:1.5; margin:0 0 var(--fol-s-3); }
+.review-find { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:end; gap:var(--fol-s-2); max-width:38rem; margin:0 0 var(--fol-s-4); }
+.review-find label { grid-column:1 / -1; color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.review-find input { min-width:0; }
+.review-find-result { margin:0 0 var(--fol-s-4); color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.review-find-result a { color:var(--fol-role-fg); }
+
+.review-list { list-style: none; margin: 0; padding: 0; }
+/* The queue wears the leaf's blade language (review-blades.html): geometry, petiole and
+   rachis all come from the `.leaf-list > .blade-row` rules below — nothing restated here.
+   The blade glyph is UNTINTED on purpose: a review state is not a proof tier (reviewBadge
+   states the whole argument), so state is told by the badge and, mutedly, by blade weight —
+   never by a tier hue. */
+.review-candidate-body { flex: 1; min-width: 0; }
+.review-candidate[data-review-state="candidate"] .lf-blade { opacity: 0.72; }
+.review-candidate[data-review-state="rejected"] .lf-blade { opacity: 0.38; }
+/* A DECIDED candidate recedes. Not by dimming its text — the decision and the
+   reason are the record and stay at full contrast — but by taking the sunk
+   surface, so the eye lands on what is still open without anything being
+   hidden or made harder to read. */
+.review-candidate[data-review-state="approved"],
+.review-candidate[data-review-state="rejected"] { background: var(--fol-role-panel); }
+/* the chip — a small mono fact beside the badge: who drafted this, on how much evidence */
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px;
+  border: 1px solid var(--fol-border); border-radius: 3px;
+  font: 500 var(--fol-t-11)/1.8 var(--fol-font-mono); letter-spacing: .09em;
+  text-transform: uppercase; color: var(--fol-text-muted); }
+.review-standing { display: flex; align-items: center; flex-wrap: wrap; gap: var(--fol-s-3); }
+
+.review-title { font:600 var(--fol-t-16)/1.4 var(--fol-font-sans); letter-spacing:-.01em; margin:0 0 var(--fol-s-3); max-width:65ch; }
+.review-candidate[data-extractor="git-cluster"] .review-title { font:500 var(--fol-t-16)/1.45 var(--fol-font-sans); max-width:80ch; }
+#review-queue-h { font:500 var(--fol-t-16)/1.5 var(--fol-font-sans); }
+.review-standing { margin: 0 0 var(--fol-s-4); }
+
+.review-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fol-s-3) var(--fol-role-pad-panel);
+  margin: 0 0 var(--fol-s-4);
+}
+.review-meta dt { margin-bottom: var(--fol-s-1); }
+.review-meta dd { margin: 0; font-size: var(--fol-t-13); overflow-wrap: anywhere; }
+
+.review-evidence,
+.review-pack {
+  border-top: 1px solid var(--fol-role-line);
+  padding-top: var(--fol-s-3);
+  margin-bottom: var(--fol-s-4);
+}
+.review-evidence > .fol-label,
+.review-pack > .fol-label { display: block; margin-bottom: var(--fol-s-2); font:600 var(--fol-t-13)/1.4 var(--fol-font-sans); letter-spacing:normal; text-transform:none; }
+.review-evidence .leaf-prov { border-top: 0; padding-top: 0; margin-top: var(--fol-s-2); }
+.review-evidence [data-verbatim="evidence-excerpt"] { white-space: pre-wrap; }
+/* One hairline BETWEEN refs, none above the first. Measured in the running page
+   on this repository's own history: a candidate with 7 refs rendered as an
+   unbroken run of source/ref/observed triples, and at a width where the instant
+   wraps under the sha there is nothing to tell a reader where one ref ends and
+   the next begins. `+` rather than a border on every row, because a line above
+   the first would double the section's own rule. */
+.review-evidence .leaf-prov + .leaf-prov {
+  border-top: 1px solid var(--fol-role-line);
+  padding-top: var(--fol-s-2);
+}
+.review-media-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fol-s-4);
+  list-style: none;
+  padding: 0;
+  margin: var(--fol-s-4) 0 0;
+}
+.review-media-list > li { min-width: 0; }
+.review-media { margin: 0; }
+.review-media-open { display:block; width:100%; cursor:zoom-in; }
+.review-media-open:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:2px; }
+.review-media-frame {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  background: var(--fol-role-panel-raised);
+  border: 1px solid var(--fol-role-edge);
+}
+.review-media-frame :is(img, video) {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 24rem;
+  object-fit: contain;
+}
+.review-media-frame video { aspect-ratio: 16 / 10; }
+.review-media figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--fol-s-2);
+  margin-top: var(--fol-s-2);
+  color: var(--fol-role-fg-secondary);
+  font: 500 var(--fol-t-13)/1.4 var(--fol-font-sans);
+}
+.review-media-unavailable { color: var(--fol-role-fg-secondary); }
+.review-jump { display:none; }
+.review-form input[name="by"]:target { scroll-margin-top:var(--fol-s-7); }
+.review-decision-layout { display:grid; grid-template-columns:minmax(0,1fr); gap:var(--fol-s-4); }
+.review-decision-layout > .review-evidence,
+.review-decision-layout > .review-decision { min-width:0; margin:0; overflow-wrap:anywhere; }
+.review-decision-layout .review-media-list { grid-template-columns:minmax(0,1fr); }
+.review-decision-layout .review-media-frame :is(img,video) { max-height:20rem; }
+.review-candidate[data-review-media="image"] .review-decision-layout .review-media-list { margin-top:0; }
+.review-candidate[data-review-media="image"] .review-decision-layout .review-media-frame img {
+  width:auto;
+  max-width:100%;
+  height:auto;
+  max-height:28rem;
+  object-fit:contain;
+}
+@media (min-width: 1100px) {
+  .review-decision-layout { grid-template-columns:minmax(0,1.5fr) minmax(17rem,.8fr); gap:var(--fol-s-5); }
+  .review-decision-layout > .review-form,
+  .review-decision-layout > .review-decision { align-self:stretch; border-top:0; border-left:1px solid var(--fol-role-line); padding:0 0 0 var(--fol-s-5); }
+  .review-decision-layout .review-form { grid-template-columns:minmax(0,1fr); align-content:start; }
+  .review-decision-layout .review-form > :is(.review-title-edit,.review-consequence,.review-actions) { grid-column:1; }
+}
+@media (max-width: 760px) {
+  .review-media-list { grid-template-columns: minmax(0, 1fr); }
+}
+
+.review-pages { list-style: none; margin: var(--fol-s-2) 0 0; padding: 0; font-size: var(--fol-t-13); }
+.review-pages li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fol-s-2) var(--fol-s-3);
+  align-items: baseline;
+  padding: var(--fol-s-2) 0;
+  border-top: 1px solid var(--fol-role-line);
+}
+.review-page-path { overflow-wrap: anywhere; }
+/* A page about somebody else is marked by a LEFT RULE, not by a colour: the
+   label beside it already says "third-party-shaped" in words, and a red-ish
+   tint would read as an error when it is a fact about a path. */
+.review-pages li[data-page-kind="third-party-shaped"] {
+  border-left: 1px solid var(--fol-role-edge-control);
+  padding-left: var(--fol-s-3);
+}
+
+/* ---- the decision form --------------------------------------------------
+   The local file owns composition; every control inside is the system's.
+   The main fields share columns at wide widths and stack at narrow ones.
+   Actions follow them on their own row. */
+/* Reviewer and rejection reason stay visible. The less common title edit opens
+   on demand, keeping its native input and submitted form intact. */
+.review-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fol-s-3) var(--fol-s-4);
+  align-items: start;
+  border-top: 1px solid var(--fol-role-line);
+  padding-top: var(--fol-s-4);
+}
+.review-field {
+  display: grid;
+  gap: var(--fol-s-1);
+  min-width: 0;
+}
+.review-field .fol-label { display:block; font:600 var(--fol-t-13)/1.4 var(--fol-font-sans); letter-spacing:normal; text-transform:none; }
+/* The field's description. It is a real element wired with aria-describedby
+   rather than a placeholder, because a placeholder disappears exactly when the
+   reader is deciding what to write. `.aside`'s 24px top margin is wrong inside
+   a field stack, so only the margin is corrected. */
+.review-help { margin: var(--fol-s-1) 0 0; }
+.review-form .review-consequence { grid-column:1 / -1; margin:0; }
+.review-title-edit { grid-column: 1 / -1; }
+.review-title-edit > summary { display: list-item; width: max-content; min-height: 44px; align-content: center; color: var(--fol-role-fg-secondary); cursor: pointer; }
+.review-title-edit > summary:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 2px; }
+.review-title-edit .review-field { max-width: 38rem; padding-block: var(--fol-s-2); }
+.review-actions {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: var(--fol-s-3);
+  grid-column: 1 / -1;
+  align-self: start;
+  margin-top: var(--fol-s-1);
+}
+
+.review-decision {
+  border-top: 1px solid var(--fol-role-line);
+  padding-top: var(--fol-s-3);
+  margin: 0;
+  font-size: var(--fol-t-13);
+}
+.review-decision .fol-label { display: block; margin-bottom: var(--fol-s-1); }
+
+/* The refusal. Loud through POSITION and WEIGHT, like the example band, and for
+   the same reason: it is a statement that nothing was written, not an alarm.
+   The decision status line takes the same panel in the same place: it is the
+   other answer to the same press, that something WAS written. */
+/* The drafted title is printed whole, and a git subject can be one unbroken path or URL: it wraps
+   anywhere, as the queue's own titles do, rather than scrolling the page sideways. */
+.review-status { margin-top: 0; scroll-margin-top: var(--fol-role-pad-panel); overflow-wrap: anywhere; }
+/* The waiting count and its words wrap as one unit, never leaving a bare number behind. */
+.review-status a { display: inline-block; color: var(--fol-role-fg); }
+.review-refusal,
+.review-status {
+  background: var(--fol-role-panel);
+  border: 1px solid var(--fol-role-edge);
+  border-radius: var(--fol-role-radius-panel);
+  padding: var(--fol-s-3) var(--fol-s-4);
+  margin-bottom: var(--fol-role-pad-page);
+  font-size: var(--fol-t-13);
+}
+.review-refusal .fol-label {
+  display: block;
+  margin-bottom: var(--fol-s-2);
+  color: var(--fol-role-fg);
+}
+.review-refusal p { margin: 0; max-width: 72ch; overflow-wrap: anywhere; }
+
+/* ==========================================================================
+   RESPONSIVE — 360 → 1920, DESCENDING (widest first).
+
+   ORDER IS LOAD-BEARING. At 360px every max-width block matches, so the LAST
+   one wins. Ordering these narrowest-first silently disables all but the last,
+   which this project has shipped twice.
+
+   There is no wide-viewport rule because there is nothing to do at 1920: the
+   measure is fixed in rem and the frame centres, so the layout at 1920 is the
+   layout at 1024 with more margin. That is the intended behaviour for a
+   document and it is why this holds across the matrix without a rule per width.
+   ========================================================================== */
+
+/* The roster row stops working before the counts do: 118px of badge column plus
+   a title plus a right-aligned timestamp needs roughly 34rem before the middle
+   column starts breaking words. Open Design collapses the same row at 820px. */
+@media (max-width: 51rem) {
+  /* The compound-leaf row becomes a reading column. Its later botanical rule
+     uses flex, so the selector must also beat that rule's display declaration:
+     changing grid-template-columns on .leaf-leaflet alone has no effect. */
+  .leaf-list > .leaf-leaflet.blade-row {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    grid-template-areas: "blade tier" "what what" "when when";
+    gap: var(--fol-s-2) var(--fol-s-3);
+  }
+  .leaf-list > .leaf-leaflet .lf-blade { grid-area: blade; }
+  .leaf-list > .leaf-leaflet .leaf-tier { grid-area: tier; }
+  .leaf-list > .leaf-leaflet .leaf-leaflet-what { grid-area: what; }
+  .leaf-list > .leaf-leaflet .leaf-leaflet-when { grid-area: when; }
+  .leaf-leaflet-when { text-align: left; }
+  .leaf-counts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .review-form { grid-template-columns: minmax(0, 1fr); }
+  .review-title-edit, .review-actions { grid-column: auto; }
+}
+
+/* Below ~34rem the counts stop fitting two-up: the number is --fol-t-40 mono and
+   the label is 11px tracked out, which needs roughly 7rem of cell before it
+   wraps mid-word. The legend loses its shared term column at the same width —
+   the parent's tracks collapse and the rows follow through subgrid, so the two
+   can never disagree. */
+@media (max-width: 34rem) {
+  .leaf-counts { grid-template-columns: 1fr; }
+  .leaf-legend { grid-template-columns: 1fr; }
+  .leaf-legend-row { row-gap: var(--fol-s-2); }
+}
+
+/* 360-class viewports: tighten the gutter and step the display sizes down one
+   rung of the SAME scale rather than inventing a size. */
+@media (max-width: 26rem) {
+  /* padding-INLINE, not the shorthand: `padding: 0 X` also resets the top and
+     bottom padding set on .leaf-head, which clipped the footer off-screen at
+     <=416px (measured 640.2px in a 640px viewport). */
+  .leaf-head, .leaf-main { padding-inline: var(--fol-s-4); }
+  h1, .leaf-state h1.plate-t { font-size: var(--fol-t-32); }
+  h2 { font-size: var(--fol-t-20); }
+  .leaf-count { font-size: var(--fol-t-32); }
+  .leaf-prov { gap: var(--fol-s-3); }
+  .review-actions { flex: 1 1 100%; }
+}
+
+/* Motion: tokens.css already zeroes --fol-dur-* under reduced motion, so the
+   transitions above collapse to instant. This states it for anything reading
+   only this file, and covers durations declared anywhere. */
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+
+/* ==========================================================================
+   PRINT — a leaf is a document, and a portfolio does get printed. On the day
+   face the page is already ink on paper, so print needs almost nothing: drop
+   the skip link, keep every rule, and never break a leaflet across pages.
+   ========================================================================== */
+@media print {
+  .leaf-skip { display: none; }
+  .leaflet-media-video { display: none; }
+  .leaflet-video-print { display: block; max-width: 100%; height: auto; }
+  .leaf-leaflet, .cell, .leaf-band, .leaf-legend-row { break-inside: avoid; }
+  /* A single leaflet is the most printable thing this product has — it is the
+     artifact somebody attaches to an application — so an element and the
+     evidence under it never split across a page. */
+  .leaflet-element, .review-candidate { break-inside: avoid; }
+  .leaf-head, .leaf-main { max-width: none; }
+}
+
+/* ── the data frond ──────────────────────────────────────────────────────────
+   One ellipse per leaflet in the document, tier-coloured, document order from
+   base to tip. Uniform size on purpose: size would be a score in a costume.
+   Tier colours live in foliage.css — the component layer owns every colour decision. */
+.leaf-subject { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.leaf-subject-text { min-width: 0; }
+.leaf-frond { flex: 0 0 auto; width: 132px; height: auto; max-height: 190px; margin-top: 4px; }
+.frond-rachis { stroke: var(--fol-hairline); stroke-width: 2.5; fill: none; stroke-linecap: round; }
+.frond-pinna { stroke: var(--fol-role-fg-secondary); stroke-opacity: .5; stroke-width: 1; fill: none; stroke-linecap: round; }
+.frond-lf { opacity: .92; }
+@media (max-width: 560px) { .leaf-frond { width: 72px; max-height: 160px; } }
+
+/* ── the list IS the compound leaf ──────────────────────────────────────────
+   A rachis runs down the page and every leaflet attaches to it as a blade on
+   an alternating side — the page structure embodying the botany instead of
+   illustrating it in a corner. Alternation is ATTACHMENT, not meaning: order
+   stays document order, every blade is the same size, and all colour comes
+   from foliage.css keyed on the tier the row already carries. */
+.leaf-list { position: relative; padding-left: 0; }
+.leaf-list::before { content: ""; position: absolute; top: -8px; bottom: -8px; left: 26px;
+  width: 2px; border-radius: 2px; background: var(--fol-border); }
+.leaf-list > .blade-row { position: relative; margin: 14px 0 14px 52px;
+  border: 1px solid var(--fol-border);
+  border-radius: 6px 30px 6px 30px;
+  padding: 16px 18px 14px 16px;
+  display: flex; gap: 14px; align-items: flex-start; }
+/* the petiole — the short stalk joining blade to rachis */
+.leaf-list > .blade-row::before { content: ""; position: absolute; top: 26px; left: -27px;
+  width: 26px; height: 12px; border-bottom: 2px solid var(--fol-border);
+  border-radius: 0 0 0 14px; }
+/* opposite pairs: even blades mirror their curve, like the mark's own geometry */
+.leaf-list > .blade-row:nth-child(even) { border-radius: 30px 6px 30px 6px; }
+.lf-blade { margin-top: 2px; }
+@media (max-width: 560px) {
+  .leaf-list::before { left: 12px; }
+  .leaf-list > .blade-row { margin-left: 30px; }
+  .leaf-list > .blade-row::before { left: -19px; width: 18px; }
+}
+
+/* ── the audience band — which reader is holding this page, legible before a word is read.
+     The chip names the audience; the note states its one consequence. Private wears the
+     bordered chip like an instrument label; published stays quiet text on paper. */
+.leaf-audience { margin-left: 14px; border: 1px solid var(--fol-border); border-radius: 999px;
+  padding: 5px 10px; }
+
+/* A draft summary opens its evidence and decision controls without repeated queue copy. */
+
+/* Review is a document queue: a title and decision first, full refs on demand. */
+.review-list.leaf-list::before, .review-list .blade-row::before { display: none; }
+.review-list.leaf-list { padding-left: 0; }
+.review-list.leaf-list > .review-candidate {
+  border: 0; border-top: 1px solid var(--fol-role-edge); border-radius: 0;
+  background: transparent; margin: 0; padding: 0;
+}
+.review-list.leaf-list[data-review-open] > .review-candidate:first-child { margin:var(--fol-s-3) 0 var(--fol-s-5); padding:0 var(--fol-s-5); background:var(--fol-surface-raised); border:1px solid var(--fol-role-edge); border-radius:var(--fol-role-radius-panel) var(--fol-shape-tip) var(--fol-role-radius-panel) var(--fol-shape-tip); }
+.review-list .lf-blade { display: none; }
+
+.review-candidate-disclosure { width: 100%; min-width: 0; }
+.review-candidate-summary { display:block; position:relative; min-height:44px; padding:var(--fol-s-4) 0 var(--fol-s-4) var(--fol-s-5); cursor:pointer; overflow-wrap:anywhere; list-style:none; }
+.review-candidate-summary::-webkit-details-marker { display:none; }
+.review-candidate-summary::before { content:""; position:absolute; top:calc(var(--fol-s-5) + 3px); left:2px; width:8px; height:8px; border-right:1.5px solid var(--fol-role-fg-secondary); border-bottom:1.5px solid var(--fol-role-fg-secondary); transform:rotate(-45deg); transition:transform var(--fol-role-speed-state) var(--fol-role-ease-out); }
+.review-candidate-disclosure[open] .review-candidate-summary::before { transform:rotate(45deg); }
+.review-candidate-summary:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 2px; }
+.review-candidate-summary .review-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+}
+.review-candidate-disclosure[open] .review-candidate-summary .review-title {
+  display: block;
+  overflow: visible;
+}
+.review-list.leaf-list[data-review-open] > .review-candidate:first-child .review-title { max-width:56ch; font:600 var(--fol-t-20)/1.3 var(--fol-font-sans); letter-spacing:-.02em; }
+.review-candidate-summary .review-standing { display: flex; align-items: center; margin: var(--fol-s-2) 0 0; }
+.review-queue .proof, .review-queue .chip { font: 500 var(--fol-t-13)/1.2 var(--fol-font-sans); letter-spacing: normal; text-transform: none; }
+.review-ref-count { color: var(--fol-role-fg-secondary); font-size: var(--fol-t-13); }
+.review-candidate-disclosure[open] > .review-candidate-body { border-top:1px solid var(--fol-role-line); padding:var(--fol-s-5) var(--fol-s-5) var(--fol-s-5); }
+.review-inline-error { margin: 0 0 var(--fol-s-4); border: 1px solid var(--fol-role-invalid); padding: var(--fol-s-3); }
+.review-evidence .leaf-prov { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--fol-s-2) var(--fol-s-3); }
+.review-evidence .review-ref-excerpt { grid-column: 1 / -1; }
+.review-full-ref, .leaf-full-ref { margin-top: var(--fol-s-1); font-size: var(--fol-t-13); }
+.review-full-ref > summary, .leaf-full-ref > summary { width: max-content; min-height: 44px; align-content: center; cursor: pointer; color: var(--fol-role-fg-secondary); }
+.review-full-ref > summary:focus-visible, .leaf-full-ref > summary:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 2px; }
+.review-full-ref code, .leaf-full-ref code { display: block; overflow-wrap: anywhere; }
+.review-technical { margin-block: var(--fol-s-3); border-top: 1px solid var(--fol-role-line); overflow-wrap: anywhere; }
+.review-technical > summary { min-height: 44px; align-content: center; cursor: pointer; color: var(--fol-role-fg-secondary); font-size: var(--fol-t-13); }
+.review-technical > summary:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 2px; }
+.review-technical .review-meta { padding-top: var(--fol-s-3); }
+.review-inspect { margin: var(--fol-s-3) 0; }
+.review-candidate:target { outline: 2px solid var(--fol-role-focus); outline-offset: var(--fol-s-2); scroll-margin-top: var(--fol-role-pad-panel); }
+.review-more { border-top: 1px solid var(--fol-role-edge); }
+.review-more > summary { min-height: 44px; padding: var(--fol-s-3) 0; cursor: pointer; color: var(--fol-role-fg-secondary); }
+.review-more > summary:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 2px; }
+.review-more > summary .fol-metric { color: var(--fol-role-fg); }
+.review-decided { margin-top: var(--fol-s-5); border-top: 1px solid var(--fol-role-edge); }
+.review-decided > summary { min-height: 44px; align-content: center; cursor: pointer; color: var(--fol-role-fg-secondary); }
+.review-decided > summary:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 2px; }
+.review-promote { margin-top: var(--fol-s-5); padding-top: var(--fol-s-4); border-top: 1px solid var(--fol-role-line); }
+.review-promote h2 { margin: 0 0 var(--fol-s-3); }
+.review-promotion-done { display: flex; align-items: center; flex-wrap: wrap; gap: var(--fol-s-2); margin: 0; }
+.review-promotion-done .ico { flex: none; }
+.review-promotion-done a { display: inline-flex; min-height: 44px; align-items: center; color: var(--fol-role-fg); }
+.review-decision { font-size: 1rem; }
+/* Evidence labels read as labels; reserve mono tabular numerals for dates and refs. */
+.leaflet .leaf-prov .fol-label,
+.leaflet .leaflet-prov-section .fol-label {
+  font: 500 var(--fol-t-13)/1.4 var(--fol-font-sans);
+  letter-spacing: normal;
+  text-transform: none;
+}
+.leaflet .leaflet-prov-section .proof {
+  font: 500 var(--fol-t-13)/1.2 var(--fol-font-sans);
+  letter-spacing: normal;
+  text-transform: none;
+}
+/* Keep form controls wide enough to read without letting the actions crowd the evidence. */
+.review-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.review-actions { grid-column: 1 / -1; }
+@media (max-width: 768px) {
+  .review-list.leaf-list[data-review-open] > .review-candidate:first-child { padding-inline:var(--fol-s-3); }
+  .review-candidate-disclosure[open] > .review-candidate-body { padding-inline:var(--fol-s-2); }
+  .review-list.leaf-list[data-review-open] > .review-candidate:first-child .review-title { font-size:var(--fol-t-20); }
+  .review-form { grid-template-columns: minmax(0, 1fr); }
+  .review-title-edit, .review-actions { grid-column: auto; }
+  .review-evidence .leaf-prov { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .review-evidence .leaf-prov > div:nth-child(3):not(.review-ref-authored) { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .review-intro { padding-bottom:var(--fol-s-2); }
+  .review-queue { padding-top:var(--fol-s-3); }
+  .review-heading-line { margin-bottom:var(--fol-s-2); }
+  .review-list.leaf-list[data-review-open] > .review-candidate:first-child { margin-top:var(--fol-s-2); }
+  .review-candidate-summary { padding-block:var(--fol-s-3); }
+  .review-candidate-disclosure[open] > .review-candidate-body { padding-block:var(--fol-s-3); }
+  .review-decision-layout .review-evidence .leaf-prov { grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--fol-s-1) var(--fol-s-2); }
+  .review-decision-layout .review-evidence .leaf-prov > div:nth-child(3):not(.review-ref-authored) { grid-column:auto; }
+  .review-decision-layout .review-evidence > .fol-label { margin-bottom:var(--fol-s-1); }
+  .review-decision-layout .review-media-list { margin-top:var(--fol-s-3); }
+  .review-decision-layout .review-media-frame img { height:7.5rem; max-height:7.5rem; object-fit:cover; object-position:top; }
+  .review-candidate[data-review-media="image"] .review-decision-layout .review-media-list { margin-top:0; }
+  .review-candidate[data-review-media="image"] .review-decision-layout .review-evidence .leaf-prov { grid-template-columns:minmax(0,1fr); gap:var(--fol-s-2); }
+  .review-candidate[data-review-media="image"] .review-decision-layout .review-evidence .leaf-prov > div:not(.review-ref-excerpt) { display:grid; grid-template-columns:5.5rem minmax(0,1fr); gap:var(--fol-s-2); }
+  .review-candidate[data-review-media="image"] .review-decision-layout .review-evidence .leaf-prov dt { margin-bottom:0; }
+  .review-jump { box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center; width:100%; min-height:44px; margin-top:var(--fol-s-2); }
+}
+
+/* Shared shadcn Alert adapts to the surface face through role tokens. */
+.ui-alert { border: 1px solid var(--fol-role-edge); padding: var(--fol-role-gap-grid); border-radius: var(--fol-r-1); color: var(--fol-role-fg); }
+.leaflet-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--fol-role-gap-grid); margin-block: var(--fol-role-pad-panel); }
+.leaflet-actions a, .leaflet-back a { display: inline-flex; align-items: center; min-height: 44px; }
+.leaflet-actions a:not(.btn), .leaflet-back a { color: var(--fol-role-fg); text-decoration: none; }
+.leaflet-actions a:visited, .leaflet-back a:visited { color: var(--fol-role-fg-secondary); }
+.leaflet-actions a:focus-visible, .leaflet-back a:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 3px; }
+
+/* Private reading view: recorded work leads; attribution stays accessible as accounting.
+   Scope to the private wrapper so the published export retains its document layout. */
+body[data-surface="leaf"]:has([data-personal-portfolio]) { --leaf-measure:84rem; }
+body[data-surface="leaf"]:has([data-personal-portfolio]) .fol-nav-wrap { max-width:var(--leaf-measure); }
+#personal-portfolio { padding-top:var(--fol-s-2); }
+/* Evidence and actions retain their 44px hit areas; trim the empty intervals
+   between them so the next piece of work arrives sooner. */
+#personal-portfolio .lp-panel { --lp-panel-padding:var(--fol-s-4); }
+#personal-portfolio .lp-panel > .lp-evidence { margin-top:var(--fol-s-3); }
+#personal-portfolio .lp-panel > .lp-actions,
+#personal-portfolio .lp-panel > .lp-detail { margin-top:var(--fol-s-2); }
+/* Pair owner work beside the living stem as soon as both cards fit; the shared
+   reader keeps its wider desktop threshold for outward documents. */
+@media(min-width:761px) {
+  #personal-portfolio .lp-records:not(:has([data-reading-layout="linear"])) { column-gap:12%; }
+  /* The paired reader already has a 16px records inset. End its fallback stem
+     at the final card instead of carrying it through an empty 64px tail. */
+  #personal-portfolio .lp-journey:has(.lp-records):not(:has([data-reading-layout="linear"])) { padding-bottom:0; }
+  #personal-portfolio .lp-journey:has(.lp-records):not(:has([data-reading-layout="linear"]))::before { bottom:var(--fol-s-4); }
+}
+@media(min-width:761px) and (max-width:1000px) {
+  #personal-portfolio .lp-records:not(:has([data-reading-layout="linear"])) {
+    display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); row-gap:var(--fol-s-5); align-items:start;
+  }
+  #personal-portfolio .lp-records:not(:has([data-reading-layout="linear"])) > .lp-record {
+    display:block; padding:0; min-width:0;
+  }
+  #personal-portfolio .lp-records:not(:has([data-reading-layout="linear"])) > .lp-record[data-portfolio-side="left"] { grid-column:1; }
+  #personal-portfolio .lp-records:not(:has([data-reading-layout="linear"])) > .lp-record[data-portfolio-side="right"] { grid-column:2; }
+  #personal-portfolio .lp-records:not(:has([data-reading-layout="linear"])) .lp-period {
+    position:static; display:block; transform:none; width:fit-content; margin-bottom:var(--fol-s-2);
+  }
+  #personal-portfolio .lp-records:not(:has([data-reading-layout="linear"])) [data-portfolio-period-start="false"] .lp-period { display:none; }
+  #personal-portfolio .lp-records:not(:has([data-reading-layout="linear"])) .lp-record::before { display:none; }
+}
+.personal-modes { display:flex; flex-wrap:wrap; gap:var(--fol-s-2); margin-bottom:var(--fol-s-7); }
+.personal-modes a[aria-current="page"] { background:var(--fol-role-panel-raised); border-color:var(--fol-role-fg-secondary); }
+.personal-subject { display:grid; grid-template-columns:minmax(0,1fr) minmax(220px,.36fr); align-items:center; gap:var(--fol-s-7); margin-bottom:var(--fol-s-7); }
+.personal-subject h1 { font:400 clamp(var(--fol-t-40),5.5vw,var(--fol-t-63))/1.05 var(--fol-font-display); letter-spacing:var(--fol-track-display); margin:var(--fol-s-4) 0 var(--fol-s-5); overflow-wrap:anywhere; }
+.personal-subject .leaf-lede { max-width:46ch; font-size:var(--fol-t-20); line-height:1.5; margin:0; }
+.personal-subject-actions { display:flex; flex-wrap:wrap; align-items:center; gap:var(--fol-s-5); margin-top:var(--fol-s-6); }
+.personal-subject-actions > a:not(.btn), .personal-3d-link { color:var(--fol-role-fg); text-underline-offset:var(--fol-s-1); font-size:var(--fol-t-13); min-height:44px; display:inline-flex; align-items:center; }
+.personal-leaf-window { display:grid; justify-items:center; gap:var(--fol-s-5); border:1px solid var(--fol-role-edge); border-radius:var(--fol-shape-sheet) var(--fol-shape-tip); padding:var(--fol-s-6); color:var(--fol-role-fg); text-decoration:none; background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--fol-evergreen-700) 22%,transparent),transparent 72%); }
+.personal-leaf-window:hover { border-color:var(--fol-role-fg-secondary); }
+.personal-leaf-window .leaf-frond, .personal-leaf-scene .leaf-frond { display:block; width:100%; max-width:20rem; height:240px; max-height:none; margin:0 auto; }
+.personal-leaf-scene { display:grid; place-items:center; min-width:0; }
+.personal-leaf-window > span { display:grid; text-align:center; gap:var(--fol-s-2); font-size:var(--fol-t-13); color:var(--fol-role-fg-secondary); }
+.personal-leaf-window > span > span { color:var(--fol-role-fg); }
+.portfolio-freshness { margin-bottom:var(--fol-s-7); padding-block:var(--fol-s-4); border-block:1px solid var(--fol-role-edge); color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.portfolio-freshness > p { margin:0; }
+.portfolio-freshness-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--fol-s-5); }
+.portfolio-freshness-grid > section { display:flex; flex-direction:column; gap:var(--fol-s-2); min-width:0; padding-right:var(--fol-s-5); border-right:1px solid var(--fol-role-edge); }
+.portfolio-freshness-grid > section:last-child { border-right:0; padding-right:0; }
+.portfolio-freshness-grid strong { color:var(--fol-role-fg); font:500 var(--fol-t-16)/1.5 var(--fol-font-sans); }
+.portfolio-freshness-grid p { margin:0; font-size:var(--fol-t-13); overflow-wrap:anywhere; }
+.portfolio-freshness-grid a { display:inline-flex; align-items:center; min-height:44px; margin-top:auto; color:var(--fol-role-fg); text-underline-offset:var(--fol-s-1); }
+.personal-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:var(--fol-s-5); margin-bottom:var(--fol-s-5); }
+.personal-section-heading h2 { font:400 var(--fol-t-32)/1.2 var(--fol-font-display); margin:var(--fol-s-2) 0 0; }
+.personal-section-heading .aside { max-width:32ch; text-align:right; margin:0; }
+.personal-work-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--fol-s-5); list-style:none; padding:0; margin:0; }
+.personal-work-list > .personal-work-card { display:flex; flex-direction:column; align-items:stretch; min-width:0; padding:0; margin:0; border:1px solid var(--fol-role-edge); border-radius:var(--fol-shape-panel) var(--fol-shape-tip); overflow:hidden; background:var(--fol-role-panel); }
+.personal-work-card:nth-child(even) { border-radius:var(--fol-shape-tip) var(--fol-shape-panel); }
+.personal-work-card:hover { border-color:var(--fol-role-fg-secondary); }
+.personal-work-content { display:flex; flex-direction:column; flex:1; padding:var(--fol-s-5); min-width:0; }
+.personal-work-origin { display:flex; align-items:center; justify-content:space-between; gap:var(--fol-s-3); margin-bottom:var(--fol-s-5); }
+.personal-work-origin > .fol-label { color:var(--fol-role-fg-secondary); overflow-wrap:anywhere; }
+.personal-work-card .leaf-leaflet-title { font:400 var(--fol-t-25)/1.35 var(--fol-font-display); letter-spacing:var(--fol-track-display); margin:0 0 var(--fol-s-4); overflow-wrap:anywhere; }
+.personal-work-excerpt { font-size:var(--fol-t-14); line-height:1.75; color:var(--fol-role-fg-secondary); white-space:pre-wrap; overflow-wrap:anywhere; margin:0 0 var(--fol-s-4); }
+.personal-story-label { margin:var(--fol-s-3) 0 var(--fol-s-1); }
+.personal-highlights { margin-block:var(--fol-s-6) var(--fol-s-8); }
+.personal-highlights .personal-section-heading a { color:var(--fol-role-fg); text-underline-offset:.2em; }
+.personal-highlight-label { margin:0 0 var(--fol-s-4); color:var(--fol-role-fg); }
+.personal-highlight-empty,.personal-highlight-notice { max-width:68ch; color:var(--fol-role-fg-secondary); }
+.personal-work-card[data-highlight="leading"] { border-color:var(--fol-role-fg-secondary); }
+.curation-form { display:grid; gap:var(--fol-s-5); }
+.curation-choices { display:grid; gap:0; }
+.curation-choice { min-width:0; padding:var(--fol-s-3) 0; border-bottom:1px solid var(--fol-role-edge); }
+.curation-choice[data-leading-choice] label { color:var(--fol-role-fg); font-weight:600; }
+.curation-choice label { display:block; margin-bottom:var(--fol-s-2); }
+.curation-choice select { width:100%; max-width:100%; min-width:0; }
+.curation-more summary { cursor:pointer; padding-block:var(--fol-s-3); min-height:44px; }
+.curation-actions { display:flex; align-items:center; flex-wrap:wrap; gap:var(--fol-s-4); }
+.claim-citations { margin-block:var(--fol-s-5); }
+.claim-citations h2 { margin:0; font:400 var(--fol-t-20)/1.3 var(--fol-font-display); }
+.claim-citations > p { margin:var(--fol-s-1) 0 var(--fol-s-3); color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); }
+.claim-citations ul { list-style:none; margin:0; padding:0; border-top:1px solid var(--fol-role-line); }
+.claim-citations li { padding:var(--fol-s-4) 0; border-bottom:1px solid var(--fol-role-line); min-width:0; }
+.claim-citation-heading { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:var(--fol-s-2); }
+.claim-citation-heading strong { font:400 var(--fol-t-20)/1.3 var(--fol-font-display); min-width:0; overflow-wrap:anywhere; }
+.claim-citations a { color:var(--fol-role-fg); text-decoration:none; display:inline-flex; align-items:center; min-height:44px; }
+.claim-citations :is(a,summary):focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+.claim-citation-heading span,.claim-citations .claim-citation-status { color:var(--fol-role-fg-secondary); font:500 var(--fol-t-13)/1.5 var(--fol-font-sans); }
+.claim-citations .claim-citation-status { margin:var(--fol-s-1) 0 var(--fol-s-3); }
+.claim-citation-meta { display:flex; flex-wrap:wrap; gap:var(--fol-s-2) var(--fol-s-5); margin:0; }
+.claim-citation-meta > div { min-width:0; max-width:100%; }
+.claim-citation-meta dt { color:var(--fol-role-fg-tertiary); font:400 var(--fol-t-13)/1.4 var(--fol-font-sans); }
+.claim-citation-meta dd { margin:var(--fol-s-1) 0 0; overflow-wrap:anywhere; }
+.claim-citation-meta code,.claim-citations details code { font:400 var(--fol-t-13)/1.5 var(--fol-font-mono); overflow-wrap:anywhere; }
+.claim-citations details { margin-top:var(--fol-s-2); font-size:var(--fol-t-13); }
+.claim-citations details code { display:block; margin-top:var(--fol-s-1); }
+.claim-citation-excerpts { margin-top:var(--fol-s-3); padding-top:var(--fol-s-3); border-top:1px solid var(--fol-role-line); }
+.claim-citation-excerpts .fol-label { margin:0; }
+.claim-citation-excerpts blockquote { margin:var(--fol-s-2) 0 0; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.6; }
+.claim-citations .claim-citation-reason { margin:var(--fol-s-3) 0 0; color:var(--fol-role-fg-secondary); font-size:var(--fol-t-13); overflow-wrap:anywhere; }
+.story-account-heading { font-size:var(--fol-t-20); margin:0 0 var(--fol-s-3); }
+.story-account-reference { margin-top:var(--fol-s-4); color:var(--fol-role-fg-secondary); overflow-wrap:anywhere; }
+.story-account-reference summary { cursor:pointer; font-size:var(--fol-t-14); }
+.personal-work-empty { font-size:var(--fol-t-13); color:var(--fol-role-fg-secondary); margin:0 0 var(--fol-s-5); }
+.personal-work-observed { display:flex; flex-wrap:wrap; gap:var(--fol-s-2); align-items:baseline; margin:auto 0 var(--fol-s-4); font-size:var(--fol-t-11); color:var(--fol-role-fg-secondary); }
+.personal-work-evidence { border-top:1px solid var(--fol-role-edge); margin-top:var(--fol-s-2); }
+.personal-work-evidence summary { cursor:pointer; min-height:44px; padding-block:var(--fol-s-3); font-size:var(--fol-t-13); }
+.personal-work-evidence .leaf-prov { display:grid; grid-template-columns:1fr; gap:var(--fol-s-3); margin-bottom:var(--fol-s-4); }
+.personal-work-evidence dd { overflow-wrap:anywhere; }
+.personal-work-actions { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--fol-s-3); border-top:1px solid var(--fol-role-edge); }
+.personal-work-actions .leaf-leaflet-open { display:flex; align-items:center; flex-wrap:wrap; gap:var(--fol-s-2); margin:0; }
+.personal-work-actions .leaf-leaflet-open > a { min-height:44px; display:inline-flex; align-items:center; font-size:var(--fol-t-14); }
+.personal-work-media { border-bottom:1px solid var(--fol-role-edge); background:var(--fol-role-panel-raised); }
+.personal-work-media figure { margin:0; }
+.personal-work-media .leaflet-media-img { display:block; width:100%; height:270px; object-fit:contain; }
+.personal-work-media .leaflet-media-facts { margin:0; padding:var(--fol-s-3) var(--fol-s-5); font-size:var(--fol-t-11); border-top:1px solid var(--fol-role-edge); }
+.personal-work-media .aside { padding:var(--fol-s-4); }
+.personal-work-empty-state { border:1px solid var(--fol-role-edge); border-radius:var(--fol-shape-panel) var(--fol-shape-tip); padding:var(--fol-s-6); }
+.personal-accounting { margin-top:var(--fol-s-8); border-top:1px solid var(--fol-role-edge); }
+.personal-accounting > summary { min-height:56px; padding-block:var(--fol-s-4); cursor:pointer; font:400 var(--fol-t-20)/1.5 var(--fol-font-display); }
+.personal-accounting .leaf-ledger { margin:0; padding-top:var(--fol-s-5); }
+.personal-source { margin-top:var(--fol-s-6); }
+.personal-sync { font-size:var(--fol-t-11); color:var(--fol-role-fg-secondary); padding-block:var(--fol-s-3); }
+.personal-work-card, #leaf-group-pending, #leaf-work { scroll-margin-top:var(--fol-s-7); }
+#personal-portfolio a:focus-visible, #personal-portfolio summary:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:var(--fol-s-1); }
+@media(max-width:760px) {
+  .portfolio-freshness-grid { grid-template-columns:1fr; gap:var(--fol-s-4); }
+  .portfolio-freshness-grid > section { padding:0 0 var(--fol-s-4); border-right:0; border-bottom:1px solid var(--fol-role-edge); }
+  .portfolio-freshness-grid > section:last-child { border-bottom:0; padding-bottom:0; }
+  .personal-modes { margin-bottom:var(--fol-s-5); }
+  .personal-subject { grid-template-columns:minmax(0,1fr) 160px; gap:var(--fol-s-5); margin-bottom:var(--fol-s-5); }
+  .personal-leaf-window { padding:var(--fol-s-4); }
+  .personal-leaf-window .leaf-frond, .personal-leaf-scene .leaf-frond { height:180px; }
+  .personal-leaf-window > span { font-size:var(--fol-t-11); }
+  .personal-subject h1 { font-size:var(--fol-t-40); }
+  .personal-subject .leaf-lede { font-size:var(--fol-t-16); }
+  .personal-subject-actions { gap:var(--fol-s-3); margin-top:var(--fol-s-4); }
+  .personal-work-list { grid-template-columns:1fr; }
+  .personal-work-content { padding:var(--fol-s-4); }
+  .personal-section-heading { align-items:flex-start; flex-direction:column; gap:var(--fol-s-3); }
+  .personal-section-heading .aside { text-align:left; max-width:none; }
+}
+@media(max-width:460px) {
+  .personal-subject { grid-template-columns:1fr; }
+  .personal-leaf-window { grid-template-columns:72px 1fr; gap:var(--fol-s-4); justify-items:start; }
+  .personal-leaf-window .leaf-frond { width:72px; height:80px; }
+  .personal-leaf-window > span { text-align:left; }
+  .personal-work-media .leaflet-media-img { height:220px; }
+}
+@media print {
+  .personal-modes, .personal-subject-actions, .personal-work-actions, .personal-sync { display:none; }
+  .personal-work-list { display:block; }
+  .personal-work-card { margin-block:var(--fol-s-4)!important; break-inside:avoid; }
+  .personal-accounting::details-content { content-visibility:visible; }
+}
+
+@media (max-width: 640px) {
+  body[data-surface="leaflet"] .leaf-head .lockup {
+    display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--fol-s-3);
+  }
+  body[data-surface="leaflet"] .leaf-head .leaf-audience {
+    grid-column: 2; justify-self: start; margin-left: 0;
+  }
+}
+.review-decision { font-family: var(--fol-font-mono); font-variant-numeric: tabular-nums; }
+.review-candidate-body .fol-label, .review-standing .fol-metric { font-variant-numeric: tabular-nums; }
+
+/* Explicit private revision review; long evidence must remain readable on narrow screens. */
+.revision-journey { max-width:960px; margin-inline:auto; }
+.revision-journey .review-form { display:grid; gap:12px; margin-top:24px; }
+.revision-journey input,.revision-journey textarea { width:100%; min-width:0; }
+.revision-journey a:not(.btn) { color:var(--fol-role-fg); text-decoration:none; }
+.revision-journey code,.revision-journey p { overflow-wrap:anywhere; }
+.revision-journey pre { white-space:pre-wrap; overflow-wrap:anywhere; max-height:26rem; overflow:auto; font-family:var(--fol-font-mono); }
+.story-workspace { max-width:46rem; }
+.story-return { margin-bottom:var(--fol-s-5); font-size:var(--fol-t-13); }
+.story-return a { display:inline-flex; min-height:44px; align-items:center; }
+.story-intro { margin-bottom:var(--fol-s-4); }
+.story-intro h1 { margin:0; font:400 clamp(var(--fol-t-25),3vw,var(--fol-t-32))/1.2 var(--fol-font-display); letter-spacing:-.025em; overflow-wrap:anywhere; }
+.story-sources { border-block:1px solid var(--fol-border); padding-block:var(--fol-s-2); margin-block:var(--fol-s-4); }
+.story-sources summary { cursor:pointer; min-height:44px; align-content:center; font-size:var(--fol-t-14); }
+.story-sources ol { margin:0; padding-left:var(--fol-s-5); }
+.story-sources li { padding-block:var(--fol-s-3); font-size:var(--fol-t-13); }
+.story-sources code,.story-sources time { display:block; overflow-wrap:anywhere; }
+.story-form { display:block; }
+.story-section,.story-confirm { min-width:0; margin:0; padding:var(--fol-s-4) 0 var(--fol-s-5); border:0; border-top:1px solid var(--fol-border); border-radius:0; }
+.story-section legend,.story-confirm legend { font:400 var(--fol-t-20)/1.35 var(--fol-font-display); padding:0 var(--fol-s-2) 0 0; }
+.story-section legend .fol-metric { font-size:var(--fol-t-13); color:var(--fol-role-fg-secondary); margin-right:var(--fol-s-2); }
+.story-section p,.story-confirm p { margin:var(--fol-s-1) 0 var(--fol-s-3); max-width:65ch; font-size:var(--fol-t-13); color:var(--fol-role-fg-secondary); }
+.story-section label,.story-confirm label { display:block; margin-block:var(--fol-s-3) var(--fol-s-2); font-size:var(--fol-t-13); }
+.story-section textarea { min-height:9rem; }
+.story-section select { width:100%; min-width:0; max-width:100%; min-height:44px; }
+.story-confirm { max-width:46rem; }
+.story-confirm .btn { margin-right:var(--fol-s-4); }
+.story-error { border:1px solid var(--fol-role-edge-control); padding:var(--fol-s-4); }
+@media(max-width:760px) { .story-return { margin-bottom:var(--fol-s-3); } .story-section,.story-confirm { padding-block:var(--fol-s-4); } }
+
+/* Selected-context collaboration; source previews remain readable on small screens. */
+body[data-leaf-state="journey-collaboration"] .leaf-main-nav { padding-top: var(--fol-s-3); }
+.journey-workspace pre, .journey-workspace .journey-message { white-space: pre-wrap; overflow-wrap: anywhere; }
+.journey-workspace select { width: 100%; max-width: 100%; }
+.journey-workspace form { margin-block: var(--fol-s-4); }
+.journey-workspace > h1 { font-size: var(--fol-t-40); margin: 0 0 var(--fol-s-4); }
+.journey-workspace a { text-decoration: none; }
+.journey-workspace select { color: var(--fol-text); background: var(--fol-surface-raised); border: 1px solid var(--fol-border); border-radius: var(--fol-r-2); padding: var(--fol-s-3); font: inherit; color-scheme: dark; }
+.journey-workspace .portfolio-editor-section { margin-block: var(--fol-s-6); }
+.journey-workspace #journey { margin-top: var(--fol-s-3); }
+
+/* Compact source permissions: context opens at the action, never as repeated row copy. */
+.jev-panel .jev-source{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--fol-s-3);align-items:start;border-top:1px solid var(--fol-border);padding:var(--fol-s-4) 0}
+.jev-panel .jev-source-heading{min-width:0;display:flex;align-items:start;gap:var(--fol-s-2)}
+.jev-panel .jev-source h2{font:500 var(--fol-t-16)/1.5 var(--fol-font-sans);margin:0;min-width:0;overflow-wrap:anywhere;padding-top:var(--fol-s-2)}
+.jev-panel .jev-source-info{flex:0 0 auto}
+.jev-panel .jev-source-info[open]{flex:1 1 auto}
+.jev-panel .jev-source-info summary,.jev-panel .jev-activity>summary{list-style:none;min-width:44px;text-align:center;font:500 var(--fol-t-20)/1.5 var(--fol-font-sans)}
+.jev-panel summary::-webkit-details-marker{display:none}
+.jev-panel .jev-switch{display:flex;align-items:center;justify-content:flex-start;list-style:none;width:56px;min-height:44px;padding:var(--fol-s-2);border:1px solid var(--fol-border);border-radius:var(--fol-role-radius-control);background:var(--fol-surface-raised);cursor:pointer;box-sizing:border-box}
+.jev-panel .jev-switch span{display:block;width:18px;height:18px;border-radius:50%;background:var(--fol-text-muted)}
+.jev-panel .jev-switch[aria-checked="true"]{justify-content:flex-end;border-color:var(--fol-text)}
+.jev-panel .jev-switch[aria-checked="true"] span{background:var(--fol-text)}
+.jev-panel .jev-permission[open]{grid-column:1/-1}
+.jev-panel .jev-permission[open]>div{padding:var(--fol-s-3) 0}
+.jev-panel .jev-activity{border-top:1px solid var(--fol-border);padding-top:var(--fol-s-3)}
+.jev-panel .jev-switch:focus-visible,.jev-panel summary:focus-visible{outline:2px solid var(--fol-role-focus);outline-offset:2px}
+
+/* Scarlet keeps its conversation ahead of occasional settings. */
+.journey-workspace .journey-picker { display: flex; align-items: center; gap: var(--fol-s-2); }
+.journey-workspace .journey-picker select { flex: 1; min-width: 0; width: auto; }
+.journey-intro { margin-bottom: var(--fol-s-3); }
+.journey-selected { border: 1px solid var(--fol-border); border-radius: var(--fol-role-radius-panel); background: var(--fol-surface-raised); overflow: hidden; }
+.journey-selected-main { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start; gap: var(--fol-s-5); padding: var(--fol-s-5); }
+.journey-selected-copy { min-width: 0; }
+.journey-selected h2 { margin: 0; max-width: 32ch; font: 400 var(--fol-t-32)/1.18 var(--fol-font-display); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.journey-selected-copy p { max-width: 65ch; margin: var(--fol-s-3) 0 0; color: var(--fol-text-muted); font-size: var(--fol-t-16); line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.journey-selected-actions { display: flex; flex-direction: column; align-items: stretch; gap: var(--fol-s-2); min-width: 11rem; }
+.journey-selected-actions .journey-connect { margin: 0; }
+.journey-selected-actions .journey-connect .fol-button { width: 100%; }
+.journey-selected-actions > a,.journey-picker-menu > summary { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: var(--fol-s-2) var(--fol-s-3); border: 1px solid var(--fol-role-edge-control); border-radius: var(--fol-role-radius-control); color: var(--fol-text); background: var(--fol-surface); font: 500 var(--fol-t-13)/1.4 var(--fol-font-sans); }
+.journey-selected-actions > a:hover,.journey-picker-menu > summary:hover { background: var(--fol-canvas); }
+.journey-workspace .journey-picker-menu > summary { cursor: pointer; padding: var(--fol-s-2) var(--fol-s-3); white-space: nowrap; }
+.journey-picker-menu .journey-picker { margin-block: var(--fol-s-3) 0; }
+.journey-selected-sources { padding: var(--fol-s-3) var(--fol-s-5) var(--fol-s-4); border-top: 1px solid var(--fol-border); }
+.journey-selected-sources-head { display: flex; align-items: baseline; gap: var(--fol-s-2); margin-bottom: var(--fol-s-2); }
+.journey-selected-sources h3 { margin: 0; font: 500 var(--fol-t-14)/1.4 var(--fol-font-sans); }
+.journey-selected-sources-head .fol-metric { color: var(--fol-text-muted); font-size: var(--fol-t-13); }
+.journey-selected-sources ul { list-style: none; margin: 0; padding: 0; }
+.journey-selected-sources li { display: flex; align-items: baseline; justify-content: space-between; gap: var(--fol-s-3); padding-block: var(--fol-s-2); border-top: 1px solid var(--fol-border); }
+.journey-selected-sources li a { min-width: 0; font-size: var(--fol-t-14); line-height: 1.4; overflow-wrap: anywhere; }
+.journey-selected-sources li span,.journey-selected-more,.journey-selected-sources > p { flex: none; color: var(--fol-text-muted); font-size: var(--fol-t-13); }
+.journey-selected-sources > p { margin: 0; }
+.journey-selected-more { display: block; padding-top: var(--fol-s-2); }
+.journey-selected a,.journey-evidence a { color: var(--fol-text); font-weight: 500; text-decoration: none; }
+.journey-selected a:hover,.journey-evidence a:hover { color: var(--fol-role-action); text-decoration: none; }
+.journey-selected a:focus-visible,.journey-evidence a:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 3px; }
+.journey-evidence { border-block: 1px solid var(--fol-border); padding-block: var(--fol-s-2); }
+.journey-evidence > summary,.journey-transfer-statements > summary { min-height: 44px; align-content: center; cursor: pointer; font-size: var(--fol-t-14); font-weight: 500; }
+.journey-transfer-scope { display: flex; flex-wrap: wrap; gap: var(--fol-s-2) var(--fol-s-5); padding: var(--fol-s-3) 0; border-top: 1px solid var(--fol-border); color: var(--fol-text-muted); font-size: var(--fol-t-13); }
+.journey-transfer-scope > span { overflow-wrap: anywhere; }
+.journey-transfer-statements { margin-bottom: var(--fol-s-2); }
+.journey-transfer-statements li { display: block; }
+.journey-transfer-statements li p { margin: var(--fol-s-1) 0 0; max-width: 65ch; }
+.journey-workspace form[data-scarlet-conversation] { display: grid; gap: var(--fol-s-3); border: 1px solid var(--fol-role-edge-control); border-radius: var(--fol-role-radius-panel); background: var(--fol-surface); padding: var(--fol-s-5); margin-block: var(--fol-s-4); }
+.journey-workspace form[data-scarlet-conversation] label { font-size: var(--fol-t-16); font-weight: 500; }
+.journey-workspace form[data-scarlet-conversation] textarea { min-height: 8rem; resize: vertical; }
+.journey-composer-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--fol-s-3) var(--fol-s-5); padding-top: var(--fol-s-1); }
+.journey-workspace form[data-scarlet-conversation] .aside { max-width: 58ch; margin: 0; color: var(--fol-text-muted); font-size: var(--fol-t-13); }
+.journey-composer-footer .btn { margin-left: auto; }
+.journey-evidence ul { list-style: none; margin: 0; padding: 0; }
+.journey-evidence li { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 0 var(--fol-s-3); border-top: 1px solid var(--fol-border); padding-block: var(--fol-s-3); }
+.journey-evidence li > details { grid-column: 1/-1; }
+.journey-evidence-tier { color: var(--fol-text-muted); font-size: var(--fol-t-13); }
+.journey-evidence pre { max-height: 20rem; overflow: auto; }
+.journey-workspace > details.portfolio-editor-section { margin-block: 0; padding-block: var(--fol-s-3); }
+.journey-workspace > details > summary { min-height: 44px; align-content: center; cursor: pointer; }
+.journey-update-review { border: 1px solid var(--fol-border); border-radius: var(--fol-r-2); padding: var(--fol-s-4); margin-block: var(--fol-s-4); }
+.journey-update-feedback { display: flex; align-items: center; flex-wrap: wrap; gap: var(--fol-s-2); margin-block: var(--fol-s-3); }
+.journey-update-row { border-top: 1px solid var(--fol-border); padding-block: var(--fol-s-4); }
+.journey-update-before { color: var(--fol-text-muted); margin-block: var(--fol-s-2); }
+.journey-update-controls { display: flex; align-items: center; flex-wrap: wrap; gap: var(--fol-s-3); }
+.journey-update-controls form { margin-block: 0; }
+.journey-evidence-list { max-height: 16rem; overflow: auto; border: 1px solid var(--fol-border); border-radius: var(--fol-r-2); margin-block: var(--fol-s-2); }
+.journey-evidence-list .portfolio-choice { padding: var(--fol-s-2) var(--fol-s-3); margin: 0; border-bottom: 1px solid var(--fol-border); }
+.journey-evidence-list .portfolio-choice:last-child { border-bottom: 0; }
+.journey-evidence-list .portfolio-choice span { min-width: 0; overflow-wrap: anywhere; }
+.journey-evidence-list [hidden] { display: none; }
+.journey-update-permission .portfolio-choice { display: flex; gap: var(--fol-s-2); align-items: start; }
+@media (max-width: 640px) {
+  .journey-selected-main { grid-template-columns: minmax(0,1fr); gap: var(--fol-s-4); padding: var(--fol-s-4); }
+  .journey-selected h2 { font-size: var(--fol-t-25); }
+  .journey-selected-copy p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; white-space: normal; }
+  .journey-selected-actions { flex-direction: row; flex-wrap: wrap; min-width: 0; }
+  .journey-selected-actions .journey-connect { flex: 1 1 100%; }
+  .journey-selected-sources { padding-inline: var(--fol-s-4); }
+  .journey-selected-sources li { align-items: start; }
+  .journey-selected-sources li span { white-space: nowrap; }
+  .journey-workspace form[data-scarlet-conversation] { padding: var(--fol-s-4); }
+  .journey-composer-footer .btn { width: 100%; margin-left: 0; }
+  .journey-workspace .journey-picker { flex-wrap: wrap; }
+  .journey-workspace .journey-picker select { flex-basis: 100%; }
+}
+
+/* Standalone, non-streaming assistant: question and response before execution details. */
+.assistant-page { max-width: 70ch; }
+.assistant-page .leaf-subject { margin-bottom: var(--fol-s-5); }
+.assistant-page-setup .leaf-subject { margin-bottom: var(--fol-s-4); }
+.assistant-page .leaf-lede { margin-top: var(--fol-s-2); }
+.assistant-counts { display: flex; flex-wrap: wrap; gap: var(--fol-s-3) var(--fol-s-5); margin-bottom: var(--fol-s-5); }
+.assistant-counts > div { display: flex; align-items: baseline; gap: var(--fol-s-2); }
+.assistant-counts .leaf-count { font-size: var(--fol-t-14); line-height: 1.4; }
+.assistant-page form { display: grid; gap: var(--fol-s-2); }
+.assistant-page form label { font-family: var(--fol-font-sans); font-size: var(--fol-t-14); letter-spacing: normal; text-transform: none; }
+.assistant-page textarea { width: 100%; font-size: var(--fol-t-16); line-height: 1.5; }
+.assistant-page form button { justify-self: start; }
+.assistant-page button:disabled { cursor: not-allowed; background: var(--fol-role-panel-raised); color: var(--fol-role-fg-secondary); border-color: var(--fol-role-edge-control); }
+.assistant-page .review-refusal { border: 1px solid var(--fol-role-edge-control); border-radius: var(--fol-role-radius-control); margin: 0 0 var(--fol-s-4); padding: var(--fol-s-3); }
+.assistant-page .review-refusal { display: grid; justify-items: start; gap: var(--fol-s-2); }
+.assistant-page .review-refusal .fol-label { margin: 0; color: var(--fol-role-fg-secondary); }
+.assistant-page .review-refusal strong { font: 600 var(--fol-t-25)/1.2 var(--fol-font-sans); }
+.assistant-page .review-refusal .fol-button { margin-block: var(--fol-s-2); }
+.assistant-page .review-refusal .leaf-more { margin: 0; width: 100%; }
+.assistant-page form + .review-refusal { margin-top: var(--fol-s-4); }
+.assistant-page [data-authored="model-answer"] { margin-top: var(--fol-s-5); padding-top: var(--fol-s-4); border-top: 1px solid var(--fol-role-line); }
+.assistant-page [data-authored="model-answer"] > .fol-label { display: inline-block; margin: 0 var(--fol-s-3) var(--fol-s-3) 0; }
+.assistant-workspace-link { margin-top: var(--fol-s-5); }
+.assistant-page a { color: var(--fol-role-fg);  }
+.assistant-page a:visited { color: var(--fol-role-fg-secondary); }
+.assistant-page a:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 3px; }
+.assistant-page .fol-button { text-decoration: none; }
+
+/* Local model selection is one task: current choice, discovery, then the real installed list. */
+.scarlet-setup { max-width: 62ch; }
+.scarlet-setup-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--fol-s-3); padding-bottom: var(--fol-s-4); border-bottom: 1px solid var(--fol-role-line); }
+.scarlet-setup-heading h1, .scarlet-setup-heading h2 { margin: 0; }
+.scarlet-setup-heading h1 { font: 600 var(--fol-t-25)/1.2 var(--fol-font-sans); }
+.scarlet-setup-heading h2 { font: 600 var(--fol-t-16)/1.3 var(--fol-font-sans); }
+.scarlet-setup .scarlet-setup-back { display: inline-flex; align-items: center; min-height: var(--fol-role-height-control); padding-inline: var(--fol-s-2); color: var(--fol-role-fg-secondary); font-size: var(--fol-t-14); text-decoration: none; }
+.scarlet-setup .scarlet-setup-back:hover { color: var(--fol-role-fg); }
+.scarlet-setup-status { display: grid; justify-items: start; gap: var(--fol-s-2); padding-block: var(--fol-s-4); border-bottom: 1px solid var(--fol-role-line); }
+.scarlet-setup-status strong { overflow-wrap: anywhere; font: 600 var(--fol-t-20)/1.3 var(--fol-font-sans); }
+.scarlet-setup-status .fol-label { color: var(--fol-role-fg-secondary); }
+.scarlet-setup-find { padding-block: var(--fol-s-4); }
+.scarlet-setup-result { border-top: 1px solid var(--fol-role-line); padding-block: var(--fol-s-4); }
+.scarlet-setup-result > h2 { margin: 0 0 var(--fol-s-3); font: 600 var(--fol-t-16)/1.3 var(--fol-font-sans); }
+.scarlet-setup-notice, .scarlet-setup-note { margin-block: var(--fol-s-3); }
+.scarlet-model-list { list-style: none; margin: var(--fol-s-3) 0 0; padding: 0; }
+.scarlet-model-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--fol-s-3); min-width: 0; padding-block: var(--fol-s-3); border-bottom: 1px solid var(--fol-role-line); }
+.scarlet-model-list li > span { overflow-wrap: anywhere; min-width: 0; }
+.scarlet-model-list form { flex: none; }
+@media (max-width: 560px) {
+  .scarlet-setup-heading { align-items: flex-start; }
+}
+
+/* Raw Git observations remain in the record without masquerading as portfolio stories. */
+.lp-record-modes { display: flex; align-items: stretch; gap: var(--fol-s-4); border-block: 1px solid var(--fol-role-line); }
+.lp-record-modes a { display: inline-flex; align-items: center; gap: var(--fol-s-2); min-height: 48px; color: var(--fol-role-fg-secondary); border-bottom: 2px solid transparent; text-decoration: none; font-size: var(--fol-t-14); }
+.lp-record-modes a[aria-current="page"] { color: var(--fol-role-fg); border-bottom-color: var(--fol-role-fg); }
+.lp-record-modes a:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 2px; }
+.lp-record-modes .fol-metric { color: var(--fol-role-fg-tertiary); }
+[data-portfolio-records-mode="source"] :is(.lp-collection-switch,[data-portfolio-collection-note]) { display: none !important; }
+[data-source-only="true"][data-portfolio-records-mode="work"] :is(.lp-collection-switch,[data-portfolio-collection-note],#leaf-highlights) { display: none !important; }
+.lp-source-preview { margin-top: var(--fol-s-3); padding: var(--fol-s-4) 0; }
+.lp-source-preview h2 { margin: 0; font: 400 var(--fol-t-20)/1.3 var(--fol-font-display); }
+.lp-source-preview p { margin: var(--fol-s-2) 0 0; color: var(--fol-role-fg-secondary); font-size: var(--fol-t-14); }
+.lp-source-preview-actions { display: flex; flex-wrap: wrap; gap: var(--fol-s-3); padding: var(--fol-s-3) 0; }
+.lp-source-preview-actions a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--fol-s-3); color: var(--fol-role-fg); border: 1px solid var(--fol-role-edge-control); border-radius: var(--fol-role-radius-control); text-decoration: none; font-size: var(--fol-t-14); }
+.lp-source-preview-actions a:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 2px; }
+.lp-source-archive { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--fol-role-line); }
+.lp-source-record { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: var(--fol-s-3); padding: var(--fol-s-3) 0; border-bottom: 1px solid var(--fol-role-line); scroll-margin-top: var(--fol-s-6); }
+.lp-source-record h3 { margin: 0; font: 400 var(--fol-t-16)/1.35 var(--fol-font-display); overflow-wrap: anywhere; }
+.lp-source-record-meta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--fol-s-3); }
+.lp-source-record-meta code { color: var(--fol-role-fg-tertiary); }
+.lp-source-record-meta .leaf-leaflet-open { display: inline-flex; align-items: center; gap: var(--fol-s-2); margin: 0; }
+.lp-source-record-meta .leaf-leaflet-open > .fol-label { text-transform: capitalize; }
+.lp-source-record-meta a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--fol-s-2); color: var(--fol-role-fg); border: 1px solid var(--fol-role-edge-control); border-radius: var(--fol-role-radius-control); text-decoration: none; }
+.lp-source-record-meta a:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 2px; }
+@media (max-width: 760px) {
+  .lp-source-record { grid-template-columns: minmax(0,1fr); }
+}

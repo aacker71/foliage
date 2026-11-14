@@ -1,0 +1,32 @@
+[
+  {
+    "antipattern": "side-tab",
+    "name": "Side-tab accent border",
+    "description": "Thick colored border on one side of a card — the most recognizable tell of AI-generated UIs. Use a subtler accent or remove it entirely.",
+    "severity": "warning",
+    "category": "slop",
+    "file": "~/.codex/worktrees/radix-hosted-release/foliage/apps/leaf/public/leaf.css",
+    "line": 717,
+    "snippet": "border-left: 4px solid var(--fol-role-fg)"
+  },
+  {
+    "antipattern": "side-tab",
+    "name": "Side-tab accent border",
+    "description": "Thick colored border on one side of a card — the most recognizable tell of AI-generated UIs. Use a subtler accent or remove it entirely.",
+    "severity": "warning",
+    "category": "slop",
+    "file": "~/.codex/worktrees/radix-hosted-release/foliage/apps/leaf/public/leaf.css",
+    "line": 1020,
+    "snippet": "border-left: 3px solid var(--fol-role-edge-control)"
+  },
+  {
+    "antipattern": "side-tab",
+    "name": "Side-tab accent border",
+    "description": "Thick colored border on one side of a card — the most recognizable tell of AI-generated UIs. Use a subtler accent or remove it entirely.",
+    "severity": "warning",
+    "category": "slop",
+    "file": "~/.codex/worktrees/radix-hosted-release/foliage/apps/leaf/public/leaf.css",
+    "line": 1076,
+    "snippet": "border-left: 4px solid var(--fol-role-fg)"
+  }
+]

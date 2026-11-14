@@ -1,0 +1,803 @@
+/* ==========================================================================
+   THE CANOPY'S REAL-DATA SURFACES — /, /tree, /leaf/<id>, /leaflet/<id>.
+
+   This styles the four pages of the canopy that render REAL data assembled
+   from real leaf documents: the front door (`/`), the company (`/tree`), one
+   person's PUBLISHED portfolio (`/leaf/<id>`), and one PUBLISHED artifact
+   (`/leaflet/<id>`). The static mockups beside it in this directory are
+   design fixtures carrying fictional content; they are styled by
+   canopy-base.css and share nothing with this file.
+
+   THE FILE IS STILL CALLED tree.css AND THAT IS NOW A HALF-TRUTH, stated here
+   rather than left for a reader to trip over. It is one stylesheet because the
+   four pages are one surface — one measure, one focus ring — and splitting it
+   would be four places for the focus ring to drift. The MASTHEAD AND ITS
+   PLANE BADGE are no longer here at all: `.fol-nav` in
+   `@foliage/tokens/foliage.css` is the one shared shell every app in this
+   repository draws its nav bar from, and this file adds no chrome of its own
+   on top of it. The `.tree-*` prefix belongs to the front door and the
+   company page, `.pub-*` to the two public-plane pages; the frame rules below
+   are deliberately shared by all four, and each shared rule says so.
+
+   LOADS LAST, of four. `server.mjs` links them in this fixed order:
+
+     /foliage-tokens.css   the primitives, the four @font-face, and THE FACE
+     /roles.css            the --fol-role-* aliases, every value a var()
+     /foliage.css          the component layer: .cell .cells-2 .metric .plate
+                           .plate-t .plate-b .aside .note .m .ico .proof …
+     /tree.css             this file — page chrome, and nothing else
+
+   WHAT LEFT THIS FILE, AND WHY IT IS NOT COMING BACK
+   --------------------------------------------------------------------------
+   THE FACE. `html[data-face="day"] { … }` used to live here and, character for
+   character, in apps/leaf/public/leaf.css: the same three color-mix line
+   weights at the same percentages, derived twice. The comment above them even
+   said so. It now lives once, in the package's tokens.css, which is the entire
+   point of having a package. Two things came with the move and neither is
+   cosmetic:
+
+     - The selector lost its `html` prefix. `html[data-face="day"] .fol-label`
+       scores (0,2,1) and silently outranks an ordinary `.tree-band .fol-label`
+       at (0,2,0) — a defect this file had already shipped and had to repeat
+       the face selector to work around (see .tree-band below, where the
+       workaround is now gone). At (0,2,0) the two are equal and source order
+       decides, and this file is last.
+     - --tree-hairline / --tree-rule / --tree-rule-strong are gone. The three
+       colour roles in roles.css replace them: --fol-role-line (decorative,
+       inside an object), --fol-role-edge (decorative, encloses a cell) and
+       --fol-role-edge-control (>=3:1 on every ground of BOTH faces, the only
+       one legal on anything interactive). The 46% mix this file used for a
+       cell boundary measured 3.25:1; --fol-role-edge-control measures 5.54:1
+       on paper, so the replacement is stronger than the thing it replaces, not
+       merely tidier.
+
+   THE COMPONENTS. `.tree-fact` was `.cell`. `.tree-count` was a `.metric` row.
+   `.tree-note` was `.aside`. Each is now the system's, and the markup in
+   renderTree.ts emits the system class. THE MASTHEAD AND ITS PLANE BADGE went
+   the same way, later: `.fol-nav` in foliage.css replaced this file's own
+   `.tree-plane` / `.tree-head`, so neither is declared here any more. What is
+   left below is genuinely surface-specific: the roster grid (foliage.css
+   ships no roster-row component — Open Design's `.k-row` lives in its
+   kit.css, which is not part of the exported system), the fabrication band,
+   and the failure blocks.
+
+   WHAT IS MEASURED HERE
+   --------------------------------------------------------------------------
+   `.fol-label` in tokens.css binds --fol-text-faint. Under the day face that
+   token rebinds to --fol-ink-faint, so no rebinding is needed here at all; the
+   figure that used to justify one — "3.57:1 on paper" — was arithmetic for
+   #728579, the value this token had TWO revisions ago. The current night value
+   #7D9184 measures 3.05:1 on paper at 11px. The conclusion was right and the
+   number was stale by one token revision, which is exactly why a ratio without
+   its colour, its ground and its px size is not a result.
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--fol-canvas);
+  color: var(--fol-text);
+  font: 400 var(--fol-t-16)/1.6 var(--fol-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+
+  /* A roster is a table of people, not a document, so it is given more room
+     than a leaf's 46rem reading measure — but it is still bounded and centred
+     rather than filled to the viewport, which is what holds the layout from
+     360 to 1920 with no upper breakpoint. */
+  --tree-measure: 62rem;
+}
+
+body { margin: 0; }
+
+/* Current location is carried by weight and aria-current, without a text underline. */
+.fol-nav-list a[aria-current="page"] { border-bottom-color: transparent; }
+
+/* One focus ring, everywhere, and it is REAL: a named 2px colour, never the
+   UA's `auto`. --fol-accent is 1.68:1 on paper and fails WCAG 1.4.11's 3:1 for
+   a non-text indicator, so Open Design's GEOMETRY is kept (2px, offset 2) and
+   only the colour moves — to --fol-text, which the day face binds to
+   --fol-ink at 15.56:1 on paper. foliage.css makes the same reversal for
+   .btn and .field; this rule covers the links and the two -1 tabindex landing
+   targets that are all this surface actually has. */
+:where(a, [tabindex], summary):focus-visible {
+  outline: 2px solid var(--fol-text);
+  outline-offset: 2px;
+  border-radius: var(--fol-r-1);
+}
+
+/* ==========================================================================
+   THE DISCLOSURE — shared by all four pages, prefixed `tree-` for the same
+   reason the frame rules above are: one definition, not one per page.
+
+   WHAT IT IS FOR. Measured on the real rendered pages on 2026-08-19, before
+   this existed: /tree carried 257 words for a roster of three people, and
+   /leaf/<id> carried 145 words of prose around 8 artifacts. Every design
+   decision was argued on the page. CLAUDE.md names the cause — a comment is
+   read once by a maintainer who wants the reasoning, a UI is read constantly
+   by someone who wants the fact — so the reasoning moved BEHIND a summary
+   rather than out of the document. It is a relocation, never a deletion.
+
+   THE SUMMARY IS A LABEL, so it takes `.fol-label`'s treatment: 11px mono,
+   uppercase, tracked, muted. --fol-text-muted rebinds to --fol-ink-muted on
+   the day face and measures 7.31:1 on paper at 11px; the marker and the label
+   are the same colour, so the affordance is not carried by hue alone.
+
+   THE NATIVE MARKER STAYS. A custom chevron would be a fourth mark in a
+   repository that has already shipped a stale copy of its own logo, and the
+   UA triangle already rotates on open in every engine — animating it here
+   would be re-implementing something correct. `cursor: pointer` is the one
+   addition: without it the summary reads as static text.
+
+   NO `transition` ON THE BODY. `<details>` has no height to animate to, so a
+   transition would either do nothing or need a script to measure. Motion
+   never bounces here, and the honest answer is no motion at all.
+   ========================================================================== */
+.tree-why { margin: var(--fol-s-3) 0 0; }
+.tree-why > summary {
+  cursor: pointer;
+  font: 500 var(--fol-t-11)/1.4 var(--fol-font-mono);
+  letter-spacing: var(--fol-track-label);
+  text-transform: uppercase;
+  color: var(--fol-text-muted);
+}
+/* Safari paints the marker at the UA's colour rather than inheriting, so the
+   triangle and its label would otherwise disagree by a full step of ink. */
+.tree-why > summary::marker { color: var(--fol-text-muted); }
+.tree-why > summary:hover { color: var(--fol-text); }
+/* An open disclosure is a bordered indent rather than a card — the rule on
+   the left ties the body to the summary it belongs to, which a floating box
+   would not. `.aside` inside it keeps the system's own note treatment. */
+.tree-why-body {
+  margin-top: var(--fol-s-2);
+  padding-left: var(--fol-s-4);
+  border-left: 1px solid var(--fol-role-line);
+}
+.tree-why-body > .aside { margin: 0; max-width: 66ch; }
+.tree-why-body > .aside + .aside { margin-top: var(--fol-s-3); }
+
+.tree-skip {
+  position: absolute;
+  left: -9999px;
+  background: var(--fol-canvas);
+  color: var(--fol-text);
+  border: 1px solid var(--fol-role-edge-control);
+  border-radius: var(--fol-r-2);
+  padding: var(--fol-s-2) var(--fol-s-3);
+  font: 500 var(--fol-t-13)/1 var(--fol-font-sans);
+  text-decoration: none;
+}
+.tree-skip:focus { left: var(--fol-s-4); top: var(--fol-s-4); z-index: 2; }
+
+/* ==========================================================================
+   FRAME
+
+   THE MASTHEAD IS NO LONGER THIS FILE'S: `.tree-plane` (the plane band) and
+   `.tree-head` (the brand lockup) were this surface's own hand-rolled copy of
+   the chrome every real-data page needs, and `@foliage/tokens/foliage.css`
+   now ships that chrome once, as `.fol-nav`, for every app — see `navBar` in
+   `renderTree.ts`. Removed rather than left dead: an unused rule here is
+   exactly the kind of second copy this project keeps finding mid-drift.
+   ========================================================================== */
+.tree-main {
+  max-width: var(--tree-measure);
+  margin: 0 auto;
+  padding: 0 var(--fol-s-5) var(--fol-s-9);
+}
+
+/* The mark is a `<use>` into the sprite server.mjs inlines from
+   @foliage/tokens — `.m` and its colour come from the system, so there is
+   nothing to declare here beyond the lockup's own alignment. There is
+   deliberately no mask-image rule any more: the CSS-mask technique needed a
+   second URL to the mark, which is a second place for it to go stale. */
+
+/* ==========================================================================
+   FABRICATION BAND — the loudest thing on the page, on purpose.
+
+   A reader who lands on a page showing a company and a roster of named
+   people will read it as real unless told otherwise, and an HTML comment does
+   not tell them. This is the visible, non-dismissible statement that it is
+   not. It is the one place on this face where a label is NOT muted.
+   ========================================================================== */
+.tree-band {
+  border-left-width: 1px;
+  margin-bottom: var(--fol-s-6);
+}
+/* No face prefix needed. tokens.css now scores `[data-face="day"] .fol-label`
+   at (0,2,0) instead of (0,2,1), so this rule ties on specificity and wins on
+   order — this file loads last. The old workaround (repeating the face
+   selector to out-specify the system) is what the prefix drop deletes. */
+.tree-band .fol-label {
+  display: flex;
+  align-items: center;
+  gap: var(--fol-s-2);
+  color: var(--fol-text);
+  margin-bottom: var(--fol-s-2);
+}
+.tree-band p { margin: 0; font-size: var(--fol-t-14); }
+
+/* ==========================================================================
+   SUBJECT — the company, and the two counts that qualify each other.
+   ========================================================================== */
+.tree-subject {
+  padding-bottom: var(--fol-s-6);
+  border-bottom: 1px solid var(--fol-role-line);
+}
+.tree-subject > .fol-label { display: block; margin-bottom: var(--fol-s-2); }
+/* SOFT/WONK are set EXPLICITLY on every display heading, and `opsz` is deliberately NOT.
+   Both halves of that are load-bearing.
+
+   Why the line is needed at all: the shipped `fraunces-var.woff2` defaults WONK to 1 and SOFT
+   to 0 (fvar read from the file itself: opsz 9/9/144, wght 100/900/900, SOFT 0/0/100,
+   WONK 0/1/1). WONK's default is its MAXIMUM, so a heading that says nothing gets the wonky
+   alternates switched ON. `apps/leaf/public/leaf.css:158/169/218` sets "SOFT" 28, "WONK" 0 on
+   the same headings, so /tree was rendering a different cut of the same typeface from the
+   sibling surface with nothing on screen or in the file saying so.
+
+   Why no `opsz`: `font-optical-sizing: auto` is the initial value — the `font:` shorthand below
+   resets to it — and it resolves opsz to the rendered px size. Open Design instead hardcodes a
+   per-size ladder (opsz 100 at 40/50px, 72 at 25px, 60 at 20px); `auto` reproduces that intent
+   across the whole responsive matrix instead of pinning one number to one breakpoint. Pinning
+   OD's 100 here would force the 100px display cut onto a 25px h2 and the 32px error h1 —
+   measured at 32px, that narrows "configured agency" from 271.02px to 225.75px, a 16.7%
+   collapse, which is precisely the optical error optical sizing exists to prevent.
+   `.wordmark`'s `"opsz" 100` in packages/foliage-tokens/src/foliage.css:47 is correct and stays:
+   it is 50px, which is where OD puts that value.
+
+   The declaration goes AFTER the `font:` shorthand in each rule, because the shorthand resets
+   font-variation-settings to `normal`. Above it, it would be silently erased. */
+.tree-subject h1 {
+  margin: 0 0 var(--fol-s-4);
+  font: 400 var(--fol-t-40)/1.1 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+}
+
+/* "Leaves loaded" and "Named by manifest" sit SIDE BY SIDE in `.cells-2` and
+   are the same size. Neither is the headline number: when they differ, the
+   difference is the most important fact on the page, and a layout that
+   promoted one would let a reader take it as the roster's size.
+
+   The numeral is 40px rather than foliage.css's `.metric b` 25px, which is the
+   detail-row size. Open Design's own organization-tree prototype does exactly
+   this in ITS page-local CSS (`.pg-count b`, t-40 mono tabular) — a page's
+   headline pair is page chrome, so it belongs here and not in the system. */
+.tree-fact .fol-label { display: block; margin: 0 0 var(--fol-s-2); }
+.tree-fact b {
+  display: block;
+  font: 500 var(--fol-t-40)/1 var(--fol-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.tree-incomplete { color: var(--fol-text); }
+.tree-incomplete a {
+  color: inherit;
+  text-decoration:none;
+  font-weight:500;
+}
+.tree-incomplete a:hover { background:var(--fol-surface); }
+.tree-incomplete a:active { color: var(--fol-text-muted); }
+
+/* ==========================================================================
+   ROSTER
+   ========================================================================== */
+.tree-roster, .tree-failures, .tree-policy, .tree-empty {
+  margin-top: var(--fol-role-gap-block);
+}
+/* SOFT/WONK, no opsz — see `.tree-subject h1`. After the shorthand, which resets it. */
+.tree-roster h2, .tree-failures h2 {
+  margin: 0;
+  font: 400 var(--fol-t-25)/1.2 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+}
+.tree-policy h2 { margin: 0; }
+
+.tree-list, .tree-failure-list {
+  list-style: none;
+  margin: var(--fol-s-5) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--fol-role-line);
+}
+.tree-failure-list { border-top: 0; }
+
+/* Open Design's roster geometry, one column narrower: it puts a fixed 118px
+   label rail first, and this page has no label to put there — a proof badge in
+   that slot is the exact thing R4 refuses, because a tier belongs to a leaflet
+   and not to a person. So: identity left, that person's own ledger right. */
+.tree-person {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+  gap: var(--fol-s-4) var(--fol-s-6);
+  align-items: start;
+  padding: var(--fol-s-4) 0;
+  border-bottom: 1px solid var(--fol-role-line);
+}
+.tree-person-name {
+  margin: 0;
+  font: 500 var(--fol-t-20)/1.3 var(--fol-font-sans);
+}
+.tree-person-src {
+  margin: var(--fol-s-2) 0 0;
+  font-size: var(--fol-t-11);
+  color: var(--fol-text-muted);
+  overflow-wrap: anywhere;
+}
+.tree-person-src .fol-label { margin-right: var(--fol-s-2); }
+
+/* Three `.metric` rows, stacked, identical. No tier is emphasised over
+   another — ProofTier is deliberately unordered, and a visual hierarchy across
+   the three would supply the ranking the type system refuses to. The last row
+   drops its rule so the block does not double up on the row's own border. */
+.tree-counts > .metric:last-child { border-bottom: 0; padding-bottom: 0; }
+
+/* ==========================================================================
+   FAILURES — content, not chrome.
+   ========================================================================== */
+.tree-failures { border-top: 1px solid var(--fol-role-edge); padding-top: var(--fol-s-6); }
+.tree-failure {
+  border-left-width: 1px;
+  margin-bottom: var(--fol-s-4);
+}
+/* The cause of a failure is the point of the block, so it is stated in full
+   ink rather than the muted label treatment. Same tie-on-specificity,
+   win-on-order rule as the band above. */
+.tree-failure h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--fol-s-2);
+  margin: 0 0 var(--fol-s-3);
+  color: var(--fol-text);
+}
+.tree-failure-entry { margin: 0 0 var(--fol-s-2); font-size: var(--fol-t-13); overflow-wrap: anywhere; }
+.tree-failure-entry .fol-label { margin-right: var(--fol-s-2); }
+.tree-failure-detail { margin: 0; font-size: var(--fol-t-14); overflow-wrap: anywhere; }
+
+.tree-issues {
+  margin: var(--fol-s-3) 0 0;
+  padding-left: var(--fol-s-5);
+  font-size: var(--fol-t-13);
+}
+.tree-issue-at { margin-right: var(--fol-s-2); }
+
+/* ==========================================================================
+   THE EMPTY PLATE, THE REFUSAL, and the source footer.
+   ========================================================================== */
+/* `.plate` centres its own content vertically in 172px; left-aligning the
+   glyph and giving it the muted foreground is the only thing this surface
+   adds. There is no LOADING plate and no skeleton on this page: the render is
+   synchronous and server-side, so a loading state would be a picture of
+   something that never happens. */
+.tree-empty .ico { color: var(--fol-text-faint); }
+
+.tree-policy { padding: var(--fol-s-5); }
+.tree-policy .aside { margin-top: var(--fol-s-3); }
+
+/* SOFT/WONK, no opsz — see `.tree-subject h1`. After the shorthand, which resets it. */
+.tree-fail h1 {
+  margin: var(--fol-s-2) 0 var(--fol-s-4);
+  font: 400 var(--fol-t-32)/1.15 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+}
+/* `.plate-b` caps at 34ch, which is right inside a 172px plate and too narrow
+   for the lede of a whole error page. The type treatment is the system's; only
+   the measure is this surface's. */
+.tree-fail-lede { max-width: 62ch; margin: 0 0 var(--fol-s-4); }
+.tree-fail-detail { margin: 0; overflow-wrap: anywhere; }
+
+.tree-source {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fol-s-2) var(--fol-s-5);
+  align-items: baseline;
+  margin-top: var(--fol-s-8);
+  padding-top: var(--fol-s-4);
+  border-top: 1px solid var(--fol-role-line);
+  font-size: var(--fol-t-11);
+  color: var(--fol-text-muted);
+  overflow-wrap: anywhere;
+}
+.tree-source .fol-metric { font-size: var(--fol-t-11); }
+
+/* ==========================================================================
+   THE TWO PUBLIC-PLANE PAGES — /leaf/<id> and /leaflet/<id>.
+
+   `/tree` is a TABLE OF PEOPLE. These two are DOCUMENTS: one person's
+   published work, and one published artifact. That difference is the only
+   reason they have rules of their own at all, and it shows up in exactly one
+   place — the measure.
+
+   THE MEASURE IS KEYED ON THE SURFACE, NOT THE FACE. All four pages take the
+   day face, so a face-keyed measure would give a roster and an essay the same
+   line length. `--tree-measure` (62rem) is a roster's; a leaflet is prose and
+   takes 52rem, which puts its 16px body at roughly 75 characters — the upper
+   end of the readable band rather than past it. `/leaf/<id>` keeps the wider
+   measure because it is still a list of rows.
+
+   Everything else on these pages is already the system's: `.cell` for the
+   bordered blocks, `.metric` for the one count, `.plate`/`.plate-t`/`.plate-b`
+   for the empty state, `.proof` for the tier badge, `.aside` for the notes.
+   What is below is the page chrome those components sit in and nothing that
+   restates one of them.
+   ========================================================================== */
+body[data-canopy-surface="leaflet"] { --tree-measure: 52rem; }
+
+/* THE ONE LINK TREATMENT ON THIS SURFACE, so the roster's link into a person,
+   a person's link into an artifact and an artifact's link back all behave
+   identically. Underline thickness carries the hover — a colour-only hover
+   would be the one state a reader with low colour discrimination cannot see —
+   and the thickening never bounces: --fol-role-ease-in over --fol-role-speed-
+   state. `currentColor` keeps the link at --fol-text (15.56:1 on paper),
+   because a link tinted with --fol-accent would measure 1.68:1 there. */
+.pub-link,
+.tree-person-name a {
+  color: inherit;
+  text-decoration:none;
+  font-weight:500;
+}
+.pub-link:hover,
+.tree-person-name a:hover { background:var(--fol-surface); }
+.pub-link:active,
+.tree-person-name a:active { color: var(--fol-text-muted); }
+
+/* ==========================================================================
+   /leaf/<id> — ONE PERSON'S PUBLISHED WORK.
+   ========================================================================== */
+.pub-subject {
+  padding-bottom: var(--fol-s-6);
+  border-bottom: 1px solid var(--fol-role-line);
+}
+.pub-subject > .fol-label { display: block; margin-bottom: var(--fol-s-2); }
+/* SOFT/WONK, no opsz — see `.tree-subject h1`. After the shorthand, which resets it. */
+.pub-subject h1 {
+  margin: 0 0 var(--fol-s-4);
+  font: 400 var(--fol-t-40)/1.1 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+}
+.pub-scope { margin: 0 0 var(--fol-s-3); max-width: 62ch; color: var(--fol-text-muted); }
+/* The company is NAVIGATION, so it is a labelled link row rather than a clause
+   inside the scope sentence — a reader looking for the tree should not have to
+   read a paragraph to find it. Same label/value rhythm as `.tree-person-src`
+   one page up, which is the same kind of row: a term and the thing itself. */
+.pub-tree { margin: 0 0 var(--fol-s-4); font-size: var(--fol-t-13); }
+.pub-tree .fol-label { margin-right: var(--fol-s-2); }
+
+/* THE ONE COUNT ON THIS PAGE, and it is deliberately alone.
+   `/tree` sets two numbers side by side in `.cells-2` because the gap between
+   them is that page's most important fact. Here a second number would have to
+   be the size of the whole portfolio — "3 of 47 published" publishes the 47,
+   which is the subject's own private accounting and was never offered. So the
+   cell is single-column and the numeral takes the roster's 40px, because
+   nothing is being compared to it. */
+.pub-count { display: block; }
+.pub-count .fol-label { display: block; margin: 0 0 var(--fol-s-2); }
+.pub-count b {
+  display: block;
+  font: 500 var(--fol-t-40)/1 var(--fol-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.pub-published, .pub-empty, .pub-policy { margin-top: var(--fol-role-gap-block); }
+/* SOFT/WONK, no opsz — see `.tree-subject h1`. After the shorthand, which resets it. */
+.pub-published h2 {
+  margin: 0;
+  font: 400 var(--fol-t-25)/1.2 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+}
+
+.pub-list {
+  list-style: none;
+  margin: var(--fol-s-5) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--fol-role-line);
+}
+/* Open Design's roster geometry again, with the third column this page can
+   honestly fill: what the artifact is, and the tier badge that qualifies it.
+   The badge is on the RIGHT and fixed-width, so a column of them lines up and
+   none of the three tiers gets a wider slot than the others. */
+.pub-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 9rem);
+  gap: var(--fol-s-3) var(--fol-s-5);
+  align-items: start;
+  padding: var(--fol-s-4) 0;
+  border-bottom: 1px solid var(--fol-role-line);
+}
+/* The last row drops its rule. The footer's own border-top closes the region a
+   few rems below, and two hairlines with empty space between them read as a
+   section that failed to render rather than as the end of a list — measured on
+   the running page at a read-back innerWidth of 360. */
+.pub-list > .pub-item:last-child { border-bottom: 0; }
+.pub-item-title { margin: 0; font: 500 var(--fol-t-20)/1.35 var(--fol-font-sans); }
+.pub-item-open { margin: var(--fol-s-2) 0 0; font-size: var(--fol-t-13); }
+.pub-item-ref { margin: var(--fol-s-2) 0 0; font-size: var(--fol-t-11); color: var(--fol-text-muted); overflow-wrap: anywhere; }
+.pub-item-ref .fol-label { margin-right: var(--fol-s-2); }
+.pub-item-tier { margin: 0; }
+
+.pub-empty .ico { color: var(--fol-text-faint); }
+.pub-policy { padding: var(--fol-s-5); }
+.pub-policy h2 { margin: 0; }
+.pub-policy .aside { margin-top: var(--fol-s-3); }
+
+/* ==========================================================================
+   /leaflet/<id> — ONE PUBLISHED ARTIFACT.
+   ========================================================================== */
+.pub-leaflet > .fol-label { display: block; margin-bottom: var(--fol-s-2); }
+/* SOFT/WONK, no opsz — see `.tree-subject h1`. After the shorthand, which resets it. */
+.pub-leaflet h1 {
+  margin: 0 0 var(--fol-s-4);
+  font: 400 var(--fol-t-32)/1.15 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+  overflow-wrap: anywhere;
+}
+.pub-tier { margin: 0 0 var(--fol-s-3); }
+.pub-meaning { margin-top: 0; }
+
+.pub-body, .pub-prov-section { margin-top: var(--fol-role-gap-block); }
+/* SOFT/WONK, no opsz — see `.tree-subject h1`. After the shorthand, which resets it. */
+.pub-body h2, .pub-prov-section h2 {
+  margin: 0;
+  font: 400 var(--fol-t-25)/1.2 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+}
+
+.pub-elements { list-style: none; margin: var(--fol-s-5) 0 0; padding: 0; }
+/* A BORDERED CELL PER ELEMENT, not a card: the element and the evidence it
+   rests on have to read as one object, or the ref beneath a sentence looks
+   like a footnote to the page rather than that sentence's own ground. */
+.pub-element { margin-bottom: var(--fol-s-3); }
+.pub-element-text { margin: 0 0 var(--fol-s-3); }
+.pub-element .aside { margin-top: 0; margin-bottom: var(--fol-s-3); }
+
+/* The evidence itself: three terms, label above value, wrapping rather than
+   truncating. A truncated commit sha is not a ref anybody can check.
+
+   `auto-fit` AND NOT A BREAKPOINT, measured on the running page. Pinned at
+   three columns this grid gives each term ~190px inside the 624px viewport
+   this was measured at, and a 40-character sha at 13px mono needs ~310px — so
+   the ref wrapped to two lines and the ISO instant broke mid-token as
+   "2026-08- / 19T15:23:56.166Z", which reads as two facts. 16rem is the width
+   at which neither breaks badly, so the track count follows the space that
+   actually exists: 3 at 1280, 2 at 624, 1 at 360, with no media query to keep
+   in agreement with the type scale. */
+.pub-prov {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--fol-s-3);
+  margin: 0;
+}
+/* The section heading needs the gap the cell's own padding gives it inside a
+   `.pub-element`; standing alone under `<h2>Provenance</h2>` it had none, and
+   the label row sat on the heading's baseline. */
+.pub-prov-section .pub-prov { margin-top: var(--fol-s-5); }
+.pub-prov div { min-width: 0; }
+.pub-prov dt { margin: 0 0 var(--fol-s-1); }
+.pub-prov dd { margin: 0; font-size: var(--fol-t-13); overflow-wrap: anywhere; }
+
+.pub-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fol-s-2) var(--fol-s-5);
+  align-items: baseline;
+  margin-top: var(--fol-s-8);
+  padding-top: var(--fol-s-4);
+  border-top: 1px solid var(--fol-role-line);
+  font-size: var(--fol-t-11);
+  color: var(--fol-text-muted);
+  overflow-wrap: anywhere;
+}
+.pub-foot .fol-metric { font-size: var(--fol-t-11); }
+
+/* THE REFUSAL — "nothing is published at this address".
+   It takes the same type as a load failure because it is the same KIND of
+   page: a surface with nothing to show, saying what is absent. It is NOT
+   styled as an error — nothing is broken, and a red-shaped page would tell a
+   reader that something went wrong when the honest answer is that nothing was
+   offered. */
+/* SOFT/WONK, no opsz — see `.tree-subject h1`. After the shorthand, which resets it. */
+.pub-refusal h1 {
+  margin: var(--fol-s-2) 0 var(--fol-s-4);
+  font: 400 var(--fol-t-32)/1.15 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+}
+.pub-refusal-lede { max-width: 62ch; margin: 0 0 var(--fol-s-4); }
+.pub-refusal-id { margin: 0; overflow-wrap: anywhere; }
+
+/* ==========================================================================
+   LAUNCH PAGES — /, /individuals, /organizations and /demo.
+
+   These are public day-face pages, so they use the same local fonts, bordered
+   cells and component classes as the data-bearing surfaces. Magic UI's useful
+   move here is composition and entrance, not a client runtime: the blur-fade is
+   CSS-only and the demo itself is a GET render.
+   ========================================================================== */
+body[data-canopy-surface="demo"],
+body[data-canopy-surface="individuals"],
+body[data-canopy-surface="organizations"] { --tree-measure: 68rem; }
+
+.magic-blur-fade {
+  animation: magic-blur-fade var(--fol-dur-4) var(--fol-ease-grow) both;
+}
+.magic-blur-fade[data-magic-step="1"] { animation-delay: var(--fol-dur-1); }
+.magic-blur-fade[data-magic-step="2"] { animation-delay: var(--fol-dur-2); }
+.magic-blur-fade[data-magic-step="3"] { animation-delay: var(--fol-dur-3); }
+@keyframes magic-blur-fade {
+  from { opacity: 0; filter: blur(8px); transform: translateY(var(--fol-s-3)); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+.launch-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem);
+  gap: var(--fol-s-7);
+  align-items: center;
+  padding: var(--fol-s-7) 0 var(--fol-s-6);
+  border-bottom: 1px solid var(--fol-role-line);
+}
+/* The public front door keeps the next real state in view, even before a tree exists. */
+body[data-canopy-surface="canopy"] .launch-hero {
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, 14rem);
+  align-items: start;
+  gap: var(--fol-s-6);
+  padding: var(--fol-role-pad-page) 0 var(--fol-s-5);
+}
+body[data-canopy-surface="canopy"] .launch-figure {
+  min-height: 0;
+  border-left: 0;
+}
+body[data-canopy-surface="canopy"] .launch-figure .m { width: min(100%, 10rem); }
+body[data-canopy-surface="canopy"] .launch-section { margin-top: var(--fol-s-5); }
+.launch-hero-copy > .fol-label { display: block; margin-bottom: var(--fol-s-3); }
+.launch-hero h1 {
+  margin: 0;
+  max-width: 13ch;
+  font: 400 var(--fol-t-50)/1.05 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+}
+.launch-lede {
+  max-width: 48rem;
+  margin: var(--fol-s-5) 0 0;
+  font-size: var(--fol-t-20);
+  line-height: 1.5;
+  color: var(--fol-text-muted);
+}
+.launch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fol-s-3);
+  margin-top: var(--fol-s-5);
+}
+.launch-actions .btn {
+  min-width: 10rem;
+}
+.launch-actions .btn .ico,
+.demo-form-actions .btn .ico {
+  margin-right: var(--fol-s-1);
+}
+.launch-figure {
+  display: grid;
+  place-items: center;
+  min-height: 18rem;
+  color: var(--fol-text);
+  border-left: 1px solid var(--fol-role-line);
+}
+.launch-figure .m {
+  width: min(100%, 13rem);
+  height: auto;
+}
+
+.launch-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--fol-s-3);
+  margin-top: var(--fol-role-gap-block);
+}
+.launch-section {
+  margin-top: var(--fol-role-gap-block);
+}
+.launch-section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--fol-s-4);
+}
+.launch-section h2,
+.demo-preview h2 {
+  margin: 0;
+  font: 400 var(--fol-t-25)/1.2 var(--fol-font-display);
+  font-variation-settings: "SOFT" 28, "WONK" 0;
+  letter-spacing: var(--fol-track-display);
+}
+.launch-empty {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--fol-s-4);
+  align-items: start;
+}
+.launch-empty .ico { color: var(--fol-text-faint); }
+.launch-empty h2 { margin-top: var(--fol-s-2); }
+
+.demo-workbench {
+  display: grid;
+  grid-template-columns: minmax(18rem, .86fr) minmax(0, 1.14fr);
+  gap: var(--fol-s-4);
+  align-items: start;
+}
+.demo-form {
+  position: sticky;
+  top: var(--fol-s-5);
+}
+.demo-form label { display: block; margin-bottom: var(--fol-s-3); }
+.demo-textarea {
+  min-height: 14rem;
+  resize: vertical;
+}
+.demo-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fol-s-3);
+  margin-top: var(--fol-s-4);
+}
+.demo-preview { margin-top: 0; }
+.demo-item .proof { justify-self: start; }
+
+/* ==========================================================================
+   RESPONSIVE — DESCENDING, widest first. At 360px every max-width block
+   matches, so the LAST one wins; ordering these narrowest-first silently
+   disables all but the last, which this project has shipped twice.
+
+   The roster's two columns stack rather than compress: a name and three
+   tabular counts cannot share 360px without one of them wrapping mid-number,
+   and a wrapped metric is a misread metric.
+   ========================================================================== */
+@media (max-width: 820px) {
+  .tree-subject h1, .pub-subject h1 { font-size: var(--fol-t-32); }
+  .launch-hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+  }
+  body[data-canopy-surface="canopy"] .launch-hero { grid-template-columns: minmax(0, 1fr); }
+  .launch-figure {
+    min-height: 0;
+    border-left: 0;
+    border-top: 1px solid var(--fol-role-line);
+    padding-top: var(--fol-s-4);
+  }
+  .launch-figure .m { width: 7rem; }
+  .launch-strip,
+  .demo-workbench { grid-template-columns: minmax(0, 1fr); }
+  .demo-form { position: static; }
+  .tree-person { grid-template-columns: minmax(0, 1fr); }
+  /* The badge column drops below the title rather than shrinking: at 9rem it
+     already fits the longest label ("Excluded"), so compressing it would wrap
+     a word that is the artifact's whole standing.
+
+     AND IT MOVES ABOVE THE TITLE, not below the row. Stacked in DOM order it
+     landed under the "Open" link — measured at a read-back innerWidth of
+     624 — which reads as a badge on the LINK rather than on the artifact, and
+     puts the one word qualifying the whole row at the bottom of it. `order`
+     works because this is a grid container, so the markup keeps the title
+     first for a screen reader and the badge leads visually where it must. */
+  .pub-item { grid-template-columns: minmax(0, 1fr); }
+  .pub-item-tier { order: -1; }
+}
+@media (max-width: 560px) {
+  body[data-canopy-surface="canopy"] .launch-figure { display: none; }
+  .tree-main { padding-left: var(--fol-s-4); padding-right: var(--fol-s-4); }
+  .launch-hero h1 { font-size: var(--fol-t-40); }
+  .launch-lede { font-size: var(--fol-t-16); }
+  .tree-fact b, .pub-count b { font-size: var(--fol-t-32); }
+  .pub-leaflet h1, .pub-refusal h1 { font-size: var(--fol-t-25); }
+  /* The evidence grid needs no rule here: `auto-fit` over a 16rem track has
+     already collapsed it to one column by 360, measured at a read-back
+     innerWidth of 360. Only the row gap tightens, because one column of three
+     terms is a list and wants a list's rhythm. */
+  .pub-prov { gap: var(--fol-s-2); }
+}

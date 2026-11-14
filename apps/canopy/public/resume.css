@@ -1,0 +1,58 @@
+/* Single-column, selectable résumé. Tokens and controls retain their shared ownership. */
+* { box-sizing: border-box; }
+body.resume-page { margin: 0; background: var(--fol-surface); color: var(--fol-text); font: 400 var(--fol-t-16)/1.6 var(--fol-font-sans); -webkit-font-smoothing: antialiased; }
+.resume-page a { color: inherit; text-underline-offset: .2em; }
+.resume-page a:focus-visible, .resume-page summary:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 4px; }
+.resume-tools, .resume-document, .resume-help { width: min(100% - var(--fol-s-8), 48rem); margin-inline: auto; }
+.resume-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--fol-s-4); padding-block: var(--fol-s-6); border-bottom: 1px solid var(--fol-border); }
+.resume-back { font-weight: 500; text-decoration: none; }
+.resume-actions { display: flex; flex-wrap: wrap; gap: var(--fol-s-2); }
+.resume-actions [hidden] { display: none; }
+.resume-document { padding-block: var(--fol-s-7); }
+.resume-heading { padding-bottom: var(--fol-s-8); }
+.resume-label { font-size: var(--fol-t-13); color: var(--fol-text-muted); margin: 0 0 var(--fol-s-2); }
+.resume-page h1, .resume-page h2, .resume-page h3 { font-family: var(--fol-font-display); font-weight: 400; line-height: 1.15; overflow-wrap: anywhere; }
+.resume-page h1 { font-size: var(--fol-t-50); margin: 0 0 var(--fol-s-4); }
+.resume-headline { font-size: var(--fol-t-20); margin-block: var(--fol-s-3); }
+.resume-portfolio { margin-block: var(--fol-s-6); display: grid; gap: var(--fol-s-1); }
+.resume-portfolio span { font-size: var(--fol-t-13); color: var(--fol-text-muted); }
+.resume-portfolio a { overflow-wrap: anywhere; }
+.resume-bio { max-width: 65ch; margin-bottom: 0; }
+.resume-work > h2 { margin: 0; padding-block: var(--fol-s-5); border-block: 1px solid var(--fol-border); font-size: var(--fol-t-25); }
+.resume-achievement { padding-block: var(--fol-s-6); border-bottom: 1px solid var(--fol-border); }
+.resume-achievement h3 { font-size: var(--fol-t-25); margin: 0 0 var(--fol-s-5); }
+.resume-claim + .resume-claim { margin-top: var(--fol-s-6); }
+.resume-statement { margin: 0 0 var(--fol-s-2); overflow-wrap: anywhere; }
+.resume-evidence { font-size: var(--fol-t-13); font-weight: 500; }
+.resume-citations { margin-top: var(--fol-s-3); font-size: var(--fol-t-13); }
+.resume-citations summary { cursor: pointer; color: var(--fol-text-muted); width: fit-content; }
+.resume-citations ul { padding-left: var(--fol-s-5); }
+.resume-citations li { margin-block: var(--fol-s-3); }
+.resume-citations li span, .resume-citations li code { display: block; overflow-wrap: anywhere; }
+.resume-citations code, .resume-footer time { font-family: var(--fol-font-mono); font-variant-numeric: tabular-nums; }
+.resume-footer { margin-top: var(--fol-s-6); font-size: var(--fol-t-13); color: var(--fol-text-muted); }
+.resume-footer p { margin-block: var(--fol-s-2); }
+.resume-help { padding-block: var(--fol-s-6); border-top: 1px solid var(--fol-border); margin-bottom: var(--fol-s-8); font-size: var(--fol-t-13); }
+.resume-help h2 { font-size: var(--fol-t-20); margin: 0; }
+.resume-empty, .resume-note { color: var(--fol-text-muted); }
+.resume-skip { position: absolute; left: var(--fol-s-4); top: var(--fol-s-2); transform: translateY(-200%); }
+.resume-skip:focus { transform: none; }
+@media (max-width: 40rem) {
+  .resume-page h1 { font-size: var(--fol-t-32); }
+  .resume-tools { align-items: flex-start; flex-direction: column; }
+  .resume-actions { width: 100%; }
+  .resume-actions > * { flex: 1 1 auto; }
+  .resume-document { padding-block: var(--fol-s-6); }
+}
+@page { size: auto; margin: 18mm; }
+@media print {
+  .resume-tools, .resume-help, .resume-skip, .resume-citations { display: none !important; }
+  .resume-document { width: 100%; padding: 0; margin: 0; }
+  .resume-page h1 { font-size: var(--fol-t-32); }
+  .resume-heading { padding-bottom: var(--fol-s-4); }
+  .resume-achievement { padding-block: var(--fol-s-4); }
+  .resume-claim { break-inside: avoid; }
+  .resume-page h2, .resume-page h3 { break-after: avoid; }
+  .resume-footer { break-inside: avoid; }
+  .resume-page p { orphans: 3; widows: 3; }
+}

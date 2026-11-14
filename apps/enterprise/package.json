@@ -1,0 +1,19 @@
+{
+  "name": "@foliage/enterprise-app",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "Canopy Enterprise \u2014 the org chart (boughs and branches) and the release decisions attached to it. Proprietary.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@foliage/enterprise-policy": "workspace:*",
+    "@foliage/leaf": "workspace:*",
+    "@foliage/tokens": "workspace:*",
+    "@foliage/ui": "workspace:*"
+  }
+}

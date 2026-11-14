@@ -1,0 +1,55 @@
+{
+  "name": "foliage",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.4.0",
+  "engines": {
+    "node": ">=22.18 <25",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "doctor": "node tools/install/preflight.mjs",
+    "dev": "pnpm --filter @foliage/leaf-app --fail-if-no-match dev",
+    "check": "pnpm run check:portable && pnpm run check:brain-offline",
+    "check:portable": "pnpm run build:bundles && pnpm run check:static && pnpm run test",
+    "build:bundles": "pnpm --filter @foliage/leaf-app workflow:build && pnpm --filter @foliage/canopy-app workspace:build && pnpm --filter @foliage/leaf-app explore:build && pnpm --filter ./packages/ui portfolio:build",
+    "check:static": "pnpm run check:architecture && pnpm run doctor && pnpm run check:boundary && pnpm run check:egress && pnpm run check:dup && pnpm run check:findings && pnpm run typecheck",
+    "check:boundary": "node scripts/check-public-boundary.mjs",
+    "check:ledger": "node tools/ledger/check.mjs",
+    "check:dup": "knip --treat-config-hints-as-errors --treat-tag-hints-as-errors && jscpd --exit-code",
+    "typecheck": "pnpm -r --if-present typecheck && pnpm run typecheck:tools",
+    "typecheck:tools": "tsc --noEmit -p tools/tsconfig.json",
+    "test": "node tools/development/run-tests.mjs --test --experimental-strip-types --test-reporter=spec \"packages/*/src/**/*.test.ts\" \"apps/*/src/**/*.test.ts\" \"tools/**/*.test.mjs\"",
+    "test:focus": "node tools/development/run-tests.mjs --test --experimental-strip-types --test-reporter=spec",
+    "vault:build": "node tools/vault/build.mjs",
+    "vault:ask": "node tools/vault/ask.mjs",
+    "verify": "node tools/verify/verify.mjs",
+    "serve": "node tools/verify/serve.mjs",
+    "check:findings": "node tools/loop/findings.mjs",
+    "check:egress": "node scripts/check-egress.mjs",
+    "check:brain-offline": "node scripts/check-brain-offline.mjs",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "review:brief": "node tools/launch/review-brief.mjs",
+    "ai:up": "node tools/ai/dify.mjs up",
+    "ai:status": "node tools/ai/dify.mjs status",
+    "ai:stop": "node tools/ai/dify.mjs stop",
+    "ai:provision": "node tools/ai/provision.mjs",
+    "ai:eval": "node --experimental-strip-types tools/ai/evaluate.mjs",
+    "ai:rehearse": "node --experimental-strip-types tools/ai/rehearse-revision.mjs",
+    "ai:report": "node tools/ai/report.mjs",
+    "eval:smoke": "node tools/eval/docker-smoke.mjs"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@types/node": "22.20.0",
+    "jscpd": "^5.0.16",
+    "knip": "^6.32.3",
+    "typescript": "5.9.3"
+  },
+  "bin": {
+    "foliage": "./foliage.mjs",
+    "foliage-eval": "./tools/eval/cli.mjs"
+  },
+  "version": "0.3.1"
+}

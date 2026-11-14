@@ -1,0 +1,351 @@
+@import "canopy-tokens.css";
+
+/* ==========================================================================
+   CANOPY — component layer. Written once against the plane-neutral aliases
+   in canopy-tokens.css, so every rule here is correct on both planes.
+   Bordered cells, never floating cards. Small radii. No box shadows.
+   ========================================================================== */
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--can-bg); color:var(--can-fg);
+  font:400 var(--fol-t-16)/1.55 var(--fol-font-sans);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+::selection{background:var(--fol-accent);color:#0A1206}
+
+/* Focus is never removed, only restyled. */
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--can-focus);outline-offset:2px;border-radius:var(--fol-r-1)}
+
+a{color:inherit;text-decoration:none}
+.link{
+  color:var(--can-fg); text-decoration:none;
+  text-decoration-color:var(--can-control);
+  font-weight:500;
+}
+.link:hover{background:var(--can-cell);color:var(--can-fg)}
+
+/* ---- type roles ---------------------------------------------------------- */
+.display{
+  font:400 var(--fol-t-40)/1.08 var(--fol-font-display);
+  font-variation-settings:"opsz" 90,"SOFT" 28,"WONK" 0;
+  letter-spacing:var(--fol-track-display); margin:0;
+}
+.display-lg{font-size:var(--fol-t-50)}
+.lede{color:var(--can-fg-muted);max-width:64ch;margin:0}
+
+/* Labels: mono, uppercase, tracked. Canopy sets its own label colour rather
+   than inheriting --fol-text-faint; see the note in canopy-tokens.css for the
+   measured ratios at 11px on each background. */
+.lab{
+  font:500 var(--fol-t-11)/1.2 var(--fol-font-mono);
+  letter-spacing:var(--fol-track-label); text-transform:uppercase;
+  color:var(--can-label);
+}
+.lab-fg{color:var(--can-fg)}
+/* Every number is mono + tabular. A metric that is not is a defect. */
+.num{font-family:var(--fol-font-mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+
+/* ---- layout -------------------------------------------------------------- */
+.wrap{max-width:var(--can-max);margin:0 auto;padding:0 var(--can-gutter)}
+.row{display:flex;align-items:center}
+.between{display:flex;align-items:center;justify-content:space-between;gap:var(--fol-s-4)}
+.spacer{flex:1 1 auto}
+
+/* ==========================================================================
+   PLANE BAR — signal (b). Persistent, never scrolls away, names the plane,
+   the host it is served from, and whether search engines can see it.
+   The internal plane's band is HATCHED so the two are distinguishable with
+   colour removed entirely.
+   ========================================================================== */
+.plane-bar{
+  position:sticky;top:0;z-index:60;
+  height:var(--can-plane-band-h);
+  display:flex;align-items:center;gap:var(--fol-s-4);
+  padding:0 var(--can-gutter);
+  background:var(--can-bg-sunk);
+  border-bottom:1px solid var(--can-cell-border);
+  font:500 var(--fol-t-11)/1 var(--fol-font-mono);
+  letter-spacing:var(--fol-track-label);text-transform:uppercase;
+  color:var(--can-fg);
+}
+.plane--internal .plane-bar{
+  background:
+    repeating-linear-gradient(135deg,
+      var(--can-hatch) 0 1px, transparent 1px 7px),
+    var(--fol-evergreen-900);
+}
+.plane-bar b{font-weight:500;color:var(--can-fg)}
+.plane-bar .host{color:var(--can-label);text-transform:none;letter-spacing:0}
+.plane-dot{
+  width:7px;height:7px;flex:0 0 auto;background:var(--can-fg);
+}
+.plane--public .plane-dot{border-radius:var(--fol-r-full)}       /* round = open   */
+.plane--internal .plane-dot{border-radius:0;transform:rotate(45deg)} /* lozenge = closed */
+
+/* ==========================================================================
+   MASTHEAD + RACHIS BREADCRUMB
+   The breadcrumb IS the stem: a hairline rachis with a node at every level of
+   the containment hierarchy — canopy / tree / leaf / leaflet. You are always
+   told, structurally, how deep into the leaf you are.
+   ========================================================================== */
+.masthead{
+  display:flex;align-items:flex-end;gap:var(--fol-s-4);
+  padding:var(--fol-s-5) 0 var(--fol-s-4);
+  border-bottom:1px solid var(--can-cell-border);
+}
+.wordmark{
+  display:flex;align-items:center;gap:10px;
+  font:500 var(--fol-t-16)/1 var(--fol-font-mono);
+  letter-spacing:.15em;text-transform:uppercase;color:var(--can-fg);
+}
+.wordmark .sub{
+  color:var(--can-label);letter-spacing:.15em;
+  padding-left:9px;margin-left:2px;border-left:1px solid var(--can-control);
+}
+
+.rachis{display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.rachis .seg{
+  position:relative;display:flex;align-items:center;gap:8px;
+  padding:6px 16px 6px 0;margin-right:16px;
+  font:500 var(--fol-t-11)/1 var(--fol-font-mono);
+  letter-spacing:var(--fol-track-label);text-transform:uppercase;
+  color:var(--can-label);
+}
+.rachis .seg::after{ /* the rachis stroke running between nodes */
+  content:"";position:absolute;right:-1px;top:50%;width:16px;height:1px;
+  background:var(--can-control);
+}
+.rachis .seg:last-child{padding-right:0;margin-right:0}
+.rachis .seg:last-child::after{display:none}
+.rachis .node{
+  width:6px;height:6px;flex:0 0 auto;border-radius:var(--fol-r-full);
+  border:1px solid var(--can-control);background:transparent;
+}
+.rachis .seg[aria-current="page"]{color:var(--can-fg)}
+.rachis .seg[aria-current="page"] .node{background:var(--can-fg);border-color:var(--can-fg)}
+.rachis a.seg:hover{color:var(--can-fg)}
+.rachis a.seg:hover .node{border-color:var(--can-fg)}
+.rachis .kind{opacity:.62;letter-spacing:.09em}
+
+/* ==========================================================================
+   CELLS — bordered, never floating. No shadow, ever.
+   ========================================================================== */
+.cell{
+  border:1px solid var(--can-cell-border);
+  border-radius:var(--fol-r-2);
+  background:var(--can-cell);
+  padding:var(--fol-s-5);
+}
+.cells{display:grid;gap:var(--fol-s-3)}
+
+/* ---- rule: full-bleed hairline, preferred over padding-only separation --- */
+.rule{height:1px;background:var(--can-cell-border);border:0;margin:0}
+
+/* ==========================================================================
+   BUTTONS — one solid primary per action, per screen.
+   ========================================================================== */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  min-height:44px;padding:var(--fol-s-3) var(--fol-s-4);
+  font:500 var(--fol-t-13)/1 var(--fol-font-sans);
+  border:1px solid transparent;border-radius:var(--fol-shape-control);
+  background:transparent;color:var(--can-fg);cursor:pointer;
+  transition:background var(--fol-dur-2) var(--fol-ease-grow),
+             border-color var(--fol-dur-2) var(--fol-ease-grow),
+             transform var(--fol-dur-2) var(--fol-ease-grow);
+}
+/* PRIMARY — the accent. Ink on chartreuse: 9.24:1 day, 10.28:1 night.
+   Hover swaps BOTH fg and bg in the same rule; contrast rises to 7.23:1 min. */
+.btn-primary{border-radius:var(--fol-shape-panel) var(--fol-shape-tip);background:var(--fol-accent);color:var(--can-btn-fg);font-weight:600;
+  border-color:var(--fol-accent)}
+.btn-primary:hover{background:var(--fol-accent-press);border-color:var(--fol-accent-press);
+  color:var(--can-btn-fg)}
+.btn-ghost{border-color:var(--can-control);color:var(--can-fg)}
+.btn-ghost:hover{background:var(--can-row-hover);border-color:var(--can-fg)}
+.btn-quiet{color:var(--can-fg-muted);padding-inline:10px}
+.btn-quiet:hover{color:var(--can-fg);background:var(--can-row-hover)}
+/* Disabled is the ONE state permitted to lower contrast. */
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn:disabled:hover{background:transparent;border-color:var(--can-control)}
+.btn-sm{min-height:32px;padding:7px 12px;font-size:var(--fol-t-11)}
+
+/* ==========================================================================
+   PROOF STATE — verified / pending / excluded.
+   EXCLUDED IS NOT AN ERROR. Work that cannot be attributed is reported as
+   excluded, never failed, and never hidden. It keeps its own clay colour,
+   which is deliberately outside the evergreen ramp and outside the accent.
+
+   Two densities:
+     .proof      detail contexts — glyph + coloured text
+     .proof-dot  list contexts   — 12px glyph only, text stays --can-fg
+   The list form is what keeps the accent budget honest at scale.
+   ========================================================================== */
+.proof{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 11px 5px 8px;border-radius:var(--fol-r-full);
+  border:1px solid var(--can-cell-border);
+  font:500 var(--fol-t-11)/1 var(--fol-font-mono);
+  letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;
+}
+.proof .m{flex:0 0 auto}
+.proof--verified{color:var(--can-verified);border-color:var(--can-control)}
+.plane--internal .proof--verified{background:var(--fol-accent-wash);border-color:#3C5E1E}
+.proof--pending {color:var(--can-pending)}
+.proof--excluded{color:var(--can-excluded);border-color:var(--can-control)}
+
+.proof-dot{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;color:var(--can-fg)}
+.proof-dot .m{flex:0 0 auto}
+.proof-dot .t{font:500 var(--fol-t-11)/1 var(--fol-font-mono);
+  letter-spacing:.07em;text-transform:uppercase;color:var(--can-fg-muted)}
+/* Glyph fills.
+   RULE 5, precisely: on paper, chartreuse is a FILL and every chartreuse fill
+   must be enclosed by an evergreen-700 hairline that carries the contrast the
+   fill cannot (1.68:1 unaided). The mark glyph is drawn from a sprite whose
+   own strokes are part of the figure, so it cannot take an enclosing hairline
+   — there, verified is evergreen-700 (11.68:1) instead. Chartreuse is never
+   left unenclosed on the day face. */
+.g--verified{color:var(--fol-accent)}
+.plane--public .g--verified{color:var(--fol-evergreen-700)}
+.g--pending{color:var(--can-pending)}
+.g--excluded{color:var(--can-excluded);opacity:.9}
+
+/* ==========================================================================
+   RELEASE STATE — the Enterprise -> Canopy pipeline.
+   RULE 3: the accent is absent from this entire component. Chartreuse means
+   proof; if it appeared here, "approved" would read as "verified".
+   Distinction is carried three ways at once: fill density, border style, and
+   the stepper — so the ramp survives greyscale and colour-blindness.
+   ========================================================================== */
+.rel{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 10px;border-radius:var(--fol-r-1);   /* RECTANGLE — proof is a pill */
+  border:1px solid var(--can-control);
+  font:500 var(--fol-t-11)/1 var(--fol-font-mono);
+  letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;
+  color:var(--can-fg-muted);
+}
+.rel--internal { color:var(--can-rel-internal);  border-style:solid;  background:transparent}
+.rel--proposed { color:var(--can-rel-proposed);  border-style:dashed; background:transparent}
+.rel--review   { color:var(--can-rel-review);    border-color:currentColor;
+                 background:var(--can-rel-approved-fill)}
+.rel--approved { color:var(--can-rel-approved);  border-color:currentColor;
+                 background:var(--can-rel-approved-fill)}
+.rel--live     { color:var(--can-rel-live-fg);   background:var(--can-rel-live-bg);
+                 border-color:var(--can-rel-live-bg)}
+.rel--withdrawn{ color:var(--can-rel-withdrawn); border-color:var(--can-control);
+                 background:repeating-linear-gradient(135deg,
+                   color-mix(in srgb, var(--can-rel-withdrawn) 22%, transparent) 0 1px,
+                   transparent 1px 6px)}
+
+/* Stepper: position in the machine, five nodes on a rachis. Read left to
+   right; the filled node is where this item stands. */
+.stepper{display:inline-flex;align-items:center;gap:0;flex:0 0 auto}
+.stepper i{
+  width:6px;height:6px;border-radius:var(--fol-r-full);
+  border:1px solid var(--can-control);background:transparent;display:block;
+}
+.stepper i + i{margin-left:9px;position:relative}
+.stepper i + i::before{content:"";position:absolute;left:-10px;top:50%;
+  width:9px;height:1px;background:var(--can-control)}
+.stepper i.on{background:currentColor;border-color:currentColor}
+.stepper i.past{background:var(--can-control);border-color:var(--can-control)}
+.stepper.wd i{border-style:dashed}
+
+/* ==========================================================================
+   TABLES — hairline-ruled rows, not zebra fills.
+   ========================================================================== */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{
+  text-align:left;padding:0 var(--fol-s-3) var(--fol-s-2);
+  font:500 var(--fol-t-11)/1.2 var(--fol-font-mono);
+  letter-spacing:var(--fol-track-label);text-transform:uppercase;
+  color:var(--can-label);border-bottom:1px solid var(--can-cell-border);white-space:nowrap;
+}
+.tbl td{
+  padding:0 var(--fol-s-3);height:var(--can-row-h);
+  border-bottom:1px solid var(--can-hairline);
+  font-size:var(--fol-t-13);color:var(--can-fg);vertical-align:middle;
+}
+.tbl tbody tr{transition:background var(--fol-dur-1) var(--fol-ease-grow)}
+/* Hover moves the BACKGROUND. Foreground never dims — that would lower
+   contrast on hover, which is forbidden. */
+.tbl tbody tr:hover, .tbl tbody tr.lit{background:var(--can-row-hover)}
+.tbl td:first-child,.tbl th:first-child{padding-left:var(--fol-s-2)}
+.tbl .r{text-align:right}
+.tbl .name{font-weight:500}
+
+/* ==========================================================================
+   COUNTS STRIP — FCRA POSTURE.
+   Canopy shows COUNTS, never a score, never a grade, never a percentile, and
+   never a single rolled-up figure that could be read as a rating. Three raw
+   integers in tabular mono, each labelled, sitting side by side with equal
+   weight. There is no composite. There is deliberately nowhere to put one.
+   ========================================================================== */
+.counts{display:flex;align-items:stretch;border:1px solid var(--can-cell-border);
+  border-radius:var(--fol-r-2);overflow:hidden}
+.counts .c{flex:1 1 0;padding:var(--fol-s-3) var(--fol-s-4);min-width:96px}
+.counts .c + .c{border-left:1px solid var(--can-cell-border)}
+.counts .v{font:500 var(--fol-t-25)/1 var(--fol-font-mono);font-variant-numeric:tabular-nums;
+  display:block;margin-bottom:7px;color:var(--can-fg)}
+.counts .c--verified .v{position:relative;padding-bottom:5px}
+/* The one permitted accent EMPHASIS in a counts strip is a RULE under the
+   figure, not text. On the day face even that becomes evergreen: an unenclosed
+   chartreuse rule on paper measures 1.68:1 and is effectively invisible, so on
+   paper the accent is an ENCLOSED FILL only (see rule 5). */
+.counts .c--verified .v::after{content:"";position:absolute;left:0;bottom:0;
+  width:1.6em;height:2px;background:var(--fol-accent)}
+.plane--public .counts .c--verified .v::after{background:var(--fol-evergreen-700)}
+.fcra-note{
+  font:400 var(--fol-t-11)/1.5 var(--fol-font-mono);color:var(--can-label);
+  letter-spacing:.02em;
+}
+
+/* ==========================================================================
+   PLANE BOUNDARY — "no server holds both sides"
+   The two planes are separate deployables. The Enterprise UI therefore cannot
+   read from Canopy, and this component is how that is admitted in the design:
+   anything shown from the other plane is a SNAPSHOT, explicitly named and
+   labelled with the moment it was captured. A live cross-plane preview would
+   be a lie about the architecture.
+   ========================================================================== */
+.boundary{
+  border:1px solid var(--can-control);border-radius:var(--fol-r-2);
+  background:var(--can-bg-sunk);position:relative;overflow:hidden;
+}
+.boundary .bhead{
+  display:flex;align-items:center;gap:10px;padding:14px var(--fol-s-4) 10px;
+  font:500 var(--fol-t-11)/1.4 var(--fol-font-mono);
+  letter-spacing:var(--fol-track-label);text-transform:uppercase;color:var(--can-label);
+}
+.boundary .bbody{padding:0 var(--fol-s-4) var(--fol-s-4)}
+
+/* ---- notice: a hairline-led statement, not a coloured alert box ---------- */
+.notice{border-left:2px solid var(--can-control);padding:2px 0 2px var(--fol-s-3);
+  font-size:var(--fol-t-13);color:var(--can-fg);max-width:70ch}
+.notice .lab{display:block;margin-bottom:5px}
+.notice--proof{border-left-color:var(--can-pending)}
+
+/* ---- scope chain: org -> team -> person, overlays may only NARROW -------- */
+.scope{display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.scope .s{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;
+  border:1px solid var(--can-cell-border);background:var(--can-cell);
+  font:500 var(--fol-t-11)/1 var(--fol-font-mono);
+  letter-spacing:var(--fol-track-label);text-transform:uppercase;color:var(--can-fg-muted);
+}
+.scope .s:first-child{border-radius:var(--fol-r-2) 0 0 var(--fol-r-2)}
+.scope .s:last-child{border-radius:0 var(--fol-r-2) var(--fol-r-2) 0}
+.scope .s + .s{border-left:0}
+.scope .s[aria-current="true"]{color:var(--can-fg);background:var(--can-row-hover);
+  border-color:var(--can-control)}
+.scope .s .n{color:var(--can-label);letter-spacing:0;text-transform:none}
+
+/* ---- responsive ---------------------------------------------------------- */
+@media (max-width:900px){
+  :root{--can-gutter:20px}
+  .masthead{flex-direction:column;align-items:flex-start;gap:var(--fol-s-3)}
+  .plane-bar{gap:var(--fol-s-3);overflow-x:auto;white-space:nowrap}
+}

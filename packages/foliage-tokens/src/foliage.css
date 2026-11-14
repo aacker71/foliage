@@ -1,0 +1,476 @@
+/* Links use weight and interaction state; focus remains an explicit outline. */
+a { color:inherit; text-decoration:none; }
+a:hover { color:var(--fol-text); }
+p a:not(.btn), li:not([class]) a:not(.btn) { font-weight:600; }
+a:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+
+/* ==========================================================================
+   FOLIAGE — component layer v0.2
+   The system, not the specimen. Everything here is reusable on any Foliage
+   surface. A page's own CONTENT layout — a bespoke dashboard grid, a one-off
+   section rail found on a single screen — stays in that app's stylesheet.
+   Generic APP-SHELL CHROME around that content does not: `.fol-nav`,
+   `.fol-tabs`, `.fol-table`, `.fol-page` and `.fol-crumb`, added below, are
+   SHARED, because every surface that needed one had already reinvented it —
+   app-local headers and tables duplicated the kind of derivation THE FACE in tokens.css was
+   written to stop for colour. Two copies of a derivation are a drift surface
+   there; the same was true here before this section existed.
+
+   LOAD ORDER IS FIXED — this file is LAST of the three:
+       tokens.css   <- primitives + the face
+       roles.css    <- semantic aliases
+       foliage.css  <- this file
+       <the app's own stylesheet>
+   Consumers must set their own `box-sizing: border-box`; this file imposes no
+   reset.
+
+   NO JAVASCRIPT, EVER. The served CSP is `default-src 'none'` with no
+   `script-src`, and it is not being widened. Anything here that looks like it
+   wants a script (filters, dialogs) is built server-side as a query parameter or
+   a route instead.
+
+   NO RAW COLOUR LITERAL. Every colour is a var(). That is mechanically checked;
+   it is also what makes the face a one-line flip rather than a restyle.
+
+   MARKS AND ICONS come from foliage-sprite.svg. Inline that sprite ONCE per
+   document and reference it with <use href="#fol-mark"> / <use href="#i-check">.
+   Do not paste a second copy of a symbol — two copies drift, and this project
+   already shipped that bug once. An external <use href="sprite.svg#id"> does not
+   resolve under file:// or cross-origin, which is the other reason to inline.
+
+   WHAT THIS FILE DELIBERATELY DOES NOT CONTAIN, and why:
+     .day          — the superseded Open Design panel. A published leaf is a
+                     whole document on paper, not a light panel inside a dark
+                     page. The face (tokens.css) replaces it.
+     imagery       — .im-fig/.im-scrim/.im-chip exist in the Open Design preview,
+                     but no shipped Foliage surface renders a photograph, and a
+                     component with no consumer is dark plumbing. The framing
+                     rule ("framed, never dissolved") is recorded in DESIGN
+                     terms; the CSS lands the day a real surface needs it.
+     a fourth tier — there are exactly three proof tiers and they are UNORDERED.
+                     No .proof-unattributed, no fourth counts cell, no meter, no
+                     percentage, no rank. A score in any costume is still a score.
+   ========================================================================== */
+
+.note{font:500 var(--fol-t-11)/1.5 var(--fol-font-mono);
+  letter-spacing:var(--fol-track-label);text-transform:uppercase;color:var(--fol-text-faint)}
+.lockup{display:flex;align-items:center;gap:var(--fol-s-4)}
+.wordmark{margin:0;font:400 var(--fol-t-50)/1 var(--fol-font-display);
+  font-variation-settings:"opsz" 100,"SOFT" 24,"WONK" 0;letter-spacing:-.022em}
+/* The inlined sprite's carrier. BELT AND BRACES, not redundancy: `foliage-sprite.svg`'s own root
+   element already carries width=0 height=0 position:absolute aria-hidden, so it hides itself with
+   no stylesheet at all — which is the stronger arrangement, because a sprite that needs CSS to
+   disappear becomes a visible pile of glyphs the moment the stylesheet 404s.
+
+   This rule exists because the OTHER branch's sprite did NOT self-hide: its header instructed the
+   caller to inline it "on an element carrying class=fol-sprite (defined in foliage.css)", and
+   `apps/photosynthesis` was written against that contract. Merging the two design-system
+   implementations, this side's sprite won on symbol count (8 to 5, and it holds the three mark
+   tiers theirs lacked entirely). Keeping their class costs one line and means their markup does
+   not depend on which sprite it got. */
+.fol-sprite{position:absolute;width:0;height:0;overflow:hidden}
+
+/* Marks are ALWAYS <use> references into the sprite. Never inline a second copy. */
+.m{overflow:visible;flex:0 0 auto;color:var(--fol-role-mark,var(--fol-text))}
+/* ---- icons: 24px box, 1.75 stroke, round caps and joins, currentColor.
+       Stroke-width is COMPENSATED at small sizes: holding the number constant
+       would let the glyph thin to 1.0px at badge size and go grey next to
+       11px mono. What stays constant is optical weight, not the attribute. ---- */
+.ico{width:24px;height:24px;flex:0 0 auto;fill:none;stroke:currentColor;
+  stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.ico-20{width:20px;height:20px;stroke-width:2.1}
+.ico-16{width:16px;height:16px;stroke-width:2.4}
+.ico-14{width:14px;height:14px;stroke-width:2.5}
+.cells-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--fol-s-3)}
+/* ---- cells: bordered, never floating cards. The border is DECORATIVE
+       (1.68:1 night / 1.66:1 day) — that is fine for an enclosure and is not
+       fine for a control, which is why .field and .btn-ghost below take a
+       different edge. ---- */
+.cell{border:1px solid var(--fol-border);border-radius:var(--fol-shape-panel) var(--fol-shape-tip);
+  padding:var(--fol-s-5);background:var(--fol-surface)}
+.cells{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--fol-s-3)}
+.cells-5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--fol-s-3)}
+.cells-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--fol-s-3)}
+.stage{min-height:140px;display:flex;align-items:center;gap:22px}
+.cap{margin-top:var(--fol-s-3)}
+/* explanatory prose: sans, never mono — mono is labels and metrics only */
+.aside{margin:var(--fol-s-5) 0 0;max-width:62ch;
+  font:400 var(--fol-t-14)/1.6 var(--fol-font-sans);color:var(--fol-text-muted)}
+code{font-family:var(--fol-font-mono);font-size:.92em;color:var(--fol-text)}
+.spec{font-family:var(--fol-font-display);
+  font-variation-settings:"SOFT" 28,"WONK" 0;
+  letter-spacing:-.02em;line-height:1.05;margin:0}
+/* ---- buttons. Hover/focus are declared once and MIRRORED by .is-* so a
+       documented state matrix cannot drift from the live behaviour — a state
+       styled separately from the state it documents is a lie waiting to
+       happen. ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font:500 var(--fol-t-14)/1 var(--fol-font-sans);padding:14px 20px;
+  letter-spacing:.02em;min-height:44px;
+  border-radius:var(--fol-shape-control);border:1px solid transparent;cursor:pointer;
+  transition:background var(--fol-dur-2) var(--fol-ease-grow),
+             border-color var(--fol-dur-2) var(--fol-ease-grow),
+             color var(--fol-dur-2) var(--fol-ease-grow)}
+/* a link styled as a button is still a link, and would otherwise carry an
+   underline through the middle of its label */
+a.btn{text-decoration:none}
+.btn-primary{border-radius:var(--fol-shape-panel) var(--fol-shape-tip);background:var(--fol-accent);color:var(--fol-canvas);font-weight:600}
+.btn-primary:hover,.btn-primary.is-hover{background:var(--fol-accent-lift);
+  color:var(--fol-canvas)}
+.btn-primary:active{background:var(--fol-accent-press)}
+/* The ghost button's border is its ONLY boundary, so it takes the control edge
+   (>=3:1 on every ground of both faces) rather than --fol-border (1.68:1), which
+   would miss WCAG 1.4.11. The fallback keeps the edge visible if an app somehow
+   loads this file without roles.css — an unresolved var() drops the whole
+   declaration and would leave the control with NO border at all. */
+.btn-ghost{background:transparent;color:var(--fol-text);
+  border-color:var(--fol-role-edge-control,var(--fol-text-faint))}
+/* HOVER LIFTS, PRESS DARKENS: contrast may only rise on a state change (roles.css's own
+   stated rule for --fol-role-panel-raised). The prior rule sank hover to --fol-canvas —
+   identical to page ground outside a .cell, so a press on /review painted nothing
+   (measured 1.006:1). --fol-role-panel-raised resolves through --fol-surface-raised on
+   both faces, so no day-face override is needed here. See docs/DESIGN-DRIFT.md §2.6. */
+.btn-ghost:hover,.btn-ghost.is-hover{background:var(--fol-role-panel-raised,var(--fol-surface-raised));
+  border-color:var(--fol-text-muted);color:var(--fol-text)}
+.btn-ghost:active{background:var(--fol-role-panel-raised,var(--fol-surface-raised));
+  border-color:var(--fol-text)}
+.btn:focus-visible,.btn.is-focus{outline:2px solid var(--fol-role-focus,var(--fol-accent));
+  outline-offset:2px}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+/* ---- field ---- */
+.field{width:100%;background:var(--fol-canvas);
+  border:1px solid var(--fol-role-edge-control,var(--fol-text-faint));
+  border-radius:var(--fol-shape-control);padding:13px;min-height:44px;color:var(--fol-text);
+  font:400 var(--fol-t-14)/1.4 var(--fol-font-sans);
+  transition:border-color var(--fol-dur-2) var(--fol-ease-grow)}
+.field:focus,.field.is-focus{outline:2px solid var(--fol-role-focus,var(--fol-accent));
+  outline-offset:1px;border-color:var(--fol-accent)}
+.field::placeholder{color:var(--fol-text-faint)}
+/* ---- THE FOCUS RING ON PAPER -------------------------------------------------
+   The accent measures 1.68:1 on --fol-paper. A 2px ring at 1.68:1 fails WCAG
+   1.4.11 outright, which would put the worst contrast on the page on the one
+   affordance a keyboard user depends on. The GEOMETRY is kept exactly; only the
+   colour changes, to --fol-text (= --fol-ink under the face, 15.56:1 on paper).
+   This is a measured reversal of the Open Design rule, not a preference. ----- */
+[data-face="day"] .btn:focus-visible,.face-day .btn:focus-visible,
+[data-face="day"] .btn.is-focus,.face-day .btn.is-focus,
+[data-face="day"] .field:focus,.face-day .field:focus,
+[data-face="day"] .field.is-focus,.face-day .field.is-focus{outline-color:var(--fol-text)}
+[data-face="day"] .field:focus,.face-day .field:focus,
+[data-face="day"] .field.is-focus,.face-day .field.is-focus{border-color:var(--fol-text)}
+/* ---- proof badge: the signature component. Uses the ICON tier of the mark —
+       the paired leaflets of the larger tiers close up below ~20px.
+
+       THREE TIERS, UNORDERED, AND NO FOURTH. A tier belongs to a LEAFLET, never
+       to a person and never to a team: some of someone's leaflets are verified;
+       a person is not. Putting this badge in a roster row beside a person's name
+       is how a proof state becomes a judgement of a human being.
+
+       TWO SPELLINGS, ONE COMPONENT. `data-tier` is this repo's real contract
+       (the assertions key on it) and cannot be half-applied the way a second
+       class can — a `.proof` that lost its `.proof-verified` partner renders a
+       silently untinted badge that still reads as a badge. Open Design's class
+       spelling is carried as a free alias so its markup pastes in unmodified.
+       `.proof--verified` is deliberately NOT supported; that spelling dies with
+       the file it came from.
+
+       THE BORDER IS NOT WHAT DISTINGUISHES A TIER. The tinted borders measure
+       2.67:1 (verified) and 1.74:1 (excluded) on canvas — legal for a status
+       badge, which is not an interactive component, but far too weak to be the
+       carrier of the distinction. The TEXT COLOUR and the per-tier icon carry
+       it. Do not let a later change reduce tier signalling to the border. ---- */
+.proof{display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 8px;
+  border-radius:var(--fol-r-full);border:1px solid var(--fol-border);
+  font:500 var(--fol-t-11)/1 var(--fol-font-mono);letter-spacing:.07em;
+  text-transform:uppercase}
+.proof-verified,.proof[data-tier="verified"]{color:var(--fol-verified);
+  background:var(--fol-accent-wash);
+  border-color:color-mix(in oklch,var(--fol-accent) 45%,var(--fol-canvas))}
+.proof-pending,.proof[data-tier="pending"]{color:var(--fol-pending)}
+.proof-excluded,.proof[data-tier="excluded"]{color:var(--fol-excluded);
+  border-color:color-mix(in oklch,var(--fol-excluded) 40%,var(--fol-canvas))}
+/* the sprout: the frond grows up out of its own root. Never bounces, never
+   spins — a spin would re-import the superseded coil through the back door.
+   Reduced motion zeroes --fol-dur-4 in tokens.css, so this becomes a snap. */
+@keyframes sprout{from{transform:scale(.42) rotate(-7deg);opacity:0}
+                  to{transform:none;opacity:1}}
+.proof-verified .ico,.proof[data-tier="verified"] .ico{transform-origin:50% 60%;
+  animation:sprout var(--fol-dur-4) var(--fol-ease-grow) both}
+/* ---- state matrix ---- */
+.states{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:var(--fol-s-5) var(--fol-s-3)}
+.state{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+/* ---- state plates: empty / error ----
+       DELIBERATELY NOT ANIMATED. The skeleton documents the SHAPE of loading; an
+       infinite shimmer is decorative motion in a working canvas and trips the
+       WCAG 2.2.2 pause requirement for nothing.
+       There is also no LOADING plate on a server-rendered route: a synchronous
+       server render has no loading state, and drawing one would be a picture of
+       something that never happens. Empty and error only. ---- */
+.plate{min-height:172px;display:flex;flex-direction:column;gap:10px;
+  align-items:flex-start;justify-content:center;padding:var(--fol-s-2) 0}
+.plate-t{margin:0;font:600 var(--fol-t-14)/1.4 var(--fol-font-sans);color:var(--fol-text)}
+.plate-b{margin:0;font-size:var(--fol-t-13);line-height:1.5;
+  color:var(--fol-text-muted);max-width:34ch}
+.sk{height:9px;border-radius:var(--fol-r-1);
+  background:color-mix(in oklch,var(--fol-text) 45%,var(--fol-surface))}
+/* ---- determinate progress. CONDITIONAL COMPONENT: legal ONLY while a real
+       machine process is in flight, with aria-valuenow/min/max from real counts.
+       Never for portfolio completeness, never on a published document — if
+       nothing is running, do not render a track. A progress bar over a person's
+       work is a completeness score with a different silhouette. ---- */
+.bar{width:100%;height:4px;border-radius:var(--fol-r-full);
+  background:var(--fol-surface-raised);overflow:hidden;margin-top:8px}
+.bar span{display:block;height:100%;background:var(--fol-accent);border-radius:inherit}
+.fieldset{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--fol-s-4)}
+.fieldset label{display:block;margin-bottom:6px}
+.field.is-invalid,.field.is-invalid:focus,.field.is-invalid.is-focus{
+  border-color:var(--fol-invalid);outline-color:var(--fol-invalid)}
+/* --fol-invalid measures 5.52 on --fol-canvas at 13px. On the DAY face it
+   resolves to --fol-invalid-day, which is 5.07 on paper and 4.63 on sunk but
+   only 4.25 on --fol-paper-raised — so an .err MAY NOT be placed on a raised day
+   ground. No day form ships today (the only form is /review, a night surface);
+   when one does, re-measure rather than assume this line still holds. */
+.err{margin:6px 0 0;font:400 var(--fol-t-13)/1.4 var(--fol-font-sans);
+  color:var(--fol-invalid)}
+/* ---- metric row. A metric is ALWAYS mono + tabular; one that is not is a
+       defect. Counts BY TIER are facts. A single number standing for a group of
+       people, a percentage, or a commits column beside other people's names is
+       not a metric — it is a score, and it does not belong in this component. */
+.metric{display:flex;justify-content:space-between;align-items:baseline;
+  padding:var(--fol-s-3) 0;border-bottom:1px solid var(--fol-hairline)}
+.metric b{font:500 var(--fol-t-25)/1 var(--fol-font-mono);
+  font-variant-numeric:tabular-nums;color:var(--fol-text)}
+/* ---- THE THREE DAY-FACE COMPONENT REVERSALS -------------------------------
+   The face itself lives in tokens.css and rebinds primitives, so almost nothing
+   needs restyling. These three do, because each is a measured fact about the
+   accent rather than a ground swap: the accent survives the flip as a FILL
+   (chartreuse under ink is 9.24:1) but not as TEXT (1.68:1 on paper).
+   So the solid button keeps its ground and swaps its foreground to ink, and
+   anything that used accent AS TEXT uses evergreen instead. ---- */
+.face-day .btn-primary,[data-face="day"] .btn-primary{color:var(--fol-ink)}
+.face-day .btn-primary:hover,[data-face="day"] .btn-primary:hover,
+.face-day .btn-primary.is-hover,[data-face="day"] .btn-primary.is-hover{color:var(--fol-ink)}
+/* accent text — a system concern, so the base and the day override live together */
+.acc{color:var(--fol-accent)}
+.face-day .acc,[data-face="day"] .acc{color:var(--fol-evergreen-700)}
+/* the mark rule, enforced by the face rather than remembered per page: the mark
+   takes the foreground of its ground — cream on night, evergreen on paper —
+   and never the accent. */
+.face-day .m,[data-face="day"] .m{color:var(--fol-evergreen-700)}
+/* ---- responsive. DESCENDING, widest first: at 360px every max-width block
+       matches, so the LAST one wins. Ordering these narrowest-first silently
+       disables all but the last, which this project has shipped twice. ---- */
+@media (max-width:820px){
+  .cells-5,.cells-3,.states{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cells-2{grid-template-columns:1fr}
+  .fieldset{grid-template-columns:1fr}
+  .wordmark{font-size:var(--fol-t-40)}
+}
+@media (max-width:560px){
+  .cells-5,.cells-3,.states{grid-template-columns:1fr}
+}
+
+/* The data frond — one ellipse per leaflet, tier-coloured. The semantic tokens rebind per face,
+   so verified takes the accent on night and the measured day ramp on paper; apps draw the frond
+   and never name a colour (dayFaceCss.test.ts enforces exactly that on the leaf app). */
+.frond-lf[data-frond-tier="verified"] { fill: var(--fol-verified); }
+.frond-lf[data-frond-tier="pending"]  { fill: var(--fol-pending); }
+.frond-lf[data-frond-tier="excluded"] { fill: var(--fol-excluded); }
+
+/* The blade row — a leaflet rendered AS a leaflet. Shape and attachment live in the app's
+   stylesheet; every colour is here, keyed by the same tier attribute the frond uses, so the
+   two drawings of one fact cannot disagree. The wash is 7% of the tier colour into the
+   surface: presence, never a highlight — all three tiers get exactly the same treatment, so
+   tint carries no rank. */
+.lf-blade { width: 21px; height: 38px; flex: 0 0 auto; }
+.lf-blade[data-frond-tier="verified"] { color: var(--fol-verified); }
+.lf-blade[data-frond-tier="pending"]  { color: var(--fol-pending); }
+.lf-blade[data-frond-tier="excluded"] { color: var(--fol-excluded); }
+.blade-row[data-tier="verified"] { background: color-mix(in oklch, var(--fol-verified) 7%, var(--fol-surface)); }
+.blade-row[data-tier="pending"]  { background: color-mix(in oklch, var(--fol-pending) 7%, var(--fol-surface)); }
+.blade-row[data-tier="excluded"] { background: color-mix(in oklch, var(--fol-excluded) 7%, var(--fol-surface)); }
+
+/* ==========================================================================
+   APP SHELL — .fol-nav / .fol-tabs / .fol-table / .fol-page / .fol-crumb
+
+   verified absent before this change: no nav, tabs, table or sidebar class
+   existed anywhere in this system. Every text/background pair below either
+   REUSES a ratio already RECORDED above in tokens.css (text-faint and
+   text-muted, on all three grounds, both faces — the label and secondary-text
+   idiom is untouched by anything here) or is measured FRESH because it sits on
+   a ground nothing else in this file used: body-weight --fol-text on
+   --fol-surface / --fol-surface-raised, which .fol-table's bordered-cell
+   background introduces. Recomputed from the shipped hexes with this
+   package's own color.ts ratio(), at the 14px the table actually renders:
+     --fol-text on --fol-surface         15.35 night / 14.23 day
+     --fol-text on --fol-surface-raised  13.90 night / 13.03 day
+   Both clear 4.5:1 (14px normal text) with wide margin; shell.test.ts
+   re-derives them from these declarations on every run, the same way
+   contrast.test.ts re-derives everything above. No new colour token was
+   needed for any of the five components.
+
+   PRIMITIVES, NOT ROLES — a MEASURED reason, not a style preference. An
+   earlier draft reached for --fol-role-bg / --fol-role-panel-raised here.
+   shell.html renders both faces side by side in one document (data-face on a
+   nested <section>, not on <html>), and under that arrangement those two
+   froze at their NIGHT value even inside a day-faced section: a custom
+   property's var() reference is substituted using the cascade AT THE
+   ELEMENT THAT DECLARES IT, and roles.css declares every role exactly once,
+   on a bare `:root` with no per-face override — so a role built from a
+   face-varying primitive computes ONCE, at whichever element :root resolves
+   to, and every descendant inherits that already-substituted value regardless
+   of a face attribute nested further down. (--fol-role-focus is unaffected —
+   it resolves to --fol-accent, which does not vary by face at all — which is
+   also why .btn/.field could use it safely above.) Every app in this repo
+   sets data-face on <html> itself, where :root and the face selector are the
+   SAME element and this never bites; a reference page comparing both faces
+   at once is the one place it does. Rather than rely on that always being
+   true, the five components below take EVERY colour straight from tokens.css,
+   the same way .cell / .field / .btn already do — roles.css remains for
+   consuming apps to reach for, not for this file to route its own components
+   through. ================================================================ */
+
+/* ---- nav: the platform top bar. A brand lockup slot, a real <nav> list, and
+       a PLANE BADGE that names the plane in words, never in colour alone. The
+       active item (aria-current="page") is marked THREE ways at once — colour
+       (muted -> full text), weight (500 -> 600) and a border-bottom that was
+       not there before — so removing colour still leaves two cues standing. */
+.fol-nav{border-bottom:1px solid var(--fol-hairline);background:var(--fol-canvas)}
+/* CONTENT-DRIVEN WRAP, NOT A BREAKPOINT — a MEASURED fix, not a preference. This shipped once
+   already with `.fol-nav-list{flex:1 1 auto;min-width:0}` and a single `@media(max-width:560px)`
+   wrap fallback, tuned against this file's own shell.html demo (3 short links, an 18-char plane
+   badge). A peer building apps/leaf's real studio nav (6 items, a 44-char/348px badge — the
+   plane badge's width is CONTENT, not a constant) measured real breakage across 561-950px with
+   true CDP viewports: the list's rendered width fell to 31-420px against a 414px content need,
+   because `min-width:0` let it shrink past its own links rather than reflow them, and the ul's
+   `overflow-x:auto` hid the excess behind a near-invisible horizontal sliver instead of showing
+   it. A fixed breakpoint tuned to one app's content is wrong for the next app's content by
+   construction, so the fix does not move the number — it removes the need for one: `flex-wrap`
+   on both this row AND the link list below, `min-width:0` REMOVED so the list cannot shrink
+   below its own reflowed minimum, so the browser wraps links onto a second line, or the plane
+   badge onto a second row of the wrap, at WHATEVER width a given app's content actually needs. */
+.fol-nav-wrap{max-width:1000px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;
+  row-gap:var(--fol-s-2);column-gap:var(--fol-s-4);
+  padding:var(--fol-s-4) var(--fol-s-6)}
+.fol-nav-brand{flex:0 0 auto;display:flex;align-items:center;gap:var(--fol-s-2);
+  font:400 var(--fol-t-20)/1 var(--fol-font-display);
+  font-variation-settings:"opsz" 60,"SOFT" 24,"WONK" 0;letter-spacing:-.02em;
+  color:var(--fol-text);text-decoration:none}
+.fol-nav-brand:focus-visible{outline:2px solid var(--fol-role-focus,var(--fol-accent));outline-offset:2px}
+.fol-nav-list{flex:1 1 auto}
+.fol-nav-list ul{display:flex;flex-wrap:wrap;align-items:center;row-gap:4px;column-gap:var(--fol-s-5);
+  list-style:none;margin:0;padding:0;overflow-x:auto}
+.fol-nav-list a{display:inline-flex;align-items:center;padding:2px 0;white-space:nowrap;
+  font:500 var(--fol-t-14)/1 var(--fol-font-sans);color:var(--fol-text-muted);text-decoration:none;
+  border-bottom:2px solid transparent;
+  transition:color var(--fol-dur-2) var(--fol-ease-grow),border-color var(--fol-dur-2) var(--fol-ease-grow)}
+.fol-nav-list a:hover{color:var(--fol-text)}
+.fol-nav-list a[aria-current="page"]{color:var(--fol-text);font-weight:600;border-bottom-color:var(--fol-text)}
+.fol-nav-list a:focus-visible{outline:2px solid var(--fol-role-focus,var(--fol-accent));outline-offset:2px}
+
+/* Advanced personal tools expand in document flow, including on narrow screens. */
+.fol-nav-list .fol-nav-more summary{cursor:pointer;min-height:44px;box-sizing:border-box;padding:var(--fol-s-2) 0;
+  font:500 var(--fol-t-14)/1 var(--fol-font-sans);color:var(--fol-text-muted)}
+.fol-nav-list .fol-nav-more summary:focus-visible{outline:2px solid var(--fol-role-focus,var(--fol-accent));outline-offset:2px}
+.fol-nav-list:has(.fol-nav-more details[open]) .fol-nav-more{flex-basis:100%}
+.fol-nav-list .fol-nav-more ul{padding:var(--fol-s-2) 0;gap:var(--fol-s-3);overflow:visible}
+
+/* ---- the plane badge: which surface this is, unmistakably, TWO ways beyond
+       colour. (1) The WORDS in the label — "Studio · internal" or
+       "Published · public" — are supplied by markup, never invented by this
+       file, so the badge cannot silently drift from what is actually true.
+       (2) The dot's SHAPE, not just its hue: a lozenge for studio/night, a
+       circle for published/day — the same distinction apps/canopy already
+       draws with its own plane--internal/plane--public dot, collected here
+       instead of staying a second, driftable copy. */
+.fol-nav-plane{flex:0 0 auto;max-width:100%;display:inline-flex;align-items:center;gap:7px;
+  padding:5px 11px;border:1px solid var(--fol-border);border-radius:var(--fol-r-full);
+  font:500 var(--fol-t-11)/1 var(--fol-font-mono);letter-spacing:.07em;text-transform:uppercase;
+  color:var(--fol-text-faint)}
+/* max-width:100% (not white-space:nowrap) is the safety valve for a badge whose text is long
+   content, not a short constant: on its own wrapped row at a narrow viewport the pill's own text
+   wraps inside it rather than the pill overflowing the row — legible over pretty, and the words
+   are the primary "which plane" signal (see the comment above), so wrapping them costs nothing
+   the shape/colour cues don't already carry. */
+/* decorative graphic, always paired with the words above — 7.73:1 night /
+   6.65:1 day on canvas at --fol-text-muted, clearing the 3:1 WCAG 1.4.11
+   floor for a meaningful (shape-carrying) graphic with wide margin. */
+.fol-nav-plane-dot{width:7px;height:7px;flex:0 0 auto;background:var(--fol-text-muted);border-radius:999px}
+.fol-nav-plane[data-plane="studio"] .fol-nav-plane-dot{border-radius:0;transform:rotate(45deg)}
+
+/* ---- tabs: in-page navigation between panels on ONE page. THE ARIA CONTRACT,
+       stated here because this file ships no JavaScript to enforce it (see
+       "NO JAVASCRIPT, EVER" at the top): the container is role="tablist" with
+       an aria-label; each .fol-tab is role="tab", carries aria-selected and
+       aria-controls pointing at its role="tabpanel". Roving tabindex (the
+       selected tab tabindex="0", the rest "-1") plus arrow-key switching
+       between tabs is the WAI-ARIA APG tabs pattern, and is the CONSUMING
+       APP's few lines of script to add, not this file's. What ships here is
+       the visual state only — the same non-colour-only active cue as
+       .fol-nav-list above. */
+.fol-tabs{display:flex;align-items:center;gap:var(--fol-s-5);border-bottom:1px solid var(--fol-hairline);
+  overflow-x:auto}
+.fol-tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;cursor:pointer;
+  padding:var(--fol-s-3) 1px;white-space:nowrap;
+  font:500 var(--fol-t-14)/1 var(--fol-font-sans);color:var(--fol-text-muted);
+  transition:color var(--fol-dur-2) var(--fol-ease-grow),border-color var(--fol-dur-2) var(--fol-ease-grow)}
+.fol-tab:hover{color:var(--fol-text)}
+.fol-tab[aria-selected="true"]{color:var(--fol-text);font-weight:600;border-bottom-color:var(--fol-text)}
+.fol-tab:focus-visible{outline:2px solid var(--fol-role-focus,var(--fol-accent));outline-offset:2px}
+
+/* ---- table: bordered cell, never a floating card — the wrap takes the SAME
+       border + radius + surface recipe as .cell above, applied to a <table>
+       rather than a <div>. overflow:auto (not hidden) does two jobs: it clips
+       the corners to the radius AND lets a wide table scroll on a narrow
+       viewport, so no separate responsive rule is needed for it. Header cells
+       take the .fol-label idiom verbatim (mono, uppercase, tracked,
+       text-faint); numeric cells take the EXISTING .fol-metric utility for
+       the mono/tabular-nums rule ("a metric not set in mono tabular-nums is a
+       defect") plus a scoped alignment rule, so that utility is not
+       redefined here. */
+.fol-table-wrap{border:1px solid var(--fol-border);border-radius:var(--fol-r-2);overflow:auto;
+  background:var(--fol-surface)}
+.fol-table{width:100%;border-collapse:collapse;
+  font:400 var(--fol-t-14)/1.4 var(--fol-font-sans);color:var(--fol-text)}
+.fol-table th{text-align:left;white-space:nowrap;padding:var(--fol-s-3) var(--fol-s-4);
+  font:500 var(--fol-t-11)/1.2 var(--fol-font-mono);letter-spacing:var(--fol-track-label);
+  text-transform:uppercase;color:var(--fol-text-faint);border-bottom:1px solid var(--fol-border)}
+.fol-table td{padding:var(--fol-s-3) var(--fol-s-4);border-bottom:1px solid var(--fol-hairline);
+  vertical-align:middle}
+.fol-table tbody tr:last-child td{border-bottom:0}
+.fol-table tbody tr:hover{background:var(--fol-surface-raised)}
+.fol-table td.fol-metric{text-align:right;white-space:nowrap}
+
+/* ---- breadcrumb: minimal — a real <ol> of steps, "/" as a generated
+       separator so it can never be mistaken for a sixth interactive item. */
+.fol-crumb ol{display:flex;flex-wrap:wrap;align-items:center;gap:6px;list-style:none;margin:0;padding:0;
+  font:500 var(--fol-t-13)/1.3 var(--fol-font-sans)}
+.fol-crumb li{display:flex;align-items:center;gap:6px}
+.fol-crumb li:not(:last-child)::after{content:"/";color:var(--fol-text-faint)}
+.fol-crumb a{color:var(--fol-text-muted);text-decoration:none}
+.fol-crumb a:hover{color:var(--fol-text)}
+.fol-crumb a:focus-visible{outline:2px solid var(--fol-role-focus,var(--fol-accent));outline-offset:2px}
+.fol-crumb [aria-current="page"]{color:var(--fol-text);font-weight:600}
+
+/* ---- page scaffold: a masthead band under .fol-nav, then the content
+       column. Pure rhythm, no typography of its own — an <h1> in the
+       masthead still takes its size and weight from the app, same as
+       everywhere else in this file. Uses --fol-s-7 (48px) for the same
+       between-sections rhythm used implicitly wherever .states and .cells
+       appear one after another. */
+.fol-page{max-width:1000px;margin:0 auto;padding:0 var(--fol-s-6)}
+.fol-page-masthead{padding:var(--fol-s-7) 0 var(--fol-s-6);border-bottom:1px solid var(--fol-hairline)}
+.fol-page-body{padding:var(--fol-s-7) 0 var(--fol-s-9);display:flex;flex-direction:column;
+  gap:var(--fol-s-7)}
+
+/* Same measured reversal as "THE FOCUS RING ON PAPER" above, extended to the
+   three new interactive elements: the accent ring fails 3:1 on paper, so the
+   day face's keyboard focus takes --fol-text here too rather than the accent. */
+[data-face="day"] .fol-nav-brand:focus-visible,.face-day .fol-nav-brand:focus-visible,
+[data-face="day"] .fol-nav-list a:focus-visible,.face-day .fol-nav-list a:focus-visible,
+[data-face="day"] .fol-tab:focus-visible,.face-day .fol-tab:focus-visible,
+[data-face="day"] .fol-crumb a:focus-visible,.face-day .fol-crumb a:focus-visible{
+  outline-color:var(--fol-text)}
+/* No @media rule for .fol-nav-wrap here — it wraps unconditionally now (see the comment above
+   .fol-nav-wrap itself for why a breakpoint was the wrong fix). */

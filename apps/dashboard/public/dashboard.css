@@ -1,0 +1,21 @@
+/* The compatibility view stays small. The current personal app is foliage up. */
+.dash-app { margin:0; min-height:100svh; background:var(--fol-canvas); color:var(--fol-text); font:400 var(--fol-t-14)/1.6 var(--fol-font-sans); }
+.dash-content { width:calc(100% - 2 * var(--fol-s-5)); max-width:60rem; margin-inline:auto; padding:var(--fol-s-7) 0 var(--fol-s-8); }
+.dash-content h1 { margin:0; font:400 var(--fol-t-32)/1.2 var(--fol-font-display); letter-spacing:-.02em; }
+.dash-nav { display:flex; flex-wrap:wrap; gap:var(--fol-s-2); margin-top:var(--fol-s-5); }
+.dash-records { margin-top:var(--fol-s-7); border-top:1px solid var(--fol-role-line); }
+.dash-row { display:grid; grid-template-columns:10rem minmax(0,1fr); gap:var(--fol-s-3); align-items:baseline; min-width:0; padding:var(--fol-s-4) 0; border-bottom:1px solid var(--fol-role-line); }
+.dash-row h2 { margin:0; font:500 var(--fol-t-16)/1.4 var(--fol-font-sans); }
+.dash-detail { margin:0; overflow-wrap:anywhere; }
+.dash-row--absent .dash-detail { color:var(--fol-text-muted); }
+.dash-command { grid-column:2; color:var(--fol-text-muted); }
+.dash-command summary { width:fit-content; min-height:var(--fol-role-height-control); align-content:center; cursor:pointer; }
+.dash-command code { display:block; padding:var(--fol-s-2) 0; font:400 var(--fol-t-13)/1.6 var(--fol-font-mono); white-space:pre-wrap; overflow-wrap:anywhere; }
+.dash-refusal { max-width:42rem; }
+.dash-refusal p { margin:var(--fol-s-4) 0 var(--fol-s-5); color:var(--fol-text-muted); }
+.legacy-notice { margin-bottom:var(--fol-s-5); }
+@media(max-width:640px) {
+  .dash-content { width:calc(100% - 2 * var(--fol-s-4)); padding-top:var(--fol-s-5); }
+  .dash-row { grid-template-columns:minmax(0,1fr); gap:var(--fol-s-2); }
+  .dash-command { grid-column:1; }
+}

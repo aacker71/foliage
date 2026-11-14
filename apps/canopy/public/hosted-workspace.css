@@ -1,0 +1,35 @@
+/* Hosted-only composition. Shared controls and workspace own all control/chrome styling. */
+.hosted-skip { position:absolute; top:var(--fol-s-3); left:var(--fol-s-3); transform:translateY(-200%); z-index:40; padding:var(--fol-s-3); background:var(--fol-surface-raised); }
+.hosted-skip:focus { transform:none; }
+.hosted-heading { display:flex; align-items:center; justify-content:space-between; gap:var(--fol-s-4); margin-bottom:var(--fol-s-6); padding-bottom:var(--fol-s-4); border-bottom:1px solid var(--fol-border); }
+.hosted-heading h1 { margin:0; }
+.hosted-heading nav { display:flex; align-items:center; flex-wrap:wrap; gap:var(--fol-s-3); }
+.hosted-heading form { margin:0; }
+.hosted-content { max-width:64rem; }
+.hosted-content h2 { font:500 var(--fol-t-16)/1.5 var(--fol-font-sans); margin:var(--fol-s-5) 0 var(--fol-s-3); }
+.hosted-content h3 { font:500 var(--fol-t-14)/1.5 var(--fol-font-sans); }
+.hosted-content p { max-width:70ch; margin-block:var(--fol-s-3); }
+.hosted-content form { max-width:40rem; margin-block:var(--fol-s-4); }
+.hosted-content form label { display:block; margin-bottom:var(--fol-s-2); }
+.hosted-content form p:has(input) { margin-block:var(--fol-s-4); }
+.hosted-content label:has(input[type=checkbox]) { display:flex; align-items:center; gap:var(--fol-s-3); min-height:var(--fol-role-height-control); }
+.hosted-content input[type=checkbox] { width:20px; height:20px; accent-color:var(--fol-text-muted); }
+.hosted-content details { border-block:1px solid var(--fol-border); padding-block:var(--fol-s-2); margin-block:var(--fol-s-4); }
+.hosted-content summary { min-height:var(--fol-role-height-control); align-content:center; cursor:pointer; }
+.hosted-content pre { max-height:32rem; overflow:auto; padding:var(--fol-s-4); border:1px solid var(--fol-border); background:var(--fol-surface); font:400 var(--fol-t-13)/1.6 var(--fol-font-mono); white-space:pre-wrap; overflow-wrap:anywhere; }
+.hosted-content .link { display:inline-flex; align-items:center; min-height:var(--fol-role-height-control); font-weight:500; }
+.hosted-content .link:hover { color:var(--fol-text-muted); }
+.hosted-content .manage-publication-list { list-style:none; padding:0; margin:0 0 var(--fol-s-5); }
+.hosted-content .manage-publication-list>li { border-bottom:1px solid var(--fol-border); padding-block:var(--fol-s-4); background:none; }
+.hosted-content .manage-publication-list h2 { font:400 var(--fol-t-25)/1.3 var(--fol-font-display); margin:var(--fol-s-2) 0; overflow-wrap:anywhere; }
+.hosted-content .onboarding-eyebrow,.hosted-content .onboarding-hint { color:var(--fol-text-muted); font:400 var(--fol-t-13)/1.6 var(--fol-font-sans); letter-spacing:normal; text-transform:none; }
+.hosted-content .onboarding-lede { color:var(--fol-text-muted); }
+.hosted-content .onboarding-import { border-top:1px solid var(--fol-border); padding-top:var(--fol-s-3); margin-top:var(--fol-s-5); }
+.hosted-account { margin:0; min-height:100svh; color:var(--fol-text); background:var(--fol-canvas); font:400 var(--fol-t-14)/1.6 var(--fol-font-sans); }
+.hosted-account main { max-width:32rem; padding:var(--fol-s-6) var(--fol-s-5); margin:auto; }
+.hosted-account .hosted-brand { display:flex; align-items:center; gap:var(--fol-s-3); margin-bottom:var(--fol-s-7); font:400 var(--fol-t-25)/1.2 var(--fol-font-display); color:inherit; text-decoration:none; }
+.hosted-account .fol-workspace-mark { width:24px; height:32px; }
+.hosted-account h1 { font:500 var(--fol-t-25)/1.3 var(--fol-font-sans); }
+.hosted-account p { color:var(--fol-text-muted); }
+.hosted-account #clerk-account { margin-block:var(--fol-s-5); }
+@media(max-width:800px) { .hosted-heading { align-items:start; flex-wrap:wrap; margin-bottom:var(--fol-s-5); }.hosted-heading nav { margin-left:auto; }.hosted-content pre { padding:var(--fol-s-3); } }

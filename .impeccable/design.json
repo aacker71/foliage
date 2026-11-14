@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-29T04:26:23.635648+00:00",
+  "title": "Design System: Foliage",
+  "extensions": {
+    "colorMeta": {
+      "action": {
+        "role": "primary",
+        "displayName": "Restrained chartreuse action"
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Surface-selected canvas"
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Bordered cell ground"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Work title",
+        "purpose": "Retained work titles and brand."
+      },
+      "title": {
+        "displayName": "Workspace heading",
+        "purpose": "Operational location and task."
+      },
+      "metric": {
+        "displayName": "Metric",
+        "purpose": "References and tabular numerals."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "arrive",
+        "value": "var(--fol-role-ease-in)",
+        "purpose": "Purposeful arrival without bounce or spin."
+      },
+      {
+        "name": "leave",
+        "value": "var(--fol-role-ease-out)",
+        "purpose": "Purposeful departure and control state changes."
+      },
+      {
+        "name": "control-duration",
+        "value": "var(--fol-dur-1)",
+        "purpose": "Shared button background and border transitions."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "workspace-rail-to-header",
+        "value": "800px"
+      },
+      {
+        "name": "portfolio-narrow",
+        "value": "760px"
+      },
+      {
+        "name": "work-artifact-stack",
+        "value": "640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A deliberate action; day text uses the existing ink treatment.",
+      "html": "<button class=\"ds-button\">Apply</button>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; min-height:var(--fol-role-height-control); padding:var(--fol-s-2) var(--fol-s-4); border:1px solid transparent; border-radius:var(--fol-role-radius-control); font:500 var(--fol-t-14)/1.4 var(--fol-font-sans); cursor:pointer; transition:background-color var(--fol-dur-1) var(--fol-role-ease-out); } .ds-button:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; } .ds-button:disabled { opacity:.5; cursor:not-allowed; } .ds-button { background:var(--fol-role-action); color:var(--fol-role-action-fg); } .ds-button:hover { background:var(--fol-role-action-hover); } :host-context([data-face=day]) .ds-button,:host-context(.face-day) .ds-button { color:var(--fol-ink); }"
+    },
+    {
+      "name": "Ghost button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Quiet secondary operation.",
+      "html": "<button class=\"ds-button\">Clear</button>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; min-height:var(--fol-role-height-control); padding:var(--fol-s-2) var(--fol-s-4); border:1px solid transparent; border-radius:var(--fol-role-radius-control); font:500 var(--fol-t-14)/1.4 var(--fol-font-sans); cursor:pointer; transition:background-color var(--fol-dur-1) var(--fol-role-ease-out); } .ds-button:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; } .ds-button:disabled { opacity:.5; cursor:not-allowed; } .ds-button { background:transparent; color:var(--fol-text-muted); } .ds-button:hover { background:var(--fol-surface-raised); color:var(--fol-text); }"
+    },
+    {
+      "name": "Shared field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Visible label, editable value and strong control boundary.",
+      "html": "<label class=\"ds-field\">Find your work<input type=\"search\" placeholder=\"Search work\"></label>",
+      "css": ".ds-field { display:grid; gap:var(--fol-s-2); color:var(--fol-text); font:500 var(--fol-t-14)/1.5 var(--fol-font-sans); } .ds-field input { min-width:0; min-height:var(--fol-role-height-control); padding:var(--fol-role-pad-control); border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-control); background:var(--fol-canvas); color:var(--fol-text); font:400 var(--fol-t-16)/1.5 var(--fol-font-sans); } .ds-field input::placeholder { color:var(--fol-text-muted); } .ds-field input:focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; } .ds-field input[aria-invalid=true] { border-color:var(--fol-role-invalid); }"
+    },
+    {
+      "name": "Workspace navigation",
+      "kind": "nav",
+      "refersTo": "workspace-navigation",
+      "description": "Current location uses a raised ground; secondary tools remain a native disclosure.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Workspace\"><a href=\"#work\" aria-current=\"page\">Work</a><details><summary>More</summary><a href=\"#import\">Import a portfolio</a></details></nav>",
+      "css": ".ds-nav { display:grid; gap:var(--fol-s-1); font:400 var(--fol-t-14)/1.4 var(--fol-font-sans); } .ds-nav a,.ds-nav summary { display:flex; align-items:center; min-height:var(--fol-role-height-control); padding:var(--fol-s-3); color:var(--fol-text-muted); border:1px solid transparent; border-radius:var(--fol-role-radius-control); text-decoration:none; cursor:pointer; } .ds-nav a[aria-current] { background:var(--fol-surface-raised); border-color:var(--fol-border); color:var(--fol-text); } .ds-nav a:hover,.ds-nav summary:hover { background:var(--fol-surface-raised); color:var(--fol-text); } .ds-nav :is(a,summary):focus-visible { outline:2px solid var(--fol-role-focus); outline-offset:3px; }"
+    },
+    {
+      "name": "State chip",
+      "kind": "chip",
+      "refersTo": "state-chip",
+      "description": "Label-only state treatment; this specimen makes no attribution claim.",
+      "html": "<span class=\"ds-chip\">State</span>",
+      "css": ".ds-chip { display:inline-flex; align-items:center; padding:var(--fol-s-1) var(--fol-s-2); border:1px solid var(--fol-border); border-radius:var(--fol-role-radius-control); color:var(--fol-text-muted); font:500 var(--fol-t-13)/1.4 var(--fol-font-sans); }"
+    },
+    {
+      "name": "Work collection empty state",
+      "kind": "custom",
+      "refersTo": "work-row",
+      "description": "Honest collection state instead of invented work.",
+      "html": "<section class=\"ds-empty\"><h2>Your next chapter starts here.</h2><p>No saved accounts or drafts yet.</p></section>",
+      "css": ".ds-empty { padding-block:var(--fol-s-7); border-block:1px solid var(--fol-border); color:var(--fol-text); } .ds-empty h2 { font:400 var(--fol-t-32)/1.2 var(--fol-font-display); margin:0 0 var(--fol-s-3); } .ds-empty p { color:var(--fol-text-muted); font:400 var(--fol-t-14)/1.6 var(--fol-font-sans); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "A well-made instrument",
+    "overview": "Quiet, precise and organic. Real work, stories and retained artifacts lead; tools and settings sit in contextual controls or the navigation disclosure. The compound leaf expresses a connected body of work without competing with its readable account.\n\nUse compact reading rows, restrained serif work titles, sans operational headings and inspectable evidence. The private record is primary; portfolio and audience views are selective projections. Empty, excluded and unavailable states stay explicit.",
+    "keyCharacteristics": [
+      "Work and stories before their machinery.",
+      "Evidence beside the account, on demand.",
+      "Night for private work; day for published reading.",
+      "A compact moving compound leaf with a readable fallback."
+    ],
+    "rules": [
+      {
+        "name": "The Surface Face Rule",
+        "body": "Private operations use night; published reading uses day. Nested previews bind their face explicitly. There is no preference toggle. Primary action text and focus on day need their existing component-level day treatments.",
+        "section": "colors"
+      },
+      {
+        "name": "The Restrained Accent Rule",
+        "body": "Reserve the accent for at most two meaningful moments per screen. Separate decorative dividers from the stronger control-edge role. Attribution states remain unordered; excluded is distinct from invalid input and retains its reason.",
+        "section": "colors"
+      },
+      {
+        "name": "The Measured Metric Rule",
+        "body": "Metrics use the mono family and `font-variant-numeric: tabular-nums`. Labels use ordinary sentence-case sans rather than decorative eyebrows.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Ground Rule",
+        "body": "Use canvas, panel and raised grounds with edges for grouping and state. No box shadows. A divider separates content; a control boundary must remain identifiable on its actual ground. Avoid nested ornamental panels around ordinary rows.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do consume package token roles and shared controls; keep page styles focused on composition.",
+      "Do show retained artifacts only when present and preserve original accounts and evidence.",
+      "Do use mono tabular numerals for metrics and preserve visible keyboard focus.",
+      "Do record measured contrast for the actual surface and state."
+    ],
+    "donts": [
+      "Don't invent work, collaborators, evidence, scores or success states.",
+      "Don't add decorative underlines, shadows, bounce, spin or the superseded coil mark.",
+      "Don't spread the accent, organic corners or ornamental containers across every control.",
+      "Don't treat source adoption, a historical screenshot or a green test gate as current browser or deployment acceptance."
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "canopy",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["apps/canopy/server.mjs"],
+      "port": 4173
+    }
+  ]
+}

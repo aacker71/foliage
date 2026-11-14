@@ -1,0 +1,56 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Entries are scoped explicitly rather than left on knip's monorepo auto-detection, so the
+  // gate's findings do not shift when knip's own heuristics change between versions. Each
+  // package's own library surface is already declared via its package.json `exports` map, which
+  // knip reads on its own without help — the entries below are the .mjs CLIs and servers that
+  // are run directly (by a human, by foliage.mjs, or by the CI/root `scripts`) and so are never
+  // themselves "unused files", however unused their own exports may be.
+  "ignoreBinaries": [
+    // `apps/leaf/src/mediaStore.ts` shells out to the macOS `sips` tool to decode image
+    // dimensions. A system binary, not an npm dependency — nothing to declare.
+    "sips",
+    // The private-brain HTTPS transport test creates a disposable self-signed certificate
+    // at runtime. The key is never checked in or installed as a package dependency.
+    "openssl",
+    // Capture and its transport regression tests invoke the optional local H.264 encoder.
+    // It is a system tool, never an npm dependency or a bundled runtime binary.
+    "ffmpeg"
+  ],
+  "ignore": [
+    // `docs/archive/**` — frozen archive: deliberately retired code kept as history (CLAUDE.md
+    // Operating policy, PR #4: "The loop is retired. `foliage-loop.js` lives in docs/archive/ —
+    // its phases ARE the personas now"), never live source. A general directory exclusion, not a
+    // one-off file entry: the whole point of this directory is to hold whatever gets retired
+    // next, and a filename-specific ignore entry would just go stale again the next time
+    // something is archived — exactly what happened to the entry this replaces, which named
+    // `.claude/workflows/foliage-loop.js` after PR #4 had already moved that file here.
+    "docs/archive/**",
+    // TypeScript consumes this declaration for the adjacent .mjs re-export. It is not a
+    // runtime import, so knip reports the declaration itself as an unused source file.
+    "packages/photosynthesis/src/searchRank.d.mts"
+  ],
+  "workspaces": {
+    // `foliage.mjs` (root `bin`) and every app's `server.mjs`/`photosynthesis.mjs`/
+    // `review-server.mjs` (each already a package.json `scripts` target) are entries knip
+    // detects on its own — declaring them again only draws a "redundant entry" hint, so only
+    // the CLIs each package does NOT wire through `bin` or `scripts` are listed below.
+    // Next app-router pages and website component source are explicit framework entries.
+    "apps/www": {
+      "entry": ["app/**/{page,layout,route,not-found,global-not-found,error,loading}.tsx", "components/**/*.tsx", "lib/**/*.ts"]
+    },
+    "apps/canopy": {
+      "entry": ["publish.mjs", "export.mjs", "hosted-server.mjs", "public/resume.mjs"]
+    },
+    "apps/cos": {
+      "entry": ["cos.mjs"]
+    },
+    "apps/leaf": {
+      "entry": ["public/portfolio-setup.mjs", "public/portfolio-import.mjs", "public/compound-leaf.mjs", "public/portfolio-reader.mjs", "public/presentation-editor.mjs", "public/journey-client.mjs", "cells.mjs", "export.mjs", "harvest.mjs", "intake.mjs", "policy.mjs", "private-brain.mjs", "brain.mjs", "search.mjs", "sessions.mjs", "share.mjs", "sources.mjs"]
+    },
+    ".": {
+      "entry": ["canopy-companion-install.mjs", "canopy-companion.mjs", "plugin/foliage/skills/foliage/scripts/photosynthesis.mjs", "tools/launch/status.mjs", "supabase/tests/hosted-publications.mjs", "supabase/tests/owner-notifications.mjs",
+    "supabase/tests/clerk-actors.mjs", "supabase/tests/distribution.mjs", "supabase/tests/address-cap.mjs"]
+    }
+  }
+}

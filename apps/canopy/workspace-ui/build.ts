@@ -1,0 +1,10 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const result = await Bun.build({entrypoints: [new URL('./app.tsx', import.meta.url).pathname],target:'browser',format:'iife',minify:true,define:{'process.env.NODE_ENV':'"production"'}});
+if (!result.success) throw Error(result.logs.join('\n'));
+await writeFile(new URL('../public/workspace.js',import.meta.url),await result.outputs[0].text());
+const controls = await readFile(require.resolve('@foliage/ui/controls.css'),'utf8');
+const workspace = await readFile(require.resolve('@foliage/ui/workspace.css'),'utf8');
+const styles = await readFile(new URL('./styles.css',import.meta.url),'utf8');
+await writeFile(new URL('../public/workspace.css',import.meta.url),controls+'\n'+workspace+'\n'+styles);

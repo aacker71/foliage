@@ -1,0 +1,38 @@
+{
+  "id": "example-leaf-not-real",
+  "subject": "EXAMPLE SUBJECT — NOT A REAL PERSON",
+  "example": true,
+  "leaflets": [
+    {
+      "id": "example-verified-1",
+      "title": "EXAMPLE — a verified leaflet, shown to illustrate the format",
+      "tier": "verified",
+      "provenance": {
+        "source": "example",
+        "ref": "example-ref-not-a-commit-0001",
+        "observedAt": "2026-08-13T00:00:00Z"
+      }
+    },
+    {
+      "id": "example-verified-2",
+      "title": "EXAMPLE — a second verified leaflet, so a count is visibly a count",
+      "tier": "verified",
+      "provenance": {
+        "source": "example",
+        "ref": "example-ref-not-a-commit-0002",
+        "observedAt": "2026-08-13T00:00:00Z"
+      }
+    },
+    {
+      "id": "example-pending-1",
+      "title": "EXAMPLE — a pending leaflet, with no provenance yet",
+      "tier": "pending"
+    },
+    {
+      "id": "example-excluded-1",
+      "title": "EXAMPLE — an excluded leaflet, which is not an error",
+      "tier": "excluded",
+      "reason": "EXAMPLE REASON — could not be attributed to this subject: the commits carry a different author identity"
+    }
+  ]
+}

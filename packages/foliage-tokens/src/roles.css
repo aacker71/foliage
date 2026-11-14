@@ -1,0 +1,184 @@
+/* ==========================================================================
+   FOLIAGE — semantic role layer
+
+   tokens.css names things by WHAT THEY ARE: canvas, surface, text-faint, accent.
+   That vocabulary is correct and stays the source of truth. This file names
+   things by WHAT THEY ARE FOR, so a consumer writes
+   `background: var(--fol-role-panel)` without deciding which primitive a panel
+   should use — and so that decision can be changed here, once, instead of in
+   every component.
+
+   LOAD ORDER IS FIXED:
+       tokens.css   <- primitives + the face
+       roles.css    <- this file
+       foliage.css  <- components
+       <the app's own stylesheet>
+
+   NOTHING HERE INTRODUCES A VALUE. Every role is an alias, so:
+     * the face keeps working untouched — it rebinds the PRIMITIVES in
+       tokens.css, and every role resolves through them, so the whole role layer
+       flips with the face and no role needs a day variant;
+     * deleting this file degrades a project to the primitives it already used.
+
+   roles.test.ts enforces exactly that: every primitive named here must exist in
+   tokens.css, and no role may carry a colour literal. This is not a style note.
+   CSS FAILS SILENTLY — a role pointing at a token that was renamed drops the
+   whole declaration and the element quietly inherits, which looks like a design
+   choice rather than a bug.
+
+   Contrast figures are recomputed from tokens.css by contrast.test.ts on every
+   run. Where a role is text, the number is against its stated ground AT THE PX
+   SIZE it renders. Both faces are given, because a role that is only measured on
+   one face is only half-checked.
+   ========================================================================== */
+
+:root, [data-face], .face-night, .face-day {
+  /* --- Grounds -----------------------------------------------------------
+     Three levels, no fourth. Depth is a ground change plus a 1px edge; the
+     system has no shadow tokens to reach for. */
+  --fol-role-bg:            var(--fol-canvas);          /* the page itself     */
+  --fol-role-panel:         var(--fol-surface);         /* a bordered cell     */
+  --fol-role-panel-raised:  var(--fol-surface-raised);  /* track, hover ground */
+  --fol-role-well:          var(--fol-canvas);          /* inputs sink to page */
+
+  /* --- Edges --------------------------------------------------------------
+     THREE edges, and the third one is the whole point of this section.
+
+     `line` separates rows INSIDE one object. `edge` encloses an object. Both are
+     DECORATIVE, and neither may be the only thing bounding something a user can
+     operate — measured, they cannot carry that job:
+
+         --fol-hairline        1.39:1 on canvas    --fol-paper-hairline  1.33:1 on paper
+         --fol-border          1.68:1 on canvas    --fol-paper-border    1.66:1 on paper
+
+     WCAG 1.4.11 requires 3:1 for the visual boundary of a user-interface
+     component. Open Design's .field and .btn-ghost take --fol-border as their
+     ONLY boundary, so as drawn they miss it on both faces. `edge-control` is the
+     fix, and it is an alias like everything else here — it rides the face, so one
+     name covers both:
+
+         night  var(--fol-text-faint) = #7D9184   5.65 canvas / 5.30 surface / 4.80 raised
+         day    var(--fol-ink-faint)  = #55665C   5.54 paper  / 5.07 sunk    / 4.64 raised
+
+     Clears 3:1 on every ground of both faces with margin to spare.
+
+     THIS ALSO RETIRES A DUPLICATED DERIVATION. apps/leaf/public/leaf.css and
+     apps/canopy/public/tree.css each independently derived three day line weights
+     as color-mix(in oklch, var(--fol-ink) N%, var(--fol-paper)) at N = 24 / 46 / 62.
+     Recomputed, those are #BABBB0 (1.76:1), #85897D (3.25:1) and #5F675B (5.33:1)
+     on paper. They are not ported here, for two reasons. First, a color-mix() is a
+     derivation, not an alias, and a role layer that starts carrying derivations
+     stops being checkable as "no role hides a value". Second, they are redundant
+     against the day ramp tokens.css now ships and slightly WORSE at the one job
+     that mattered: the 46% mix was the control edge at 3.25:1, where
+     --fol-role-edge-control measures 5.54:1 on the same ground. The 24% and 62%
+     mixes land within 0.1 and 0.2 of --fol-paper-border and --fol-ink-faint
+     respectively. Three roles replace six derivations, and every one is an alias.
+
+     A CONSUMER MUST NOT reach for --can-night-control (#4A6B55) for this job. It
+     is documented in apps/canopy as "3.18:1 — interactive borders", which holds
+     ONLY on --fol-canvas: on --fol-surface it is 2.99 and on --fol-surface-raised
+     2.71, so a field inside a cell misses 1.4.11 while the comment says it passes. */
+  --fol-role-line:          var(--fol-hairline);        /* decorative, inside an object */
+  --fol-role-edge:          var(--fol-border);          /* decorative, encloses a cell  */
+  --fol-role-edge-control:  var(--fol-text-faint);      /* >=3:1 both faces, all grounds */
+
+  /* --- Text ---------------------------------------------------------------
+     Three levels and a floor. Never introduce a fourth: the gap between
+     secondary and tertiary is already only 1.4x on canvas.
+     Night figures on --fol-canvas; day figures on --fol-paper. */
+  --fol-role-fg:            var(--fol-text);            /* 16.36 night / 15.56 day     */
+  --fol-role-fg-secondary:  var(--fol-text-muted);      /*  7.73 night /  6.65 day     */
+  --fol-role-fg-tertiary:   var(--fol-text-faint);      /*  5.65 night /  5.54 day,
+                                                            4.80 / 4.64 on raised —
+                                                            the binding grounds. Open
+                                                            Design records 5.52 / 4.69
+                                                            here; that is its own
+                                                            #7C8F83, not this file's
+                                                            #7D9184. Re-measured.      */
+
+  /* --- Action -------------------------------------------------------------
+     One accent, twice per screen. HOVER LIFTS, PRESS DARKENS: contrast may only
+     rise on a state change, and press is momentary.
+     Measured on --fol-canvas: 10.24 default -> 11.17 hover -> 8.01 press.
+     (Open Design records the hover as 11.07, which is the OKLab resolution of
+     --fol-accent-lift. Its own CSS mixes in OKLCh, which paints #A9D55F at
+     11.17. The role is unaffected either way; the recorded number is not.)
+
+     --fol-role-focus is the NIGHT ring only. On paper the accent measures
+     1.68:1 and fails 1.4.11 outright, so foliage.css overrides the ring to
+     --fol-text (= --fol-ink, 15.56:1) under the day face. That override lives
+     with the component rather than here because a role cannot express it
+     without carrying a face, and a face in the role layer is the thing this
+     file exists to avoid. */
+  --fol-role-action:        var(--fol-accent);
+  --fol-role-action-hover:  var(--fol-accent-lift);
+  --fol-role-action-active: var(--fol-accent-press);
+  --fol-role-action-fg:     var(--fol-canvas);          /* label ON the accent */
+  --fol-role-action-wash:   var(--fol-accent-wash);     /* 12% ground only     */
+  --fol-role-focus:         var(--fol-accent);          /* 2px ring, 2px offset */
+
+  /* --- Proof state --------------------------------------------------------
+     The product's whole subject. THREE TIERS, UNORDERED — there is no fourth,
+     and there is no ranking among these three. `excluded` is NOT an error: work
+     that cannot be attributed is reported, not failed. Form validation is a real
+     error and has its own role, and keeping them apart is what stops a failed
+     read from being rendered as a proof outcome.
+     Night on canvas / day on paper, both at 11px:
+       verified  10.24 / 6.55     pending   5.68 / 6.06
+       excluded   5.42 / 6.54     invalid   5.52 / 5.07 */
+  --fol-role-verified:      var(--fol-verified);
+  --fol-role-pending:       var(--fol-pending);
+  --fol-role-excluded:      var(--fol-excluded);
+  --fol-role-invalid:       var(--fol-invalid);
+
+  /* --- Brand --------------------------------------------------------------
+     The mark takes the foreground of its ground, never the accent. The face
+     swaps it to evergreen on paper (foliage.css) without anyone remembering. */
+  --fol-role-mark:          var(--fol-text);
+  --fol-role-brand-fill:    var(--fol-evergreen-500);   /* fills, not text: 2.63:1
+                                                           on canvas             */
+
+  /* --- Motion -------------------------------------------------------------
+     Arriving vs leaving. Reduced motion zeroes the durations in tokens.css, so
+     anything built on these roles is already compliant. Growth never bounces
+     and never spins — the superseded coil is the reason that is written down. */
+  --fol-role-ease-in:       var(--fol-ease-grow);
+  --fol-role-ease-out:      var(--fol-ease-fold);
+  --fol-role-speed-state:   var(--fol-dur-2);           /* buttons, fields     */
+  --fol-role-speed-panel:   var(--fol-dur-3);           /* panels, drawers     */
+  --fol-role-speed-signal:  var(--fol-dur-4);           /* the sprout, once    */
+
+  /* --- Shape --------------------------------------------------------------
+     Owner revision: compact controls and quiet panels. Named shape primitives keep
+     controls, panels and sheets consistent without copying radii into apps. */
+  --fol-role-radius-control: var(--fol-shape-control);            /* buttons, fields     */
+  --fol-role-radius-panel:   var(--fol-shape-panel);            /* cells               */
+  --fol-role-radius-sheet:   var(--fol-shape-sheet);            /* dialogs, day panels */
+  --fol-role-radius-pill:    var(--fol-r-full);         /* badges, tracks      */
+
+  /* --- Rhythm -------------------------------------------------------------
+     Named from where the 4px scale is actually spent in the shipped screens. */
+  --fol-role-gap-inline:    var(--fol-s-2);             /* icon to label       */
+  --fol-role-gap-grid:      var(--fol-s-3);             /* between cells       */
+  --fol-role-height-control: var(--fol-control-height);
+  --fol-role-width-navigation: var(--fol-navigation-width);
+  --fol-role-pad-control:   var(--fol-s-3);
+  --fol-role-pad-panel:     var(--fol-s-5);
+  --fol-role-pad-page:      var(--fol-s-6);
+  --fol-role-gap-block:     var(--fol-s-7);             /* between sections    */
+}
+
+/* The day face needs NO role overrides. It rebinds the primitives in tokens.css,
+   and every role above resolves through them — which is the test of whether a
+   role layer is real or just renaming. The three exceptions are component-level
+   and live in foliage.css with the components they belong to, because each is a
+   MEASURED reversal rather than a preference:
+     the primary button's label   -> --fol-ink      (accent as fill, not as text)
+     accent text (.acc)           -> --fol-evergreen-700
+     the focus ring               -> --fol-text
+   Accent as text measures 1.68:1 on paper. All three are that one fact.
+
+   Roles are declared again at explicit face boundaries so their var() aliases
+   resolve against that surface's primitives. This allows private decision controls
+   around a day-face publication preview without copying either palette. */

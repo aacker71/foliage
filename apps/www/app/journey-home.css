@@ -1,0 +1,93 @@
+.journey-opening {
+  display: grid;
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+  gap: clamp(2.5rem, 5.5vw, 6rem);
+  align-items: center;
+  padding: clamp(3.5rem, 6vw, 6rem) 0;
+  min-height: 38rem;
+}
+.journey-opening-copy { min-width: 0; }
+.journey-home .journey-opening h1 {
+  font-size: clamp(3.75rem, 6vw, 6rem);
+  line-height: 1.02;
+  letter-spacing: -.035em;
+  max-width: 11ch;
+}
+.record-site .journey-promise {
+  color: var(--foreground);
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  line-height: 1.35;
+  margin: 1.75rem 0 .6rem;
+}
+.record-site .journey-opening-detail {
+  max-width: 36ch;
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+.journey-opening-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.journey-opening-actions [data-slot="button"] { min-height: 3.25rem; padding-inline: 1.5rem; }
+.journey-work { min-width: 0; margin: 0; border: 1px solid var(--border); }
+.journey-work picture { display: block; overflow: hidden; background: var(--fol-ink); }
+.journey-work img { display: block; width: 100%; height: auto; }
+.journey-work figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .85rem 1rem;
+  border-top: 1px solid var(--border);
+  font: 400 .75rem/1.4 var(--fol-font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+}
+.journey-thesis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 6vw, 6rem);
+  padding: clamp(2.25rem, 4vw, 4rem) 0;
+  border-block: 1px solid var(--border);
+}
+.record-site .journey-thesis p {
+  font: 400 clamp(1.8rem, 3vw, 3rem)/1.14 var(--fol-font-display);
+  letter-spacing: -.025em;
+  color: var(--foreground);
+  max-width: 18ch;
+  margin: 0;
+}
+.record-site .journey-thesis p + p { color: var(--muted-foreground); }
+.journey-paths {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 6vw, 6rem);
+  padding: clamp(3.5rem, 6vw, 6rem) 0;
+}
+.journey-paths article + article { border-left: 1px solid var(--border); padding-left: clamp(2rem, 6vw, 6rem); }
+.record-site .journey-paths h2 { max-width: 12ch; }
+.journey-paths p { max-width: 38ch; }
+@media (max-width: 960px) {
+  .journey-opening { grid-template-columns: 1fr; min-height: 0; gap: 3rem; }
+  .journey-home .journey-opening h1 { max-width: 15ch; }
+  .journey-work img { max-height: 32rem; object-fit: cover; object-position: left top; }
+}
+@media (max-width: 640px) {
+  .journey-opening { padding: 2.5rem 0 3rem; gap: 2.25rem; }
+  .journey-home .journey-opening h1 { font-size: clamp(3.1rem, 11vw, 4.25rem); max-width: 12ch; }
+  .record-site .journey-promise { margin-top: 1.25rem; font-size: 1.2rem; }
+  .record-site .journey-opening-detail { font-size: 1rem; }
+  .journey-opening-actions { gap: 1.2rem; margin-top: 1.5rem; }
+  /* Let the first phone crop reveal the retained work, not just the shell. */
+  .journey-work img { max-height: 19.5rem; object-fit: cover; object-position: left 80%; }
+  .journey-work figcaption { display: block; }
+  .journey-work figcaption span { display: block; }
+  .journey-work figcaption span + span { margin-top: .25rem; }
+  .journey-thesis { grid-template-columns: 1fr; gap: 1rem; padding: 2rem 0; }
+  .record-site .journey-thesis p { font-size: 2rem; }
+  .journey-paths { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 0; }
+  .journey-paths article + article { border-left: 0; border-top: 1px solid var(--border); padding: 2rem 0 0; }
+}

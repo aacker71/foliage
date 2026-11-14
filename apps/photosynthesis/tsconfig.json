@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true,
+    /* Both entry points are plain JS and are typechecked from their JSDoc — an app whose
+       entry point is exempt from the gate is an app with an unguarded entry point, and
+       the review server is this repository's FIRST mutating surface. */
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": ["src/**/*.ts", "photosynthesis.mjs", "review-server.mjs"]
+}

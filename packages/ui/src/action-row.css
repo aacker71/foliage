@@ -1,0 +1,10 @@
+/* A compact collection of full-width actions, with one outer frame instead of card noise. */
+.fol-action-list { border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-panel); background:var(--fol-surface); overflow:hidden; }
+.fol-action-row.fol-button { width:100%; min-width:0; min-height:calc(var(--fol-role-height-control) + var(--fol-s-3)); justify-content:space-between; padding:var(--fol-s-3) var(--fol-s-4); text-align:left; background:var(--fol-surface); border:0; border-radius:0; border-bottom:1px solid var(--fol-border); }
+.fol-action-list > .fol-action-row:last-child { border-bottom:0; }
+.fol-action-row.fol-button:hover,.fol-action-row.fol-button:focus-visible { background:var(--fol-surface-raised); }
+.fol-action-row.fol-button:active { background:var(--fol-canvas); }
+.fol-action-row.fol-button:focus-visible { outline-offset:-2px; }
+.fol-action-row-title { min-width:0; color:var(--fol-text); font:500 var(--fol-t-16)/1.4 var(--fol-font-sans); overflow-wrap:anywhere; }
+.fol-action-row-meta { flex:none; margin-left:auto; color:var(--fol-text-muted); font:400 var(--fol-t-13)/1.4 var(--fol-font-sans); white-space:nowrap; }
+.fol-action-row:hover .fol-action-row-meta,.fol-action-row:focus-visible .fol-action-row-meta { color:var(--fol-text); }

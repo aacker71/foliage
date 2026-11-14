@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "id": "foliage-leaf-domain",
+  "steps": [
+    { "stage": "prepare", "argv": ["node", "--version"], "timeoutMs": 10000 },
+    { "stage": "execute", "argv": ["node", "--experimental-strip-types", "--test", "packages/leaf/src/leaf.test.ts"], "timeoutMs": 60000 }
+  ]
+}

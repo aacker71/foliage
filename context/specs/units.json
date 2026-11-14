@@ -1,0 +1,752 @@
+[
+  {
+    "id": "01",
+    "file": "01-candidate.md",
+    "title": "Reconcile one reproducible candidate",
+    "build": "B00",
+    "application": "leaf",
+    "dependsOn": [],
+    "acceptance": [
+      "ST04",
+      "OP02"
+    ]
+  },
+  {
+    "id": "02",
+    "file": "02-deployment-package.md",
+    "title": "Package every actual runtime",
+    "build": "B00",
+    "application": "canopy",
+    "dependsOn": [
+      "01"
+    ],
+    "acceptance": [
+      "OP01",
+      "OP02"
+    ]
+  },
+  {
+    "id": "03",
+    "file": "03-hosted-session.md",
+    "title": "Verify hosted sessions and recovery",
+    "build": "B01",
+    "application": "canopy",
+    "dependsOn": [
+      "01"
+    ],
+    "acceptance": [
+      "AU01",
+      "OF05"
+    ]
+  },
+  {
+    "id": "04",
+    "file": "04-identifier-ownership.md",
+    "title": "Reserve identifiers without transferring subjects",
+    "build": "B01",
+    "application": "canopy",
+    "dependsOn": [
+      "03"
+    ],
+    "acceptance": [
+      "AU01",
+      "OF05",
+      "OP06"
+    ]
+  },
+  {
+    "id": "05",
+    "file": "05-admission.md",
+    "title": "Admit exact reviewed evidence",
+    "build": "B01",
+    "application": "canopy",
+    "dependsOn": [
+      "03",
+      "04"
+    ],
+    "acceptance": [
+      "AU02",
+      "AU03",
+      "AU04",
+      "OF05"
+    ]
+  },
+  {
+    "id": "06",
+    "file": "06-authority-schema.md",
+    "title": "Persist authority and operations atomically",
+    "build": "B02",
+    "application": "canopy",
+    "dependsOn": [
+      "03",
+      "04"
+    ],
+    "acceptance": [
+      "ST01",
+      "AU02"
+    ]
+  },
+  {
+    "id": "07",
+    "file": "07-immutable-objects.md",
+    "title": "Commit private publication objects",
+    "build": "B02",
+    "application": "canopy",
+    "dependsOn": [
+      "05",
+      "06"
+    ],
+    "acceptance": [
+      "ST01",
+      "ST02",
+      "OF05"
+    ]
+  },
+  {
+    "id": "08",
+    "file": "08-current-reader.md",
+    "title": "Enforce withdrawal across all readers",
+    "build": "B02",
+    "application": "canopy",
+    "dependsOn": [
+      "07"
+    ],
+    "acceptance": [
+      "ST03",
+      "AU03",
+      "OF05"
+    ]
+  },
+  {
+    "id": "09",
+    "file": "09-sources-cells.md",
+    "title": "Connect authorized sources to retained cells",
+    "build": "B03",
+    "application": "photosynthesis",
+    "dependsOn": [
+      "01"
+    ],
+    "acceptance": [
+      "LV01",
+      "ST04",
+      "AU04"
+    ]
+  },
+  {
+    "id": "10",
+    "file": "10-background-collection.md",
+    "title": "Own background collection lifecycle",
+    "build": "B03",
+    "application": "leaf",
+    "dependsOn": [
+      "09"
+    ],
+    "acceptance": [
+      "LV01",
+      "OP01",
+      "ST04"
+    ]
+  },
+  {
+    "id": "11",
+    "file": "11-achievement-model.md",
+    "title": "Retain authored achievements and claim citations",
+    "build": "B03",
+    "application": "leaf",
+    "dependsOn": [
+      "09"
+    ],
+    "acceptance": [
+      "LV01",
+      "OF01",
+      "AU04"
+    ]
+  },
+  {
+    "id": "12",
+    "file": "12-local-review.md",
+    "title": "Preserve human review through failure",
+    "build": "B04",
+    "application": "leaf",
+    "dependsOn": [
+      "09",
+      "11"
+    ],
+    "acceptance": [
+      "UX01",
+      "UX02",
+      "ST04"
+    ]
+  },
+  {
+    "id": "13",
+    "file": "13-publish-handoff.md",
+    "title": "Return a real publication receipt",
+    "build": "B04",
+    "application": "canopy",
+    "dependsOn": [
+      "07",
+      "08",
+      "12"
+    ],
+    "acceptance": [
+      "UX01",
+      "UX02",
+      "UX03",
+      "AU03",
+      "OF05"
+    ]
+  },
+  {
+    "id": "14",
+    "file": "14-group-governance.md",
+    "title": "Model governed company membership",
+    "build": "B05",
+    "application": "enterprise",
+    "dependsOn": [
+      "06",
+      "12"
+    ],
+    "acceptance": [
+      "LV02",
+      "LV03",
+      "LV04",
+      "AU01",
+      "AU02"
+    ]
+  },
+  {
+    "id": "15",
+    "file": "15-member-exit.md",
+    "title": "Deliver the enterprise member journey",
+    "build": "B05",
+    "application": "member",
+    "dependsOn": [
+      "14",
+      "13"
+    ],
+    "acceptance": [
+      "OF02",
+      "OF03",
+      "OP05"
+    ]
+  },
+  {
+    "id": "16",
+    "file": "16-cloud-tools.md",
+    "title": "Bind cloud tools to approved context",
+    "build": "B08",
+    "application": "ladybug",
+    "dependsOn": [
+      "05",
+      "06",
+      "09"
+    ],
+    "acceptance": [
+      "AU02",
+      "AU05",
+      "LV01"
+    ]
+  },
+  {
+    "id": "17",
+    "file": "17-cloud-conversation.md",
+    "title": "Stream useful cloud suggestions",
+    "build": "B08",
+    "application": "ladybug",
+    "dependsOn": [
+      "16",
+      "03",
+      "07"
+    ],
+    "acceptance": [
+      "AU05",
+      "UX02",
+      "OF01"
+    ]
+  },
+  {
+    "id": "18",
+    "file": "18-scoped-agents.md",
+    "title": "Apply agent roles without inherited permissions",
+    "build": "B08",
+    "application": "enterprise",
+    "dependsOn": [
+      "14",
+      "15",
+      "17"
+    ],
+    "acceptance": [
+      "AU05",
+      "LV02",
+      "LV03",
+      "LV04"
+    ]
+  },
+  {
+    "id": "19",
+    "file": "19-private-industry.md",
+    "title": "Share explicitly within a private network",
+    "build": "B06",
+    "application": "enterprise",
+    "dependsOn": [
+      "14",
+      "15"
+    ],
+    "acceptance": [
+      "LV05",
+      "AU02",
+      "AU03"
+    ]
+  },
+  {
+    "id": "20",
+    "file": "20-public-discovery.md",
+    "title": "Offer consented public discovery",
+    "build": "B06",
+    "application": "recruiter",
+    "dependsOn": [
+      "08",
+      "14"
+    ],
+    "acceptance": [
+      "LV06",
+      "OF04",
+      "AU02",
+      "AU03"
+    ]
+  },
+  {
+    "id": "21",
+    "file": "21-outbox-dispatch.md",
+    "title": "Dispatch committed notification intent",
+    "build": "B07",
+    "application": "canopy",
+    "dependsOn": [
+      "06",
+      "13"
+    ],
+    "acceptance": [
+      "NT01",
+      "ST01"
+    ]
+  },
+  {
+    "id": "22",
+    "file": "22-notice-preferences.md",
+    "title": "Make permitted channels and recovery work",
+    "build": "B07",
+    "application": "canopy",
+    "dependsOn": [
+      "21"
+    ],
+    "acceptance": [
+      "NT01",
+      "NT02",
+      "NT03",
+      "UX02"
+    ]
+  },
+  {
+    "id": "23",
+    "file": "23-shared-review-ui.md",
+    "title": "Complete shared decision controls",
+    "build": "B09",
+    "application": "leaf",
+    "dependsOn": [
+      "12",
+      "13"
+    ],
+    "acceptance": [
+      "UX01",
+      "UX02",
+      "UX03"
+    ]
+  },
+  {
+    "id": "24",
+    "file": "24-public-portfolio.md",
+    "title": "Complete the achievement-first reader",
+    "build": "B09",
+    "application": "canopy",
+    "dependsOn": [
+      "08",
+      "11",
+      "23"
+    ],
+    "acceptance": [
+      "OF01",
+      "OF04",
+      "OF05",
+      "UX03",
+      "AU04"
+    ]
+  },
+  {
+    "id": "25",
+    "file": "25-website-offers.md",
+    "title": "Connect website promises to actual offers",
+    "build": "B09",
+    "application": "www",
+    "dependsOn": [
+      "02",
+      "20",
+      "24"
+    ],
+    "acceptance": [
+      "OF01",
+      "OF02",
+      "OF03",
+      "OF04",
+      "OF05",
+      "OP02"
+    ]
+  },
+  {
+    "id": "26",
+    "file": "26-local-evaluation.md",
+    "title": "Observe and import a real local evaluation",
+    "build": "B14",
+    "application": "evaluation",
+    "dependsOn": [
+      "09",
+      "11"
+    ],
+    "acceptance": [
+      "EV01",
+      "EV02",
+      "AU04",
+      "ST04"
+    ]
+  },
+  {
+    "id": "27",
+    "file": "27-cloud-evaluation.md",
+    "title": "Run isolated cloud and customer evaluation",
+    "build": "B14",
+    "application": "evaluation",
+    "dependsOn": [
+      "26",
+      "06",
+      "17"
+    ],
+    "acceptance": [
+      "EV02",
+      "EV03",
+      "EV04",
+      "AU02",
+      "AU03"
+    ]
+  },
+  {
+    "id": "28",
+    "file": "28-private-deployment.md",
+    "title": "Package a working private enterprise install",
+    "build": "B10",
+    "application": "enterprise",
+    "dependsOn": [
+      "07",
+      "15",
+      "18",
+      "21",
+      "23"
+    ],
+    "acceptance": [
+      "OP08",
+      "OP01",
+      "OP05"
+    ]
+  },
+  {
+    "id": "29",
+    "file": "29-restore-revocation.md",
+    "title": "Rehearse durable recovery",
+    "build": "B11",
+    "application": "canopy",
+    "dependsOn": [
+      "07",
+      "08",
+      "21",
+      "28"
+    ],
+    "acceptance": [
+      "OP03",
+      "OP05",
+      "ST02",
+      "ST03"
+    ]
+  },
+  {
+    "id": "30",
+    "file": "30-observability.md",
+    "title": "Expose actionable safe operational signals",
+    "build": "B11",
+    "application": "canopy",
+    "dependsOn": [
+      "06",
+      "17",
+      "21",
+      "27"
+    ],
+    "acceptance": [
+      "OP04",
+      "AU05",
+      "EV03"
+    ]
+  },
+  {
+    "id": "31",
+    "file": "31-entitlements.md",
+    "title": "Model offers without changing ownership",
+    "build": "B12",
+    "application": "canopy",
+    "dependsOn": [
+      "03",
+      "04",
+      "06"
+    ],
+    "acceptance": [
+      "OP06",
+      "OF01",
+      "OF02",
+      "OF03",
+      "OF04",
+      "OF05"
+    ]
+  },
+  {
+    "id": "32",
+    "file": "32-payment-lifecycle.md",
+    "title": "Reconcile payment and support outcomes",
+    "build": "B12",
+    "application": "canopy",
+    "dependsOn": [
+      "31"
+    ],
+    "acceptance": [
+      "OP06",
+      "OP05"
+    ]
+  },
+  {
+    "id": "33",
+    "file": "33-capture-clients.md",
+    "title": "Retain authorized desktop artifacts",
+    "build": "B03",
+    "application": "capture",
+    "dependsOn": [
+      "09"
+    ],
+    "acceptance": [
+      "LV01",
+      "ST04",
+      "OP01"
+    ]
+  },
+  {
+    "id": "34",
+    "file": "34-dify-development.md",
+    "title": "Make Dify experiments reproducible",
+    "build": "B14",
+    "application": "evaluation",
+    "dependsOn": [
+      "01"
+    ],
+    "acceptance": [
+      "EV01",
+      "AU05",
+      "OP04"
+    ]
+  },
+  {
+    "id": "35",
+    "file": "35-distribution-core.md",
+    "title": "Make admitted work discoverable and shareable",
+    "build": "B06",
+    "application": "canopy",
+    "dependsOn": [
+      "13",
+      "21",
+      "22",
+      "24"
+    ],
+    "acceptance": [
+      "OF01",
+      "OF04",
+      "AU02",
+      "AU03",
+      "AU04",
+      "ST01",
+      "ST03",
+      "NT01",
+      "UX01"
+    ]
+  },
+  {
+    "id": "36",
+    "file": "36-destination-adapters.md",
+    "title": "Deliver to authorized recruiting and client systems",
+    "build": "B06",
+    "application": "canopy",
+    "dependsOn": [
+      "35"
+    ],
+    "acceptance": [
+      "OF04",
+      "AU02",
+      "AU03",
+      "ST01",
+      "OP04"
+    ]
+  },
+  {
+    "id": "37",
+    "file": "37-partner-feeds.md",
+    "title": "Supply contracted talent platforms with current evidence",
+    "build": "B06",
+    "application": "canopy",
+    "dependsOn": [
+      "35",
+      "36"
+    ],
+    "acceptance": [
+      "LV06",
+      "OF04",
+      "AU02",
+      "AU03",
+      "ST01",
+      "ST03",
+      "OP04"
+    ]
+  },
+  {
+    "id": "38",
+    "file": "38-local-brain.md",
+    "title": "Keep each garden's brain in a packaged local gbrain",
+    "build": "B03",
+    "application": "leaf",
+    "dependsOn": [
+      "02",
+      "09",
+      "11",
+      "12"
+    ],
+    "acceptance": [
+      "LV01",
+      "AU04",
+      "AU05",
+      "ST04",
+      "OP01"
+    ]
+  },
+  {
+    "id": "39",
+    "file": "39-team-project-portfolio.md",
+    "title": "Keep one local project portfolio with the people who built it",
+    "build": "B03",
+    "application": "leaf",
+    "dependsOn": [
+      "09",
+      "11",
+      "12",
+      "33"
+    ],
+    "acceptance": [
+      "LV02",
+      "UX01",
+      "UX02",
+      "AU03",
+      "AU04",
+      "AU05",
+      "ST04"
+    ]
+  },
+  {
+    "id": "40",
+    "file": "40-release-acceptance.md",
+    "title": "Accept the integrated complete product",
+    "build": "B13",
+    "application": "canopy",
+    "dependsOn": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31",
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "37",
+      "38",
+      "39"
+    ],
+    "acceptance": [
+      "LV01",
+      "LV02",
+      "LV03",
+      "LV04",
+      "LV05",
+      "LV06",
+      "OF01",
+      "OF02",
+      "OF03",
+      "OF04",
+      "OF05",
+      "UX01",
+      "UX02",
+      "UX03",
+      "AU01",
+      "AU02",
+      "AU03",
+      "AU04",
+      "AU05",
+      "ST01",
+      "ST02",
+      "ST03",
+      "ST04",
+      "NT01",
+      "NT02",
+      "NT03",
+      "OP01",
+      "OP02",
+      "OP03",
+      "OP04",
+      "OP05",
+      "OP06",
+      "OP07",
+      "OP08",
+      "EV01",
+      "EV02",
+      "EV03",
+      "EV04"
+    ]
+  }
+]

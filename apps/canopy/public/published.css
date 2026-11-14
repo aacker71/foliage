@@ -1,0 +1,505 @@
+/* ==========================================================================
+   PUBLISHED LEAF — the one surface in this repository whose reader is a
+   stranger.
+
+   `/leaf/<id>` renders a published artifact.
+
+   DAY FACE, flagged not assumed — an outward, indexable surface takes the
+   public plane's paper face, the same call tree.css and apps/leaf/public
+   /leaf.css make, for the same reason.
+
+   DERIVED LINES ARE INHERITED, NOT REINVENTED. The three weights below are the
+   identical color-mix idiom and identical percentages leaf.css measured against
+   --fol-paper (24% = 1.76:1, 46% = 3.23:1, 62% = 5.32:1). Same base token, same
+   mix, same painted pixel — so the measurement carries. Duplicating the
+   derivation with different numbers is the drift this project has paid for
+   twice.
+
+   Proof tier never changes size, colour or placement. Every admitted image or
+   demo receives the same complete reading frame; its extra space describes
+   the selected medium, not a judgment about the work.
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html[data-face="day"] {
+  /* Without this a browser in dark mode applies its own dark treatment to
+     scrollbars and UA-styled controls, and the paper/ink plane signal silently
+     inverts. */
+  color-scheme: light;
+
+  background: var(--fol-paper);
+  color: var(--fol-ink);
+  font: 400 var(--fol-t-16)/1.6 var(--fol-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+
+  --pub-hairline:    color-mix(in oklch, var(--fol-ink) 24%, var(--fol-paper));  /* 1.76:1 */
+  --pub-rule:        color-mix(in oklch, var(--fol-ink) 46%, var(--fol-paper));  /* 3.23:1 */
+  --pub-rule-strong: color-mix(in oklch, var(--fol-ink) 62%, var(--fol-paper));  /* 5.32:1 */
+
+  /* Space for the canonical specimen beside the subject; paragraphs retain a reading measure. */
+  --pub-measure: 68rem;
+}
+
+body { margin: 0; }
+a { color:inherit; text-decoration:none; }
+p a { font-weight:500; }
+a:hover { background:var(--fol-paper-sunk); }
+
+/* `.fol-label` in tokens.css hardcodes color: var(--fol-text-faint), a NIGHT
+   value that measures 3.57:1 on paper at 11px where 4.5:1 is required. Re-bound
+   to --fol-ink-muted (6.65:1 on paper at 11px), exactly as leaf.css and tree.css
+   do. */
+html[data-face="day"] .fol-label { color: var(--fol-ink-muted); }
+
+:where(a, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--fol-ink);
+  outline-offset: 2px;
+  border-radius: var(--fol-r-1);
+}
+
+.pub-skip {
+  position: absolute;
+  left: -9999px;
+  background: var(--fol-paper);
+  color: var(--fol-ink);
+  border: 1px solid var(--pub-rule);
+  border-radius: var(--fol-r-2);
+  padding: var(--fol-s-2) var(--fol-s-3);
+  font: 500 var(--fol-t-13)/1 var(--fol-font-sans);
+  text-decoration: none;
+}
+.pub-skip:focus { left: var(--fol-s-4); top: var(--fol-s-4); z-index: 2; }
+
+/* ==========================================================================
+   PLANE BAND — which plane the reader is standing in.
+   ========================================================================== */
+.pub-plane {
+  display: flex;
+  align-items: center;
+  gap: var(--fol-s-3);
+  padding: var(--fol-s-2) var(--fol-s-5);
+  background: var(--fol-paper-sunk);
+  border-bottom: 1px solid var(--pub-hairline);
+  font: 500 var(--fol-t-11)/1.2 var(--fol-font-mono);
+  letter-spacing: var(--fol-track-label);
+  text-transform: uppercase;
+  color: var(--fol-ink-muted);
+}
+.pub-plane b { color: var(--fol-ink); font-weight: 500; }
+.pub-plane-dot {
+  width: 7px; height: 7px;
+  border-radius: var(--fol-r-full);
+  background: var(--fol-evergreen-700);
+}
+
+/* ==========================================================================
+   FRAME
+   ========================================================================== */
+.pub-head,
+.pub-main {
+  max-width: var(--pub-measure);
+  margin: 0 auto;
+  padding: 0 var(--fol-s-5);
+}
+.pub-head {
+  display: flex;
+  align-items: center;
+  gap: var(--fol-s-3);
+  padding-top: var(--fol-s-6);
+  padding-bottom: var(--fol-s-5);
+}
+.pub-main { padding-bottom: var(--fol-s-9); }
+
+.pub-preview-back {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fol-role-height-control);
+  padding-inline: var(--fol-s-3);
+  border: 1px solid var(--pub-rule);
+  border-radius: var(--fol-role-radius-control);
+  font: 500 var(--fol-t-14)/1.3 var(--fol-font-sans);
+}
+.pub-preview-decision {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--fol-s-3) var(--fol-s-5);
+  margin-block-start: var(--fol-s-7);
+  padding-block-start: var(--fol-s-5);
+  border-block-start: 1px solid var(--pub-rule);
+}
+.pub-preview-decision h2 {
+  flex-basis: 100%;
+  margin: 0;
+  font: 500 var(--fol-t-25)/1.25 var(--fol-font-sans);
+}
+.pub-preview-consequence {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--fol-ink-muted);
+  font: 400 var(--fol-t-14)/1.5 var(--fol-font-sans);
+}
+.pub-preview-decision form { margin: 0; }
+.pub-preview-cancel {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fol-role-height-control);
+  font: 500 var(--fol-t-14)/1.3 var(--fol-font-sans);
+}
+body[data-published-state="private-preview"] .lp-journey { padding-bottom: var(--fol-s-3); }
+body[data-published-state="private-preview"] .pub-attribution-guide { margin-top: var(--fol-s-3); }
+.pub-preview-payload { margin-block-start: var(--fol-s-4); }
+.pub-preview-payload pre { max-height: 24rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.pub-mark {
+  width: 17px; height: 20px;
+  background: currentColor;
+  color: var(--fol-evergreen-700);
+  -webkit-mask: url("/mark-primary.svg") no-repeat center / contain;
+  mask: url("/mark-primary.svg") no-repeat center / contain;
+}
+
+.lp-publication-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .2rem var(--fol-s-4);
+}
+.lp-publication-note time { margin-left: .3em; }
+
+/* ==========================================================================
+   SUBJECT — the person, when the page was published, and how much is on it.
+
+   The two facts sit SIDE BY SIDE at the same size. "Published" is not smaller
+   than the claim count: a reader who cannot see the date is being invited to
+   assume the flattering answer about how current this is.
+   ========================================================================== */
+.pub-subject {
+  padding-bottom: var(--fol-s-6);
+  border-bottom: 1px solid var(--pub-hairline);
+}
+.pub-subject h1 {
+  margin: 0 0 var(--fol-s-5);
+  font: 400 var(--fol-t-40)/1.1 var(--fol-font-display);
+  letter-spacing: var(--fol-track-display);
+}
+.pub-facts { display: flex; flex-wrap: wrap; gap: var(--fol-s-6); }
+.pub-fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fol-s-2);
+  padding: var(--fol-s-3) var(--fol-s-4);
+  border: 1px solid var(--pub-rule);
+  border-radius: var(--fol-r-2);
+}
+.pub-fact .fol-metric {
+  font: 500 var(--fol-t-16)/1.3 var(--fol-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.pub-note {
+  color: var(--fol-ink-muted);
+  font-size: var(--fol-t-14);
+  line-height: 1.55;
+  margin: var(--fol-s-4) 0 0;
+}
+
+/* ==========================================================================
+   WORK — the leaflets that crossed.
+
+   The proof gate does not rank these cells. Only selected media changes their
+   geometry, because a screenshot needs more room than a title.
+   ========================================================================== */
+.pub-work h2,
+.pub-withheld h2,
+.pub-empty h2 {
+  margin: var(--fol-s-7) 0 0;
+  font: 400 var(--fol-t-25)/1.2 var(--fol-font-display);
+}
+.pub-list { list-style: none; margin: var(--fol-s-5) 0 0; padding: 0; }
+.pub-leaflet {
+  border: 1px solid var(--pub-hairline);
+  border-radius: var(--fol-r-2);
+  padding: var(--fol-s-4) var(--fol-s-5);
+  margin-bottom: var(--fol-s-4);
+}
+/* The shared compound leaf owns row placement; this surface owns the admitted document text. */
+.pub-work .lp-record { border: 0; border-radius: 0; padding: 0; margin: 0; }
+.pub-work .lp-panel > .pub-title { margin: 0; font: 400 var(--fol-t-32)/1.25 var(--fol-font-display); text-wrap: pretty; }
+.pub-work .lp-record-meta { margin-top: var(--fol-s-3); }
+.pub-work .lp-panel:has(.pub-work-media) > .pub-title { max-width:28ch; }
+.pub-work .lp-record-meta .lp-date { margin: 0; }
+.pub-work .lp-panel .pub-story-label { margin: var(--fol-s-4) 0 var(--fol-s-2); }
+.pub-work .lp-panel .pub-narrative { margin-block: var(--fol-s-4); }
+.pub-work .lp-panel .pub-paragraph-reference { font-size: var(--fol-t-13); }
+/* A published title without selected words or media needs a reading row, not an empty story-sized panel. */
+.pub-work .lp-portfolio .lp-record[data-published-content="title-only"] .lp-panel { --lp-panel-padding: var(--fol-s-4); }
+.pub-work .lp-portfolio .lp-record[data-published-content="title-only"] .lp-panel > .pub-title { font-size: var(--fol-t-25); line-height: 1.22; }
+.pub-work .lp-portfolio .lp-record[data-published-content="title-only"] .lp-record-meta { margin-top: var(--fol-s-2); }
+.pub-work .lp-portfolio .lp-record[data-published-content="title-only"] .lp-actions,
+.pub-work .lp-portfolio .lp-record[data-published-content="title-only"] .pub-evidence { margin-top: var(--fol-s-4); }
+/* Keep the attribution disclosure next to the shared work, even with the leaf mounted. */
+.pub-work .lp-journey { padding-bottom: var(--fol-s-3); }
+/* The document reads as work before the optional leaf script starts, and if it never starts. */
+.pub-work .lp-portfolio:is(.lp-fallback, .lp-no-webgl, :not(.lp-interactive)) .lp-journey { padding-bottom: 0; }
+.pub-work .lp-portfolio:is(.lp-fallback, .lp-no-webgl, :not(.lp-interactive)) .lp-journey::before,
+.pub-work .lp-portfolio:is(.lp-fallback, .lp-no-webgl, :not(.lp-interactive)) .lp-record::before,
+.pub-work .lp-portfolio:is(.lp-fallback, .lp-no-webgl, :not(.lp-interactive)) .lp-visual { display: none; }
+.pub-work .lp-portfolio:is(.lp-fallback, .lp-no-webgl, :not(.lp-interactive)) .lp-records {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 0;
+  padding: var(--fol-s-4) 0 0; pointer-events: auto;
+}
+.pub-work .lp-portfolio:is(.lp-fallback, .lp-no-webgl, :not(.lp-interactive)) .lp-record { display: block; min-width: 0; border-bottom:1px solid var(--pub-hairline); }
+.pub-work .lp-portfolio:is(.lp-fallback, .lp-no-webgl, :not(.lp-interactive)) .lp-panel { max-width: none; min-height: 0; padding:var(--fol-s-5) 0; border:0; border-radius:0; background:none; }
+@media (max-width: 760px) {
+  .pub-work .lp-portfolio:is(.lp-fallback, .lp-no-webgl, :not(.lp-interactive)) .lp-records { grid-template-columns: minmax(0, 1fr); }
+}
+/* Controls become available only after their behavior mounts. */
+.pub-work .lp-portfolio:not(.lp-interactive) .lp-view-options,
+.pub-work .lp-toolbar-actions button:disabled { display: none; }
+.pub-work .lp-portfolio:not(.lp-enhanced) .lp-source-legend { display: none; }
+@media (min-width: 1001px) {
+  .pub-work .lp-portfolio.lp-interactive:not(.lp-no-webgl) .lp-records:not(:has([data-reading-layout="linear"])) { column-gap: 6%; }
+  /* A selected, admitted image or demo is the work. Give every such record its full frame. */
+  .pub-work .lp-portfolio.lp-interactive:not(.lp-no-webgl) .lp-records:not(:has([data-reading-layout="linear"])) > .lp-record:has(.pub-photo img, .pub-demo video) { grid-column: 1 / -1; }
+}
+@media (min-width: 761px) and (max-width: 1000px) {
+  .pub-work .lp-portfolio.lp-interactive:not(.lp-no-webgl) .lp-record { grid-template-columns: minmax(0, 1fr) 12% minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .pub-work .lp-portfolio.lp-interactive:not(.lp-no-webgl) {
+    --lp-stem: 5%;
+    --portfolio-stem-position: .05;
+  }
+  .pub-work .lp-portfolio.lp-interactive:not(.lp-no-webgl) .lp-record { grid-template-columns: 11% minmax(0, 1fr); }
+  .pub-work .lp-portfolio.lp-interactive:not(.lp-no-webgl) .lp-record::before { left: 5%; width: 6%; }
+}
+/* controls.css adds shared shape only; this public surface supplies the semantic button face. */
+.pub-work .lp-toolbar button {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
+  padding: var(--fol-s-2) var(--fol-s-3); border: 1px solid var(--fol-role-edge-control);
+  border-radius: var(--fol-role-radius-control); background: transparent; color: var(--fol-role-fg);
+  font: 500 var(--fol-t-14)/1.35 var(--fol-font-sans); cursor: pointer;
+}
+.pub-work .lp-toolbar button:hover { background: var(--fol-role-panel-raised); }
+.pub-work .lp-toolbar button:focus-visible { outline: 2px solid var(--fol-role-focus); outline-offset: 3px; }
+.pub-work .lp-toolbar button:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .pub-work .lp-panel > .pub-title { font-size: var(--fol-t-25); }
+}
+@media (max-width: 640px) {
+  .pub-work .lp-portfolio .lp-record[data-published-content="title-only"] .lp-panel > .pub-title { font-size: var(--fol-t-20); }
+}
+.pub-title {
+  margin: 0;
+  font: 400 var(--fol-t-20)/1.35 var(--fol-font-sans);
+}
+/* Adjacent wording identifies redactions without decorative underlines. */
+.pub-redacted-note { margin-top: var(--fol-s-2); }
+
+.pub-prov {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fol-s-2) var(--fol-s-5);
+  margin: var(--fol-s-4) 0 0;
+}
+.pub-prov div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pub-prov dt { margin: 0; }
+.pub-prov dd {
+  margin: 0;
+  font: 400 var(--fol-t-13)/1.4 var(--fol-font-mono);
+  overflow-wrap: anywhere;
+}
+.pub-full-ref { margin-top: var(--fol-s-1); }
+.pub-full-ref summary { cursor: pointer; font: 500 var(--fol-t-13)/1.4 var(--fol-font-sans); }
+.pub-full-ref code { display: block; margin-top: var(--fol-s-1); overflow-wrap: anywhere; }
+
+/* ==========================================================================
+   EMPTY — nothing crossed, and that is a real answer.
+
+   Given the SAME weight as a page full of work rather than being tucked into a
+   note. On any machine that cannot check signatures this is the honest result,
+   and a design that whispered it would be inviting the reader to think
+   something failed.
+   ========================================================================== */
+.pub-empty {
+  border: 1px solid var(--pub-rule);
+  border-radius: var(--fol-r-2);
+  padding: var(--fol-s-5);
+  margin-top: var(--fol-s-6);
+}
+.pub-empty h2 { margin-top: 0; }
+.pub-empty p { margin: var(--fol-s-4) 0 0; font-size: var(--fol-t-15); }
+
+/* ==========================================================================
+   WITHHELD — what did not cross.
+
+   Sits ABOVE the footer and inside the reading measure, never in fine print. A
+   page that showed three claims and hid the sixty entries that did not cross
+   would be a page pretending to be a whole portfolio.
+   ========================================================================== */
+.pub-withheld { margin-top: var(--fol-s-7); }
+.pub-withheld-list { list-style: none; margin: var(--fol-s-4) 0 0; padding: 0; }
+.pub-withheld-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--fol-s-4);
+  padding: var(--fol-s-2) 0;
+  border-bottom: 1px solid var(--pub-hairline);
+}
+.pub-withheld-row .fol-metric {
+  font: 500 var(--fol-t-16)/1 var(--fol-font-mono);
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+  text-align: right;
+}
+
+/* ==========================================================================
+   SOURCE — when, and from what.
+   ========================================================================== */
+.pub-source {
+  margin-top: var(--fol-s-8);
+  padding-top: var(--fol-s-5);
+  border-top: 1px solid var(--pub-hairline);
+  font-size: var(--fol-t-13);
+  color: var(--fol-ink-muted);
+}
+.pub-source p { margin: 0 0 var(--fol-s-3); }
+.pub-source .fol-metric {
+  font-family: var(--fol-font-mono);
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   FAILURE STATES — seven causes, one treatment, no cause dressed as another.
+   ========================================================================== */
+.pub-fail { padding-top: var(--fol-s-6); }
+.pub-fail > .fol-label { display: block; margin-bottom: var(--fol-s-2); }
+.pub-fail h1 {
+  margin: 0 0 var(--fol-s-5);
+  font: 400 var(--fol-t-31)/1.15 var(--fol-font-display);
+  letter-spacing: var(--fol-track-display);
+}
+.pub-fail p { margin: 0 0 var(--fol-s-4); }
+.pub-fail .fol-metric { font-family: var(--fol-font-mono); overflow-wrap: anywhere; }
+
+/* Same sprite positioning as the shared application shell, without inline CSS. */
+.fol-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* The published reader keeps its paper face and gains the shared leaf curves. */
+.pub-fact,.pub-note,.pub-source{border-radius:var(--fol-shape-panel) var(--fol-shape-tip)}
+.pub-subject h1{font-variation-settings:"opsz" 60,"SOFT" 45,"WONK" 0}
+
+/* The narrative is a readable document, with references available beside each claim. */
+.pub-leaflet{border-radius:var(--fol-shape-panel) var(--fol-shape-tip);overflow-wrap:anywhere}
+.pub-narrative{max-width:68ch;margin:var(--fol-s-5) 0;padding-left:0;border-left:0}
+.pub-narrative>.fol-label{margin-bottom:var(--fol-s-2)}
+.pub-context-note{font-size:var(--fol-t-13);color:var(--fol-ink-muted);max-width:60ch;margin:var(--fol-s-3) 0 0}
+.pub-paragraph{padding:var(--fol-s-3) 0}
+.pub-paragraph+.pub-paragraph{border-top:0}
+.pub-paragraph-text{font-size:var(--fol-t-20);line-height:1.75;white-space:pre-wrap;margin:0 0 var(--fol-s-3);text-wrap:pretty}
+.pub-story-label{font:500 var(--fol-t-13)/1.5 var(--fol-font-sans);color:var(--fol-ink-muted);margin:0 0 var(--fol-s-2)}
+.pub-paragraph-reference{font-size:var(--fol-t-13);color:var(--fol-ink-muted)}
+.pub-paragraph-reference summary{cursor:pointer;min-height:44px;display:list-item;padding-block:var(--fol-s-2)}
+.pub-paragraph-reference .pub-prov{margin-top:var(--fol-s-3)}
+ .pub-paragraph-reference summary:focus-visible{outline:2px solid var(--fol-text);outline-offset:3px;border-radius:var(--fol-shape-tip)}
+@media(max-width:640px){.pub-paragraph-text{font-size:var(--fol-t-16)}}
+
+/* Canonical Leaf: an editorial specimen and source branches, using published fields only. */
+.pub-head { padding-block: var(--fol-s-5); }
+.pub-subject { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .85fr); gap: var(--fol-s-6) var(--fol-s-7); align-items: center; padding-top: var(--fol-s-6); }
+.pub-subject-copy > .fol-label { display: block; margin-bottom: var(--fol-s-4); }
+.pub-subject h1 { font-size: clamp(var(--fol-t-32), 5.5vw, var(--fol-t-63)); line-height: 1.05; text-wrap: balance; overflow-wrap: anywhere; }
+.pub-lede { font-size: var(--fol-t-20); line-height: 1.6; color: var(--fol-ink-muted); max-width: 32ch; }
+.pub-explore { display: inline-flex; align-items: center; gap: var(--fol-s-4); min-height: 44px; padding-block: var(--fol-s-3); color: var(--fol-ink); }
+.pub-specimen { margin: 0; min-width: 0; }
+.pub-specimen img { display: block; width: 100%; height: auto; border: 1px solid var(--pub-hairline); border-radius: var(--fol-shape-sheet) var(--fol-shape-tip); }
+.pub-specimen figcaption { margin-top: var(--fol-s-2); font-size: var(--fol-t-13); color: var(--fol-ink-muted); }
+.pub-facts { grid-column: 1 / -1; border-top: 1px solid var(--pub-hairline); gap: var(--fol-s-7); padding-block: var(--fol-s-4); }
+.pub-fact { border: 0; border-radius: 0; padding: 0; min-width: 0; }
+.pub-frond { list-style: none; position: relative; margin: var(--fol-s-6) 0 0; padding: 0 0 0 var(--fol-s-6); border-left: 1px solid var(--pub-hairline); }
+.pub-pinna { position: relative; margin-bottom: var(--fol-s-7); min-width: 0; }
+.pub-pinna::before { content: ""; position: absolute; left: calc(-1 * var(--fol-s-6)); top: var(--fol-s-4); width: var(--fol-s-5); height: var(--fol-s-4); border-left: 1px solid var(--pub-hairline); border-bottom: 1px solid var(--pub-hairline); border-bottom-left-radius: var(--fol-s-4); }
+.pub-source-label { display: grid; gap: var(--fol-s-1); overflow-wrap: anywhere; }
+.pub-source-label strong { font-weight: 550; }
+.pub-pinna .pub-list { margin-left: var(--fol-s-2); padding-left: var(--fol-s-5); border-left: 1px solid var(--pub-hairline); }
+.pub-pinna .pub-leaflet { position: relative; padding: var(--fol-s-6); margin-bottom: var(--fol-s-6); border-radius: var(--fol-shape-tip) var(--fol-shape-sheet); background: var(--fol-paper); }
+.pub-pinna .pub-leaflet::before { content: ""; position: absolute; left: calc(-1 * var(--fol-s-5) - 1px); top: var(--fol-s-5); width: var(--fol-s-5); height: var(--fol-s-3); border-left: 1px solid var(--pub-hairline); border-bottom: 1px solid var(--pub-hairline); border-bottom-left-radius: var(--fol-s-3); }
+.pub-work .pub-leaflet > .pub-title { margin: 0; font: 400 var(--fol-t-32)/1.3 var(--fol-font-display); max-width: 36ch; text-wrap: pretty; }
+.pub-prov { overflow-wrap: anywhere; }
+.pub-work-intro { max-width: 60ch; color: var(--fol-ink-muted); margin: var(--fol-s-3) 0 0; }
+.pub-evidence { margin-top: var(--fol-s-5); border-top: 1px solid var(--pub-hairline); font-size: var(--fol-t-13); color: var(--fol-ink-muted); }
+.pub-evidence > summary { display: flex; flex-wrap: wrap; align-items: center; gap: var(--fol-s-3); min-height: 44px; padding-block: var(--fol-s-3); cursor: pointer; }
+.pub-evidence > summary::before { content: "+"; font: 400 var(--fol-t-16)/1 var(--fol-font-mono); }
+.pub-evidence[open] > summary::before { content: "−"; }
+.pub-evidence .pub-tier { margin-left: auto; }
+.pub-evidence .proof { display: inline-flex; align-items: center; gap: var(--fol-s-2); font: 500 var(--fol-t-11)/1.2 var(--fol-font-mono); }
+.pub-evidence .ico { width: 14px; height: 14px; flex: none; fill: currentColor; }
+.pub-evidence .pub-prov { margin-top: var(--fol-s-2); padding-bottom: var(--fol-s-3); }
+.pub-attribution-guide { margin-top: var(--fol-s-5); color: var(--fol-ink-muted); font-size: var(--fol-t-13); }
+.pub-attribution-guide summary { cursor: pointer; min-height: 44px; padding-block: var(--fol-s-3); }
+@media (max-width: 640px) {
+  .pub-subject { grid-template-columns: 1fr; gap: var(--fol-s-5); padding-top: var(--fol-s-4); }
+  .pub-specimen { grid-row: 2; }
+  .pub-frond { padding-left: var(--fol-s-5); }
+  .pub-pinna::before { left: calc(-1 * var(--fol-s-5)); width: var(--fol-s-4); }
+  .pub-pinna .pub-list { margin-left: 0; padding-left: var(--fol-s-4); }
+  .pub-pinna .pub-leaflet { padding: var(--fol-s-4); }
+  .pub-pinna .pub-leaflet::before { left: calc(-1 * var(--fol-s-4) - 1px); width: var(--fol-s-4); }
+  .pub-work .pub-leaflet > .pub-title { font-size: var(--fol-t-25); }
+}
+
+.pub-publication-detail { margin-top: var(--fol-s-6); border-top: 1px solid var(--pub-hairline); }
+.pub-publication-detail > summary { min-height: 44px; padding-block: var(--fol-s-4); cursor: pointer; color: var(--fol-ink-muted); }
+.pub-publication-detail .pub-withheld h2 { margin-top: var(--fol-s-4); }
+.pub-leaflet-back { padding-block: var(--fol-s-3); border-bottom: 1px solid var(--pub-hairline); font-size: var(--fol-t-13); }
+.pub-leaflet-detail { margin-top: var(--fol-s-6); }
+.pub-leaflet-detail .lp-records { display: block; padding: 0; pointer-events: auto; }
+.pub-leaflet-detail .lp-record { display: block; padding: 0; }
+.pub-leaflet-detail .lp-record::before { display: none; }
+.pub-leaflet-detail .lp-panel { max-width: 56rem; padding: 0; border: 0; background: transparent; }
+.pub-leaflet-detail .lp-panel > .pub-title { max-width:22ch; }
+.pub-leaflet-detail .lp-panel > .pub-title { font-size: var(--fol-t-40); }
+.pub-leaflet-detail [data-standing="outward"] { max-width: 42rem; margin-top: var(--fol-s-4); color: var(--fol-ink-muted); font-size: var(--fol-t-13); line-height: 1.5; }
+@media (max-width: 640px) { .pub-leaflet-detail .lp-panel > .pub-title { font-size: var(--fol-t-32); } }
+.pub-empty { max-width: 65ch; }
+.pub-photos{display:grid;gap:var(--fol-s-3);margin-block:var(--fol-s-4)}
+.pub-photo{min-width:0;margin:0}
+.pub-photo img{display:block;width:100%;height:auto;max-height:36rem;object-fit:contain;background:var(--fol-paper-sunk);border:1px solid var(--pub-hairline)}
+.pub-photo figcaption{margin-top:var(--fol-s-2);font-size:var(--fol-t-14);color:var(--fol-ink-muted)}
+.pub-photo details{margin-top:var(--fol-s-2);font-size:var(--fol-t-13);overflow-wrap:anywhere}
+.pub-work-media { display: grid; gap: var(--fol-s-4); margin-block: var(--fol-s-4) 0; min-width: 0; }
+.pub-work-media + .lp-record-meta { padding-block:var(--fol-s-3); border-bottom:1px solid var(--pub-hairline); }
+.pub-work-media .pub-photos { margin: 0; }
+.pub-demos { display: grid; gap: var(--fol-s-4); min-width: 0; }
+.pub-demo { min-width: 0; margin: 0; }
+.pub-demo video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  max-height: 38rem;
+  object-fit: contain;
+  background: var(--fol-paper-sunk);
+  border: 1px solid var(--pub-hairline);
+}
+.pub-demo video:focus-visible { outline: 2px solid var(--fol-ink); outline-offset: 3px; }
+.pub-demo figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--fol-s-2);
+  margin-top: var(--fol-s-2);
+  color: var(--fol-ink-muted);
+  font: 500 var(--fol-t-14)/1.4 var(--fol-font-sans);
+}
+.pub-leaflet-detail .pub-demo video { aspect-ratio:auto; max-height:52rem; }
+.pub-demo details { margin-top: var(--fol-s-2); font-size: var(--fol-t-13); overflow-wrap: anywhere; }
+.pub-demo-print { display: none; }
+.pub-demo-unavailable { margin: 0; color: var(--fol-ink-muted); font-size: var(--fol-t-14); }
+@media print {
+  .pub-demo video { display: none; }
+  .pub-demo-print { display: block; max-width: 100%; max-height: 28rem; object-fit: contain; }
+}

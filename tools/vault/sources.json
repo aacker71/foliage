@@ -1,0 +1,16 @@
+{
+  "$comment": [
+    "Declared vault sources for the retrieval layer. Roots are ~-relative (expanded by",
+    "build.mjs at the one place this file is read) so the committed file names no absolute",
+    "home directory; the built index is derived and .vault/ is gitignored.",
+    "",
+    "graphify owns the CODE graph (AST, free). This owns the DOCUMENT graph, where graphify's",
+    "free path extracts nothing and its document path would need LLM extraction. The edges here",
+    "are hand-authored [[wikilinks]], read rather than inferred, at zero token cost."
+  ],
+  "sources": [
+    { "name": "brain",   "root": "~/brain" },
+    { "name": "memory",  "root": "~/.claude/projects/-Users-alex-Documents-GitHub/memory" },
+    { "name": "devloop", "root": "~/Documents/GitHub/.dev-loop" }
+  ]
+}

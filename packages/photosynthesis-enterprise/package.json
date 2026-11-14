@@ -1,0 +1,15 @@
+{
+  "name": "@foliage/photosynthesis-enterprise",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "Photosynthesis at organizational scale: artifacts whose subject is a person, team, organization or company, reviewed by a named actor and released only through the company policy machine. Proprietary.",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p tsconfig.json" },
+  "dependencies": {
+    "@foliage/enterprise-policy": "workspace:*",
+    "@foliage/photosynthesis": "workspace:*",
+    "@foliage/leaf": "workspace:*"
+  }
+}

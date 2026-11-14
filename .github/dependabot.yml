@@ -1,0 +1,26 @@
+version: 2
+
+# Version updates only. Security alerts and security-update PRs are repository settings, not this
+# file; nothing here turns them on.
+#
+# Every merge to main deploys getfoliage.com and app.getfoliage.com, so these PRs are proposals for
+# review; nothing here merges them. Minor and patch bumps arrive as one grouped PR; a major arrives
+# alone, because a major is a migration and deserves its own review. CI tests these PRs on GitHub's
+# runners only; ci.yml keeps them off the owner's self-hosted mac.
+#
+# No npm entry: Dependabot's npm updater runs only on Node 24 and refuses a workspace pinned to
+# Node 22 (.nvmrc, apps/canopy `engines`, the Vercel runtime), so every weekly npm update failed.
+# Add it back, with a cooldown of at least pnpm-workspace.yaml's `minimumReleaseAge`, in the change
+# that moves the workspace to Node 24. tools/development/config.test.mjs holds both rules.
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 2
+    cooldown:
+      default-days: 3
+    groups:
+      actions-minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]

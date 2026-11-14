@@ -1,0 +1,48 @@
+{
+  "name": "@foliage/leaf-app",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "Self-hostable personal Leaf with themed application controls and local assistant MCP.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.mjs",
+    "start": "node server.mjs",
+    "import:observations": "node import-observations.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p workflow-ui/tsconfig.json",
+    "workflow:build": "bun workflow-ui/build.ts",
+    "explore:build": "node build-compound.mjs",
+    "assistant:mcp": "node assistant-mcp.mjs",
+    "import:portfolio": "node import-portfolio.mjs"
+  },
+  "dependencies": {
+    "@foliage/leaf": "workspace:*",
+    "@foliage/photosynthesis": "workspace:*",
+    "@foliage/tokens": "workspace:*",
+    "@foliage/ui": "workspace:*",
+    "@modelcontextprotocol/server": "2.0.0",
+    "@typesafe-ai/sdk": "0.6.0",
+    "three": "0.185.1",
+    "zod": "^4.4.3"
+  },
+  "exports": {
+    "./jevPoolDecision": "./src/jevPoolDecision.ts",
+    "./integrationStore": "./src/integrationStore.ts",
+    "./leafletRevision": "./src/leafletRevision.ts",
+    "./workflowTransfer": "./src/workflowTransfer.ts",
+    "./journeyCollaboration": "./src/journeyCollaboration.ts",
+    "./leafDocument": "./src/leafDocument.ts",
+    "./policyDocument": "./src/policyDocument.ts",
+    "./render": "./src/render.ts",
+    "./mediaStore": "./src/mediaStore.ts",
+    "./videoStore": "./src/videoStore.ts",
+    "./workflowJevMarks": "./src/workflowJevMarks.ts"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
+}

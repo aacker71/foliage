@@ -1,0 +1,42 @@
+/* Import composition. Control behavior and visual values belong to the shared UI. */
+.fol-skip { position:fixed; top:-100px; left:var(--fol-s-4); z-index:40; min-height:44px; padding:var(--fol-s-3); background:var(--fol-surface-raised); color:var(--fol-text); }
+.fol-skip:focus { top:var(--fol-s-3); }
+.import-workspace { max-width:52rem; }
+.import-workspace .work-heading { margin-bottom:var(--fol-s-6); }
+.import-workspace h1 { margin:0; }
+.import-workspace h2 { font:400 var(--fol-t-25)/1.3 var(--fol-font-display); margin:0 0 var(--fol-s-3); }
+.import-workspace a { text-decoration:none; }
+.import-workspace .work-help { color:var(--fol-text-muted); font-size:var(--fol-t-13); }
+.portfolio-import-form { display:grid; gap:var(--fol-s-2); }
+.portfolio-import-form label { font-size:var(--fol-t-14); }
+.portfolio-import-form input { width:100%; }
+.portfolio-import-form textarea { min-height:12rem; }
+.import-upload { padding-bottom:var(--fol-s-4); margin-bottom:var(--fol-s-3); border-bottom:1px solid var(--fol-border); }
+.import-upload-label { margin:0 0 var(--fol-s-3); font-size:var(--fol-t-14); }
+.import-file-picker { display:flex; align-items:center; flex-wrap:wrap; gap:var(--fol-s-3); }
+.import-file-control { position:relative; display:inline-flex; align-items:center; min-height:var(--fol-role-height-control); padding-inline:var(--fol-s-4); border:1px solid var(--fol-role-edge-control); border-radius:var(--fol-role-radius-control); color:var(--fol-text); background:var(--fol-surface); cursor:pointer; white-space:nowrap; }
+.import-file-control:hover { background:var(--fol-surface-raised); }
+.import-file-control:focus-within { outline:2px solid var(--fol-role-focus); outline-offset:3px; }
+.fol-app .import-file-control .import-file-native { position:absolute; inset:0; width:100%; height:100%; min-height:0; margin:0; padding:0; border:0; opacity:0; cursor:pointer; }
+.import-file-picker #import-file-name { min-width:0; overflow-wrap:anywhere; }
+.import-upload p:empty { display:none; }
+.import-metadata { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--fol-s-4); margin-block:var(--fol-s-3); }
+.import-metadata label { display:block; margin-bottom:var(--fol-s-2); }
+.import-actions { display:flex; align-items:center; flex-wrap:wrap; gap:var(--fol-s-4); margin-top:var(--fol-s-4); }
+.import-subject { flex:1 0 100%; min-width:0; }
+.import-subject label { display:block; margin-bottom:var(--fol-s-2); }
+.import-subject input { width:100%; max-width:28rem; }
+.import-original { margin-bottom:var(--fol-s-5); border-block:1px solid var(--fol-border); }
+.import-original>summary { min-height:44px; align-content:center; font-size:var(--fol-t-14); }
+.import-original .portfolio-import-form { padding-block:var(--fol-s-4); }
+.import-review-heading p { color:var(--fol-text-muted); margin:0 0 var(--fol-s-4); overflow-wrap:anywhere; }
+.import-sections details { border-bottom:1px solid var(--fol-border); padding-block:var(--fol-s-3); }
+.import-sections summary { min-height:44px; align-content:center; font:400 var(--fol-t-20)/1.4 var(--fol-font-display); overflow-wrap:anywhere; cursor:pointer; }
+.import-sections p { white-space:pre-wrap; font-size:var(--fol-t-16); line-height:1.75; margin:var(--fol-s-2) 0 var(--fol-s-4); padding-left:var(--fol-s-4); overflow-wrap:anywhere; }
+.import-error { margin-bottom:var(--fol-s-5); }
+.import-receipt p { max-width:65ch; line-height:1.6; }
+.import-receipt a { display:inline-flex; align-items:center; min-height:44px; margin:var(--fol-s-4) var(--fol-s-4) 0 0; }
+.import-review-link { padding:var(--fol-s-2) var(--fol-s-4); background:var(--fol-role-action); color:var(--fol-role-action-fg); border-radius:var(--fol-role-radius-control); }
+.import-workspace :focus-visible { outline:2px solid var(--fol-text); outline-offset:4px; }
+.fol-app .import-guidance:focus-visible, .fol-app .import-receipt:focus-visible { outline:none; }
+@media(max-width:640px) { .import-metadata { grid-template-columns:minmax(0,1fr); } }

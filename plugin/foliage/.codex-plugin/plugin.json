@@ -1,0 +1,25 @@
+{
+  "name": "foliage",
+  "version": "0.2.0+codex.20260922050911",
+  "description": "Photosynthesis maintains an evidence-backed private portfolio and live r\u00e9sum\u00e9 from selected work.",
+  "author": {
+    "name": "Alex A"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Photosynthesis \u00b7 Foliage",
+    "shortDescription": "Keep your work, portfolio and r\u00e9sum\u00e9 connected.",
+    "longDescription": "Collect selected work and maintain cited achievements using the shared Foliage runtime. Private portfolio and r\u00e9sum\u00e9 follow the same saved statements. Publication remains separately authorized.",
+    "developerName": "Foliage",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Update my portfolio and r\u00e9sum\u00e9 from my selected work.",
+      "Show which achievement statements need evidence.",
+      "Connect new work to my existing achievements."
+    ]
+  }
+}

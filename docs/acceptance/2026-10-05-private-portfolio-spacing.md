@@ -1,0 +1,18 @@
+# Private portfolio spacing — 5 October 2026
+
+The owner reader now pairs actual work at tablet and desktop widths with a 12% stem lane. Its phone layout remains one column. This is local visual evidence, not an installer, publication, or live-owner acceptance.
+
+The disposable Leaf came from this repository's real Git intake. Four owner-selected pending-attribution records were commit `29c8034` (Start scene tabs), `b5809bf` (statement-support browser evidence), `86390d5` (cited-work entry), and `d700d9c` (Canopy public reader screenshots). Titles and refs came from those commits; no result, impact, proof tier, or endorsement was invented. The fixture lived outside the repository and was not published.
+
+At true 1280 px, the old 22% lane consumed 210 px of a 955 px reading area, leaving 372 px cards. The 12% lane leaves 420 px cards with the stem centered between them. Private card rhythm also drops the first card from 371 px to 327 px by tightening panel padding and gaps between Evidence, Open and More; their hit areas remain at least 44 px. The desktop *before* capture applied the pre-change 22% value inline to the same document; it is a visual baseline, not a separate branch deployment. At 768 px, the old layout alternated 294 px cards in separate rows; the new paired layout gives each card 324 px and reduces the first card from 339 px to 319 px tall. At 375 px the cards remain one column and the first card is 315 px tall. `documentElement.scrollWidth` never exceeded `innerWidth` at 375, 768, or 1280 px. In the real browser at 768 px, the reader had `lp-enhanced`, `portfolioReady=true`, four leaf blades, and a visible center stem after the layout change; no page-scoped console errors appeared.
+
+The paired private reader's shared journey padding left the center stem running 80 px below the last card. A private-only rule now removes that 64 px bottom padding and ends the fallback stem 16 px above the journey edge, level with the final card after the record inset. True-width measurements at 768 and 1280 px put the last card 16 px above the journey edge, with zero visible stem beyond it. The 375 px single-column rule is untouched. Final measurements kept the paired cards at 324/420 px wide and 319/327 px tall, with no horizontal overflow and controls at least 44 px high. At 768 px, a visible canvas and enabled Pause motion control confirmed the enhanced moving leaf still initialized.
+
+The captures use gstack `/browse` Chromium at the actual viewport dimensions because Aside's emulated screenshots tiled its fixed browser surface. Image dimensions were checked after saving.
+
+- [Desktop before, 1280 × 900](screenshots/2026-10-05-private-portfolio-before-1280.png) · [Desktop after, 1280 × 900](screenshots/2026-10-05-private-portfolio-after-1280.png)
+- [Tablet before, 768 × 1024](screenshots/2026-10-05-private-portfolio-before-768.png) · [Tablet after, 768 × 1024](screenshots/2026-10-05-private-portfolio-after-768.png)
+- [Phone after, 375 × 812](screenshots/2026-10-05-private-portfolio-after-375.png)
+- [Final stem at 1280 × 900](screenshots/2026-10-05-private-portfolio-stem-1280.png) · [Final stem at 768 × 1024](screenshots/2026-10-05-private-portfolio-stem-768.png) · [Phone unchanged at 375 × 812](screenshots/2026-10-05-private-portfolio-stem-375.png)
+
+The screenshots were captured in the headless fallback, which did not show the animated WebGL leaf itself. The separate real-browser state above verifies that motion initialized with four blades. Keyboard and reduced-motion behavior were not independently rechecked in this bounded spacing pass.

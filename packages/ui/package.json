@@ -1,0 +1,53 @@
+{
+  "name": "@foliage/ui",
+  "license": "MIT",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./button": "./src/button.ts",
+    "./action-row": "./src/action-row.tsx",
+    "./action-row.css": "./src/action-row.css",
+    "./input": "./src/input.tsx",
+    "./checkbox": "./src/checkbox.tsx",
+    "./textarea": "./src/textarea.ts",
+    "./label": "./src/label.tsx",
+    "./select": "./src/select.tsx",
+    "./field": "./src/field.tsx",
+    "./empty-state": "./src/empty-state.ts",
+    "./empty-state.css": "./src/empty-state.css",
+    "./feedback-notice": "./src/feedback-notice.ts",
+    "./tabs": "./src/tabs.tsx",
+    "./alert-dialog": "./src/alert-dialog.tsx",
+    "./blur-fade": "./src/blur-fade.tsx",
+    "./controls.css": "./src/controls.css",
+    "./portfolio": "./src/portfolio.ts",
+    "./person-portfolio": "./src/person-portfolio.ts",
+    "./portfolio.css": "./src/portfolio.css",
+    "./portfolio-leaf": "./src/portfolio-leaf.mjs",
+    "./portfolio-leaf.css": "./src/portfolio-leaf.css",
+    "./portfolio-leaf-bundle": "./src/portfolio-leaf-bundle.ts",
+    "./portfolio-leaf.bundle.js": "./build/portfolio-leaf.bundle.js",
+    "./toggle-group": "./src/toggle-group.tsx",
+    "./workspace-header": "./src/workspace-header.ts",
+    "./workspace.css": "./src/workspace.css"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.2.2",
+    "motion": "^13.1.1",
+    "radix-ui": "^1.6.7",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "portfolio:build": "node build-portfolio-leaf.mjs"
+  }
+}

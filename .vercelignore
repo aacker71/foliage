@@ -1,0 +1,16 @@
+# Local agent state may contain browser sessions, private observations and control tokens.
+.gstack
+.claude
+.codex
+.agents
+.loop
+.mcp.json
+**/.mcp.json
+.env*
+**/.env*
+supabase/.temp
+# Local evidence is selected and published through Canopy, never uploaded as source.
+apps/leaf/media
+apps/leaf/leaf.json
+apps/leaf/harvest.json
+apps/leaf/policy.json

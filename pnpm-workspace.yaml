@@ -1,0 +1,15 @@
+allowBuilds:
+  # Native resolver for the website eslint-config-next; all other install scripts remain disabled.
+  unrs-resolver: true
+
+# Supply-chain hardening carried forward from the previous repo: refuse any
+# package version published less than 3 days ago, so a compromised release has
+# time to be caught before it can enter a build here.
+minimumReleaseAge: 4320
+
+# Refuse unsupported runtimes during installation instead of only warning.
+engineStrict: true
+
+packages:
+  - "apps/*"
+  - "packages/*"

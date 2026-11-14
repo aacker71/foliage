@@ -1,0 +1,10 @@
+{
+  "name": "@foliage/leaf",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "The compound leaf: one person's portfolio and the leaflets of evidence it is composed of. Open source.",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts", "./intake": "./src/intake.ts", "./git-log-export": "./src/gitLogExport.ts", "./local-files": "./src/localFiles.ts", "./git-source": "./src/gitSource.ts", "./bound-authorities": "./src/boundAuthorities.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p tsconfig.json" }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@foliage/dashboard-app",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "The local personal app \u2014 ONE loopback dashboard that composes the leaf renderer and the attribution review into a single port. Open source, with server-rendered controls from @foliage/ui.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./csrf": "./src/csrf.ts"
+  },
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@foliage/leaf-app": "workspace:*",
+    "@foliage/photosynthesis-app": "workspace:*",
+    "@foliage/tokens": "workspace:*",
+    "@foliage/ui": "workspace:*"
+  }
+}

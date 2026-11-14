@@ -1,0 +1,122 @@
+{
+  "$comment": [
+    "The licensing boundary, declared as data so it can be MECHANICALLY enforced.",
+    "",
+    "The business model is open core: the compound leaf is open source, and revenue comes from",
+    "hosting the canopy and from the Enterprise plane. That makes three planes, not two \u2014 and",
+    "the distinction is about LICENCE, not merely file visibility, which is why this file does",
+    "not say 'public' and 'private'.",
+    "",
+    "  open        Published under the project's open-source licence. The COMPOUND LEAF \u2014 one",
+    "              person's portfolio and the leaflets of evidence it is composed of. A leaf",
+    "              belongs to the person it describes, so they can read, run, fork and",
+    "              self-host it without asking anyone. A privacy guarantee you cannot inspect",
+    "              is only a promise; this is the part that makes it checkable.",
+    "              The open set MUST stand alone: a fork holding only these packages has to be",
+    "              a working product, or the 'open source' claim is marketing rather than fact.",
+    "",
+    "  cloud       The hosted service. Proprietary. THE GATE A PERSON PREPARES AT: the",
+    "              surface where someone decides, strategically and over time, which of",
+    "              their work is ready to be seen, and gathers many people's leaves into",
+    "              trees and a browsable canopy. Tenancy, indexing, discovery,",
+    "              provisioning, billing and egress are how that is served \u2014 they are not",
+    "              what it IS. The distinction matters: crossing this boundary licenses",
+    "              exactly ONE new call, a person's own artifact reaching the service they",
+    "              chose. It does NOT license third-party calls. A published leaf makes",
+    "              zero of those, the same as a local one \u2014 a portfolio that leaks its",
+    "              readers to a tracker breaks the promise the open plane keeps, and a",
+    "              visitor to someone's leaf consented to nothing. This is the product",
+    "              being sold.",
+    "",
+    "  enterprise  Proprietary and licensed to customers: internal portfolios for individuals,",
+    "              teams and organizations, plus the company policy governing outward release.",
+    "",
+    "THE RULE, enforced by scripts/check-public-boundary.mjs: nothing in `open` may reach",
+    "anything outside `open`, via a declared dependency or a source import. `cloud` and",
+    "`enterprise` may freely depend on `open` \u2014 that direction is the whole point of open core.",
+    "",
+    "This is also the product principle 'no server holds both sides' made checkable: the leaf is",
+    "yours, the canopy is the service, and the code cannot quietly blur them.",
+    "",
+    "Adding a package to `open` is a deliberate, reviewable act \u2014 it is a promise that the code",
+    "will be published under a licence that cannot later be withdrawn from anyone who has it."
+  ],
+  "planes": {
+    "open": [
+      "@foliage/tokens",
+      "@foliage/ui",
+      "@foliage/leaf",
+      "@foliage/photosynthesis",
+      "@foliage/leaf-app",
+      "@foliage/photosynthesis-app",
+      "@foliage/dashboard-app",
+      "@foliage/cos",
+      "@foliage/cos-app"
+    ],
+    "cloud": [
+      "@foliage/canopy",
+      "@foliage/canopy-app",
+      "@foliage/escalated-inference",
+      "@foliage/www"
+    ],
+    "enterprise": [
+      "@foliage/enterprise-policy",
+      "@foliage/photosynthesis-enterprise",
+      "@foliage/enterprise-app"
+    ]
+  },
+  "$egressComment": [
+    "WHICH HOSTS A PLANE'S CODE MAY NAME, enforced by scripts/check-egress.mjs.",
+    "",
+    "This block exists because the licensing gate above and the principle it protects had drifted",
+    "apart with nothing to notice. check-public-boundary.mjs enforces IMPORT TOPOLOGY, and says so",
+    "in its own header: 'It cannot see a runtime fetch to a private URL.' The principle it was",
+    "written to protect is EGRESS. `@foliage/cos-app` is the first package where the difference",
+    "shows: it sits in `open`, it names a third-party production host, and the gate passes over it.",
+    "",
+    "A merge analysis on 2026-08-20 found that question \u2014 'is @foliage/cos open-plane?' \u2014 hidden",
+    "inside a file that merges with ZERO conflicts, which meant it was about to be decided by",
+    "whoever resolved first. Declaring the host here is what turns it back into a decision someone",
+    "made, in a file a reviewer reads, that a gate checks.",
+    "",
+    "A host that CANNOT reach a third party is not egress and is not declared: RFC 2606 / RFC 6761",
+    "reserved names (.example, .invalid, .test, .localhost), loopback in every spelling, and private",
+    "ranges. This tree's refusal tests use those on purpose."
+  ],
+  "egress": {
+    "open": {
+      "api.typesafe.ai": "Explicitly authorized TypeSafe decisions through apps/leaf/src/jevTransport.ts. Existing owner-invoked statement support binds a same-origin POST and selected-excerpt consent to the current document digest. The shared pool operation binds exact selected text, purpose, criteria, existing context and subject/caller/pool/document/policy identity to a transfer digest; only the selected texts and decision criteria go to the fixed /v1/systemone endpoint. Metadata identifiers, source paths and unselected records are omitted. Photosynthesis repository-title selection now uses source-bound revocable grants and private receipts in the existing workflow file; loopback same-origin actions grant/revoke. Each 30-second timer pass while the schedule runs outside quiet hours (at most three new checks), or the owner's Retry from /review, may send the commit titles of open git drafts in the review queue (harvest.json) of the granted checkout's repository, whichever enabled checkout collected them, plus as context the commit titles of up to eight approved candidates of the same prefix, under a fixed policy (version 2). Reviewer titles, refs, shas, paths and emails stay local. Grants never authorize Scarlet. Legacy journey grants and history remain stored, but server startup no longer connects Scarlet or invokes journey maintenance on its timer. No journey-maintenance transfer or direct save is scheduled by the server. The pending-suggestion maintainer runs only after Scarlet's same-origin owner POST, with an active selected-record grant, connected session, current collection schedule outside quiet hours and a compare-and-swap pending receipt before any provider call. It never runs on GET, startup or the collector timer. TypeSafe receives only selected retained evidence, current statement context and a hashed subject identifier. Scarlet highlight checks (apps/leaf/src/jevHighlights.ts) are owner-invoked per request: a same-origin POST with a named consent box sends, for each highlight Scarlet proposed and the owner is reviewing, that leaflet's title and excerpts plus the journey's statement texts as context, under a fixed policy (version 1); journey, leaflet and citation ids stay local, and the mark is advice beside the proposal, never an action. Hosted multi-user Scarlet authority remains pending; a digest alone is not an authorization system. Redirects and transport retries are refused, responses bounded, credentials server-side. No request on GET or from public readers. Missing/stale evidence is handled locally; local collection and portfolio authoring work without the provider. A model interpretation cannot alter evidence, attribution, consent or publication. Provider retention is not claimed.",
+      "api.fireworks.ai": "Tier 3 escalated inference (docs/PRODUCT-ARCHITECTURE-SPEC.md \u00a73). OWNER DECISION, RECORDED RATHER THAN ASSUMED \u2014 delete this line and the gate goes red, which is the correct way to disagree with it. Why it is defensible in `open`: the plane's no-third-party rule is written about a PUBLISHED LEAF and its readers \u2014 'a visitor to someone's leaf consented to nothing'. Current owner-invoked calls run on the subject's machine with a configured credential; no reader is involved. The pending-suggestion journey maintainer sends the subject name, existing journey statement text and selected retained evidence only after a same-origin owner POST under a subject-specific grant, connected Scarlet session and active schedule. A stored grant alone never starts a transfer. Three things make it checkable rather than a promise: the open set STANDS ALONE without it (no credential -> the router still classifies and the deterministic floor still answers, verified 2026-08-19); nothing reaches it that the egress plan did not admit BY ID; and the hop gate refuses a redirect, so this is the only host the socket can reach. What is NOT claimed: that the provider does not retain what it is sent. That rests on their DPA, not on anything this repository can check, and \u00a73 keeps those two promises separate.",
+      "192.0.2.1": "TEST-NET-1 (RFC 5737), in apps/leaf/src/harvestDraft.test.ts only: a documentation address reserved to never route, used to prove the endpoint-override guard refuses a non-loopback target. Nothing can be reached at it, by IANA's design; that is why the test names it.",
+      "ns.adobe.com": "Not an egress: apps/leaf/src/mediaStore.ts scans JPEG bytes for the XMP namespace MARKER strings ('http://ns.adobe.com/xap/1.0/') to identify metadata blocks during strip-and-manifest. The URL is an identifier compared against bytes on disk; no socket is ever opened to it.",
+      "react.dev": "Not egress: React browser dependency bundles name their documentation host in diagnostic strings. The workflow loads its bundle locally and connects only to its same-origin API; no request is made to this host.",
+      "jcgt.org": "Not egress: Three.js includes a physical-lighting literature citation inside a bundled GLSL comment. The explorer serves geometry, textures and code locally; no request is made to this host.",
+      "motion.dev": "Not egress: Motion browser dependency bundles name their documentation host in diagnostic strings. The workflow loads its bundle locally and connects only to its same-origin API; no request is made to this host.",
+      "docs.ollama.com": "Owner-invoked browser navigation from local /scarlet/setup when Ollama is unavailable or no models are installed. The application makes no request to this documentation host and sends it no private work or model setting. Startup and local setup GET use only local files and same-origin assets.",
+      "dribbble.com": "Not egress: apps/leaf/src/designImageSource.test.ts uses literal public shot URLs to test strict validation of an owner-entered reference. The local design-image importer reads only an owner-selected PNG or JPEG, stores it locally, and never fetches from Dribbble; the browser preview uses same-origin image bytes. Naming the host in test data grants no Dribbble API access."
+    },
+    "cloud": {
+      "api.merge.dev": "Canopy ATS setup only: server-only Merge credential creates actor-bound Link sessions and lists that actor's ATS connection metadata. No candidate sync or delivery enabled.",
+      "api-eu.merge.dev": "Explicit EU deployment region for the same actor-bound Merge ATS setup; no automatic regional fallback.",
+      "api-ap.merge.dev": "Explicit AP deployment region for the same actor-bound Merge ATS setup; no automatic regional fallback.",
+      "link.merge.dev": "Fixed HTTPS destination for user-authorized Merge hosted ATS sign-in links; no browser credential or candidate-data exchange.",
+      "api.nango.dev": "Owner-selected source integration. Canopy alone calls the fixed Nango API with server credentials, actor-bound connection tags and bounded records; no open-plane credential or redirect forwarding.",
+      "evil.com": "Not an egress: a comment in apps/canopy/server.mjs uses it as the attacker's name while recording the DNS-rebinding analysis behind the Host allow-list (421 on everything undeclared). The code REFUSES requests that name it; nothing dials it.",
+      "api.fireworks.ai": "Tier 3 escalated inference, the cloud-plane half of the SAME owner decision recorded on the open plane above (docs/PRODUCT-ARCHITECTURE-SPEC.md \u00a73): packages/escalated-inference/src/escalate.ts pins this as the ONLY host the socket may reach, refuses redirects at the hop gate, and admits nothing the egress plan did not admit BY ID. store=false is configured, not assumed; what the provider retains rests on their DPA and is deliberately not claimed here.",
+      "nextjs.org": "Not an egress: `apps/www/next-env.d.ts` is GENERATED by Next.js and its only mention of this host is the documentation URL in its own header comment (\"see https://nextjs.org/docs/... for more information\"). Nothing fetches it. Declared rather than suppressed because the file is regenerated on every build and would otherwise fail this gate forever, and declared HERE rather than by widening the scanner because a reader checking what the cloud plane names should see this line and be able to dismiss it \u2014 which is the whole point of the block.",
+      "react.dev": "Not egress: the locally bundled Hosting React runtime contains this documentation host in diagnostic messages. The private workspace fetches only its same-origin state route; no request is made to this host.",
+      "api.github.com": "Explicit independent verification of selected public GitHub PGP commit metadata at hosted admission. Fixed origin, no GitHub token, no private repository/source upload, redirects refused; only exact submitted commit references are read.",
+      "docs.github.com": "Documentation citations supporting the narrow GitHub PGP email/signature verification contract; no runtime request to this documentation host.",
+      "supabase.com": "Documentation citations for server-verified account identity; actual configured project calls use the Supabase origin explicitly chosen by the operator.",
+      "challenges.cloudflare.com": "Clerk private sign-in bot protection only; public portfolio pages do not load this frame or script.",
+      "img.clerk.com": "Clerk private sign-in component images only; no public portfolio egress.",
+      "api.clerk.com": "Clerk backend SDK verifies current session and user state for hosted authority. No source evidence or portfolio bytes are sent. The frontend API uses the exact issuer derived from the configured Clerk publishable key; telemetry is disabled.",
+      "api.ashbyhq.com": "Fixed destination of the opt-in, owner-authorized Ashby portfolio-note adapter through Nango. No source collection, outreach or candidate creation.",
+      "app.ashbyhq.com": "Fixed candidate-record navigation from the owner-authorized Ashby destination preview; no account data is fetched from this host.",
+      "nodejs.org": "Navigation only: apps/www/app/(site)/start/page.tsx links a visitor who has no Node to nodejs.org's Node 24 download page, because the download does not include Node. The site makes no request to this host, loads nothing from it and sends it no data; the link carries rel=noreferrer."
+    },
+    "enterprise": {
+      "svc": "Not a host: 'svc' is the USERINFO half of a fixture URL (https://svc:hunter2@mcp.example.com/mcp) in packages/photosynthesis-enterprise/src/root.test.ts, proving credential-bearing roots are parsed and the secret never echoed. The gate's parser reads the scheme-adjacent token as a hostname; declared so the fixture can keep exercising exactly the shape it must refuse to leak."
+    }
+  }
+}

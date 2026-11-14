@@ -1,0 +1,20 @@
+{
+  "name": "@foliage/tokens",
+  "license": "MIT",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "exports": {
+    "./tokens.css": "./src/tokens.css",
+    "./roles.css": "./src/roles.css",
+    "./foliage.css": "./src/foliage.css",
+    "./foliage-sprite.svg": "./src/foliage-sprite.svg",
+    "./mark-expressive.svg": "./src/mark-expressive.svg",
+    "./mark-primary.svg": "./src/mark-primary.svg",
+    "./mark-icon.svg": "./src/mark-icon.svg",
+    "./fonts/*": "./src/fonts/*"
+  }
+}
