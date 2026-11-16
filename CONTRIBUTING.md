@@ -12,4 +12,6 @@ Start with [DEVELOPMENT.md](DEVELOPMENT.md) for setup, watch mode and focused te
 - No score anywhere an employer sees. Tiers `verified`, `pending` and `excluded` are unordered,
   and `excluded` always carries a reason.
 
+Be kind: this project follows its [code of conduct](CODE_OF_CONDUCT.md).
+
 Report security problems privately, as described in [SECURITY.md](SECURITY.md).

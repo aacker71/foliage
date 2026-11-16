@@ -4,6 +4,7 @@ A private, living account of what you built, decided and learned, with the evide
 Runs on your machine. Nothing is shared until you approve it.</p>
 
 <p align="center">
+<a href="https://github.com/aacker71/foliage/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/aacker71/foliage/actions/workflows/ci.yml/badge.svg"></a>
 <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-2f6f4e"></a>
 <img alt="Node 22.18 or newer" src="https://img.shields.io/badge/node-%E2%89%A522.18-2f6f4e">
 <img alt="Local first" src="https://img.shields.io/badge/data-stays%20on%20your%20machine-2f6f4e">
@@ -46,7 +47,7 @@ The full walk-through, including multiple git identities, is in [TESTER-QUICKSTA
 4. **Search:** a local brain lets you, or an assistant you allow, find cited work in your record.
 
 Current status and known limits are in [docs/STATE.md](docs/STATE.md). Developing Foliage? Start with
-[DEVELOPMENT.md](DEVELOPMENT.md). Contributions are welcome under the [MIT licence](LICENSE); see [CONTRIBUTING.md](CONTRIBUTING.md).
+[DEVELOPMENT.md](DEVELOPMENT.md). Contributions are welcome under the [MIT licence](LICENSE); see [CONTRIBUTING.md](CONTRIBUTING.md), pick a [good first issue](https://github.com/aacker71/foliage/labels/good%20first%20issue), or say hello in [Discussions](https://github.com/aacker71/foliage/discussions). Please follow the [code of conduct](CODE_OF_CONDUCT.md).
 
 ---
 

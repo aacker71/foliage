@@ -1,0 +1,20 @@
+name: Feature request
+description: Suggest something Foliage should do
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe the situation, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Foliage to do?
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Does it touch private data or publishing?
+      description: Foliage keeps work local and nothing is published without the owner's approval. Say how your idea fits that.
