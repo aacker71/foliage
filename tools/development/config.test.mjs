@@ -142,12 +142,12 @@ test("Draft pull requests never run a billed runner, and marking one ready runs 
   }
 });
 
-test("Dependabot's pull requests never run on a self-hosted runner", () => {
+test("No CI job runs on a self-hosted runner, and the macOS gate runs on a hosted one", () => {
+  // This repository is public. A self-hosted runner would execute a fork's pull request on someone's own machine.
   const jobs = read(".github/workflows/ci.yml").split(/^jobs:$/m)[1]?.split(/^ {2}(?=[\w-]+:$)/m).slice(1) ?? [];
-  const selfHosted = jobs.filter(job => /^ {4}runs-on: .*self-hosted/m.test(job));
-  assert.ok(selfHosted.length > 0, "no self-hosted CI job found; update this test if check-macos moved");
-  for (const job of selfHosted) {
-    // The PR's author, not github.actor: a re-run or a human push to a Dependabot branch is skipped too.
-    assert.match(job, /^ {4}if: github\.event_name != 'pull_request' \|\| github\.event\.pull_request\.user\.login != 'dependabot\[bot\]'$/m, `${job.split(":")[0]} would run Dependabot's unreviewed bumps on the owner's machine`);
-  }
+  assert.ok(jobs.length > 0, "no CI jobs found");
+  for (const job of jobs) assert.doesNotMatch(job, /^ {4}runs-on: .*self-hosted/m, `${job.split(":")[0]} must not use a self-hosted runner`);
+  const mac = jobs.find(job => job.startsWith("check-macos:"));
+  assert.ok(mac, "check-macos job not found; update this test if it moved");
+  assert.match(mac, /^ {4}runs-on: macos-/m, "the brain offline gate and the mac path need a hosted macOS runner");
 });
